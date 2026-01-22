@@ -2,8 +2,8 @@
   "package": "twemoji-windows",
   "version": "v2.0.1",
   "channel": "stable",
-  "built_at": "2026-01-22T00:57:24Z",
-  "commit": "7f0d55f70776dd01994ba11141e280c863f4e758",
+  "built_at": "2026-01-22T01:11:09Z",
+  "commit": "393c82824b3f1a87b00f92984a14ed67fe8acb27",
   "files": {
     "twemoji-windows.min.js": {
       "integrity": "sha384-0Q0vVszYvYSeMLcOyzgeSqfLn6GCrYVpm24Ipg4DpYQDv3aKLFDLmK3dZf90Piz9",

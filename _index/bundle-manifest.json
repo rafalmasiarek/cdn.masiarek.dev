@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-22T00:57:24Z",
+  "generated_at": "2026-01-22T01:11:09Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -7,20 +7,20 @@
         "last_stable": {
           "version": "v2.0.1",
           "channel": "stable",
-          "built_at": "2026-01-22T00:57:24Z"
+          "built_at": "2026-01-22T01:11:09Z"
         },
         "last_beta": null,
         "last_latest": {
           "version": "v2.0.1",
           "channel": "stable",
-          "built_at": "2026-01-22T00:57:24Z"
+          "built_at": "2026-01-22T01:11:09Z"
         }
       },
       "versions": {
         "v2.0.1": {
           "channel": "stable",
-          "built_at": "2026-01-22T00:57:24Z",
-          "commit": "7f0d55f70776dd01994ba11141e280c863f4e758",
+          "built_at": "2026-01-22T01:11:09Z",
+          "commit": "393c82824b3f1a87b00f92984a14ed67fe8acb27",
           "upstream": null,
           "files": {
             "twemoji-windows.min.js": {

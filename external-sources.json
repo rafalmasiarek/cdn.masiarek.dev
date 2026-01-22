@@ -43,7 +43,7 @@
       "package": "instagram.css",
       "type": "github-raw-file",
       "repo": "picturepan2/instagram.css",
-      "ref": "main",
+      "ref": "master",
       "channel": "beta",
       "files": [
         {

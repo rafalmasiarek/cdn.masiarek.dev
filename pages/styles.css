@@ -35,34 +35,34 @@ code {
     font-size: 12px;
     color: #6c757d;
     line-height: 1.25;
-    margin-top: 2px;
+    margin-top: 4px;
 }
 
 .file-sri {
     word-break: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    overflow-wrap: anywhere;
 }
 
 .code-box {
     position: relative;
     background: #111;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 12px 12px 12px 12px;
+    padding: 12px;
     border-radius: 0;
     overflow-x: auto;
     overflow-y: hidden;
     max-width: 100%;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .code-box code {
     color: #f1f1f1;
     white-space: nowrap;
     display: inline-block;
-    padding-left: 70px;
+    padding-left: 0;
+    text-align: center;
 }
 
 .code-box::-webkit-scrollbar {
@@ -74,9 +74,18 @@ code {
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    padding: 2px 10px;
-    line-height: 1.1;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     z-index: 2;
+}
+
+.code-box .code-copy i {
+    font-size: 14px;
 }
 
 .pkg-versions-table {
@@ -87,22 +96,6 @@ code {
 .pkg-versions-table th,
 .pkg-versions-table td {
     vertical-align: middle;
-}
-
-.pkg-versions-table th:not(:last-child),
-.pkg-versions-table td:not(:last-child) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.pkg-versions-table td:last-child {
-    overflow: visible;
-}
-
-.pkg-versions-table td:last-child .code-box {
-    overflow-x: auto;
-    max-width: 100%;
 }
 
 .pkg-versions-table th:nth-child(1),
@@ -118,11 +111,28 @@ code {
 .pkg-versions-table th:nth-child(3),
 .pkg-versions-table td:nth-child(3) {
     width: 16%;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
 }
 
 .pkg-versions-table th:nth-child(4),
 .pkg-versions-table td:nth-child(4) {
     width: 58%;
+    overflow: visible;
+}
+
+.pkg-versions-table th:not(:nth-child(3)):not(:last-child),
+.pkg-versions-table td:not(:nth-child(3)):not(:last-child) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pkg-versions-table td:last-child .code-box {
+    overflow-x: auto;
+    max-width: 100%;
 }
 
 .file-left,
@@ -141,4 +151,47 @@ code {
     font-weight: 700;
     margin-bottom: 8px;
     text-align: center;
+}
+
+.files-stack {
+    display: grid;
+    gap: 14px;
+}
+
+.file-block {
+    padding: 0;
+}
+
+.file-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.file-link {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+}
+
+.table-responsive {
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#pkgQuickInclude {
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#pkgMetaRow {
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
 }

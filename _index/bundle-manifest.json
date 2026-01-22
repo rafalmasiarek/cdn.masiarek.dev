@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-22T14:57:39Z",
+  "generated_at": "2026-01-22T16:13:13.432Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -103,6 +103,125 @@
               "url": "/vinyl-loader/v1.0.1/vinyl-loader.min.js.map",
               "integrity": "sha384-UuO/CKp1Pr3KfLyMmG6kdPDBTzP0A20XYYYBCU5K0QIEegH5PToB35PX6QCCJ9mx",
               "bytes": 433
+            }
+          }
+        }
+      }
+    },
+    "bootstrap": {
+      "channels": {
+        "last_stable": {
+          "version": "v5.3.8",
+          "channel": "stable",
+          "built_at": "2026-01-22T16:13:13.432Z"
+        },
+        "last_beta": {
+          "version": "v5.3.0-alpha3",
+          "channel": "beta",
+          "built_at": "2026-01-22T16:13:13.432Z"
+        },
+        "last_latest": {
+          "version": "v5.3.8",
+          "channel": "stable",
+          "built_at": "2026-01-22T16:13:13.432Z"
+        },
+        "meta": {
+          "name": "Bootstrap",
+          "homepage": "https://getbootstrap.com/",
+          "license": "MIT",
+          "source_url": "https://github.com/twbs/bootstrap",
+          "author": "The Bootstrap Authors"
+        }
+      },
+      "versions": {
+        "v5.3.8": {
+          "channel": "stable",
+          "built_at": "2026-01-22T16:13:13.432Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-release",
+            "repo": "twbs/bootstrap",
+            "tag": "v5.3.8",
+            "release_html_url": "https://github.com/twbs/bootstrap/releases/tag/v5.3.8"
+          },
+          "files": {
+            "bootstrap.min.css": {
+              "url": "/bootstrap/v5.3.8/bootstrap.min.css",
+              "integrity": "sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB",
+              "bytes": 232111
+            },
+            "bootstrap.bundle.min.js": {
+              "url": "/bootstrap/v5.3.8/bootstrap.bundle.min.js",
+              "integrity": "sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI",
+              "bytes": 80496
+            }
+          }
+        },
+        "v5.3.0-alpha3": {
+          "channel": "beta",
+          "built_at": "2026-01-22T16:13:13.432Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-release",
+            "repo": "twbs/bootstrap",
+            "tag": "v5.3.0-alpha3",
+            "release_html_url": "https://github.com/twbs/bootstrap/releases/tag/v5.3.0-alpha3"
+          },
+          "files": {
+            "bootstrap.min.css": {
+              "url": "/bootstrap/v5.3.0-alpha3/bootstrap.min.css",
+              "integrity": "sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ",
+              "bytes": 232691
+            },
+            "bootstrap.bundle.min.js": {
+              "url": "/bootstrap/v5.3.0-alpha3/bootstrap.bundle.min.js",
+              "integrity": "sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe",
+              "bytes": 80578
+            }
+          }
+        }
+      }
+    },
+    "instagram.css": {
+      "channels": {
+        "last_stable": null,
+        "last_beta": {
+          "version": "v0.0.0-b08f80f05789",
+          "channel": "beta",
+          "built_at": "2026-01-22T16:13:13.432Z"
+        },
+        "last_latest": {
+          "version": "v0.0.0-b08f80f05789",
+          "channel": "beta",
+          "built_at": "2026-01-22T16:13:13.432Z"
+        },
+        "meta": null
+      },
+      "versions": {
+        "v0.0.0-b08f80f05789": {
+          "channel": "beta",
+          "built_at": "2026-01-22T16:13:13.432Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-raw",
+            "repo": "picturepan2/instagram.css",
+            "ref": "master",
+            "commit": "b08f80f0578926e24ad195a26bdc0fc7f46749da",
+            "paths": [
+              "dist/instagram.css",
+              "dist/instagram.min.css"
+            ]
+          },
+          "files": {
+            "instagram.css": {
+              "url": "/instagram.css/v0.0.0-b08f80f05789/instagram.css",
+              "integrity": "sha384-6KV/zXif7LzTKiu910iQDVp+Dh+emTINmfxc71o1mHpqMk/ryOmoAyt/hmjT9fd7",
+              "bytes": 15055
+            },
+            "instagram.min.css": {
+              "url": "/instagram.css/v0.0.0-b08f80f05789/instagram.min.css",
+              "integrity": "sha384-GG4u3G/lMeCW9tEEawgiUYY8ScmxaBZO867WGi6e8HOHF4qFMDO57wmQXTMl/mps",
+              "bytes": 13405
             }
           }
         }

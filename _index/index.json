@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-22T14:57:39Z",
+  "generated_at": "2026-01-22T16:13:13.432Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -26,6 +26,44 @@
         "channel": "stable",
         "built_at": "2026-01-22T14:57:39Z"
       }
+    },
+    "bootstrap": {
+      "last_stable": {
+        "version": "v5.3.8",
+        "channel": "stable",
+        "built_at": "2026-01-22T16:13:13.432Z"
+      },
+      "last_beta": {
+        "version": "v5.3.0-alpha3",
+        "channel": "beta",
+        "built_at": "2026-01-22T16:13:13.432Z"
+      },
+      "last_latest": {
+        "version": "v5.3.8",
+        "channel": "stable",
+        "built_at": "2026-01-22T16:13:13.432Z"
+      },
+      "meta": {
+        "name": "Bootstrap",
+        "homepage": "https://getbootstrap.com/",
+        "license": "MIT",
+        "source_url": "https://github.com/twbs/bootstrap",
+        "author": "The Bootstrap Authors"
+      }
+    },
+    "instagram.css": {
+      "last_stable": null,
+      "last_beta": {
+        "version": "v0.0.0-b08f80f05789",
+        "channel": "beta",
+        "built_at": "2026-01-22T16:13:13.432Z"
+      },
+      "last_latest": {
+        "version": "v0.0.0-b08f80f05789",
+        "channel": "beta",
+        "built_at": "2026-01-22T16:13:13.432Z"
+      },
+      "meta": null
     }
   }
 }

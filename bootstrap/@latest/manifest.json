@@ -1,0 +1,30 @@
+{
+  "package": "bootstrap",
+  "version": "v5.3.8",
+  "channel": "stable",
+  "built_at": "2026-01-22T16:13:13.432Z",
+  "commit": null,
+  "upstream": {
+    "type": "github-release",
+    "repo": "twbs/bootstrap",
+    "tag": "v5.3.8",
+    "release_html_url": "https://github.com/twbs/bootstrap/releases/tag/v5.3.8"
+  },
+  "meta": {
+    "name": "Bootstrap",
+    "homepage": "https://getbootstrap.com/",
+    "license": "MIT",
+    "source_url": "https://github.com/twbs/bootstrap",
+    "author": "The Bootstrap Authors"
+  },
+  "files": {
+    "bootstrap.min.css": {
+      "integrity": "sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB",
+      "bytes": 232111
+    },
+    "bootstrap.bundle.min.js": {
+      "integrity": "sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI",
+      "bytes": 80496
+    }
+  }
+}

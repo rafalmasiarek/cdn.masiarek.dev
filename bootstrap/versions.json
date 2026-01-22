@@ -1,0 +1,15 @@
+{
+  "package": "bootstrap",
+  "versions": [
+    {
+      "version": "v5.3.8",
+      "channel": "stable",
+      "built_at": "2026-01-22T16:13:13.432Z"
+    },
+    {
+      "version": "v5.3.0-alpha3",
+      "channel": "beta",
+      "built_at": "2026-01-22T16:13:13.432Z"
+    }
+  ]
+}

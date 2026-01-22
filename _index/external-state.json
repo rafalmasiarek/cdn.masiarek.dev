@@ -1,0 +1,14 @@
+{
+  "bootstrap": {
+    "latest_key": "twbs/bootstrap@latest:v5.3.8",
+    "last_upstream_tag": "v5.3.8",
+    "stable_key": "twbs/bootstrap@stable:v5.3.8",
+    "last_upstream_stable_tag": "v5.3.8",
+    "beta_key": "twbs/bootstrap@beta:v5.3.0-alpha3",
+    "last_upstream_beta_tag": "v5.3.0-alpha3"
+  },
+  "instagram.css": {
+    "last_commit": "b08f80f0578926e24ad195a26bdc0fc7f46749da",
+    "last_upstream_ref": "master"
+  }
+}

@@ -25,14 +25,34 @@ jobs:
       - name: Install root deps
         run: npm install --no-audit --no-fund
 
-      - name: Checkout gh-pages into ./public
+      - name: Checkout gh-pages into ./public (create if missing)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+
           rm -rf public
-          git clone --branch gh-pages --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" public || true
-          mkdir -p public/_index
+          mkdir -p public
+          cd public
+
+          git init
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          if git fetch origin gh-pages --depth 1; then
+            git checkout -B gh-pages FETCH_HEAD
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+
+          mkdir -p _index
+
+          touch .nojekyll
+
+          echo "== public repo status =="
+          pwd
+          git branch --show-current
+          git status
 
       - name: Sync externals (download + publish + update indexes + bundle manifest)
         env:
@@ -40,15 +60,24 @@ jobs:
           CDN_BASE_URL: ${{ vars.CDN_BASE_URL }}
         run: |
           set -euo pipefail
+
+          touch public/.nojekyll
+
           node tools/sync-external.mjs
 
       - name: Commit & push if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           cd public
+
+          # Ensure .nojekyll is committed
+          touch .nojekyll
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --cached --quiet && exit 0
           git commit -m "sync: external scripts"
-          git push origin gh-pages
+          git push -u origin gh-pages

@@ -170,6 +170,8 @@ jobs:
           cp -f pages/app.js public/app.js
           cp -f pages/styles.css public/styles.css
 
+          touch public/.nojekyll
+
           # Custom domain for GitHub Pages (optional)
           if [[ -n "${CDN_CUSTOM_DOMAIN:-}" ]]; then
             echo "${CDN_CUSTOM_DOMAIN}" > public/CNAME

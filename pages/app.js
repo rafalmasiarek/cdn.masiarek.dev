@@ -34,6 +34,12 @@ function buildScriptLine(baseAbs, pkg, ver, file, integrity) {
   return `<script src="${src}"${sri} defer></script>`;
 }
 
+function buildCssLine(baseAbs, pkg, ver, file, integrity) {
+  const href = `${baseAbs}/${pkg}/${ver}/${file}`;
+  const sri = integrity ? ` integrity="${integrity}" crossorigin="anonymous"` : "";
+  return `<link rel="stylesheet" href="${href}"${sri}>`;
+}
+
 /**
  * Clipboard helper
  */
@@ -168,6 +174,44 @@ function wireCopyButtons(container, map) {
   });
 }
 
+function pickMainAsset(files) {
+  const keys = Object.keys(files || {});
+  const js =
+    keys.find(n => n.endsWith(".min.js")) ||
+    keys.find(n => n.endsWith(".js")) ||
+    null;
+
+  const css =
+    keys.find(n => n.endsWith(".min.css")) ||
+    keys.find(n => n.endsWith(".css")) ||
+    null;
+
+  if (js) return { kind: "js", file: js };
+  if (css) return { kind: "css", file: css };
+  return { kind: null, file: null };
+}
+
+function buildIncludeLine(kind, baseAbs, pkg, ver, file, integrity) {
+  if (!kind || !file) return "";
+  if (kind === "js") return buildScriptLine(baseAbs, pkg, ver, file, integrity);
+  if (kind === "css") return buildCssLine(baseAbs, pkg, ver, file, integrity);
+  return "";
+}
+
+function metaIconRow(icon, label, value, href) {
+  if (!value) return "";
+  const v = escapeHtml(value);
+  const l = escapeHtml(label);
+  if (href) {
+    const h = escapeHtml(href);
+    return `<div class="me-4 mb-2"><i class="fa-solid ${icon} me-2 text-muted"></i><span class="text-muted">${l}:</span> <a href="${h}" target="_blank" rel="noopener">${v}</a></div>`;
+  }
+  return `<div class="me-4 mb-2"><i class="fa-solid ${icon} me-2 text-muted"></i><span class="text-muted">${l}:</span> <span>${v}</span></div>`;
+}
+
+// Loaded once on page init
+let _indexJson = null;
+
 /**
  * Render package details INTO modal (popup).
  */
@@ -180,10 +224,32 @@ async function renderDetailsInModal(pkg) {
   body.innerHTML = `<div class="alert alert-secondary mb-0">Loading package details…</div>`;
   showModal();
 
+  const idx = _indexJson || (await fetchJson(`./_index/index.json`).catch(() => null));
+  const pkgIndex = idx?.packages?.[pkg] || {};
+  const pkgMetaFromIndex = pkgIndex?.meta || null;
+
   const versions = await fetchJson(`./${pkg}/versions.json`);
   const list = versions.versions || [];
 
-  // Modal shell with analytics charts + versions table
+  // Determine "best" pinned version to base quick-include on (prefer last_latest from index)
+  const pinnedCandidate = pkgIndex?.last_latest?.version || list[0]?.version || null;
+
+  // Quick include data (from pinnedCandidate manifest)
+  let quick = { kind: null, file: null, integrityPinned: null, pinnedVer: null, meta: null };
+  if (pinnedCandidate) {
+    const m = await fetchJson(`./${pkg}/${pinnedCandidate}/manifest.json`).catch(() => null);
+    const files = m?.files || {};
+    const main = pickMainAsset(files);
+
+    quick.kind = main.kind;
+    quick.file = main.file;
+    quick.integrityPinned = main.file ? files[main.file]?.integrity : null;
+    quick.pinnedVer = pinnedCandidate;
+    quick.meta = m?.meta || null;
+  }
+
+  const meta = quick.meta || pkgMetaFromIndex || null;
+
   body.innerHTML = `
     <div class="mb-4" id="pkgAnalyticsWrap">
       <div class="d-flex align-items-center justify-content-between mb-2">
@@ -215,7 +281,11 @@ async function renderDetailsInModal(pkg) {
       </div>
     </div>
 
+    <div class="d-flex flex-wrap align-items-center mt-2" id="pkgMetaRow"></div>
+
     <hr class="my-4"/>
+
+    <div class="mb-4" id="pkgQuickInclude"></div>
 
     <div class="table-responsive">
       <table class="table table-sm align-middle">
@@ -225,7 +295,7 @@ async function renderDetailsInModal(pkg) {
             <th>Channel</th>
             <th>Built</th>
             <th>Files + SRI</th>
-            <th>Copy-paste</th>
+            <th>Pinned include</th>
           </tr>
         </thead>
         <tbody id="versionsTbody"></tbody>
@@ -235,10 +305,10 @@ async function renderDetailsInModal(pkg) {
 
   subtitle.textContent = `${list.length} version(s)`;
 
-  // Render analytics (best-effort)
+  // Analytics (best-effort)
   (async () => {
     const wrap = body.querySelector("#pkgAnalyticsWrap");
-    const meta = body.querySelector("#pkgAnalyticsMeta");
+    const metaEl = body.querySelector("#pkgAnalyticsMeta");
     const hourlyCanvas = body.querySelector("#pkgHourlyChart");
     const dailyCanvas = body.querySelector("#pkgDailyChart");
 
@@ -248,7 +318,7 @@ async function renderDetailsInModal(pkg) {
       return;
     }
 
-    if (meta) meta.textContent = `Updated: ${fmtDate(a.generated_at)} · Host: ${a.hostname || "-"}`;
+    if (metaEl) metaEl.textContent = `Updated: ${fmtDate(a.generated_at)} · Host: ${a.hostname || "-"}`;
 
     destroyChart(`pkgHourly:${pkg}`);
     destroyChart(`pkgDaily:${pkg}`);
@@ -266,68 +336,128 @@ async function renderDetailsInModal(pkg) {
     }
   })();
 
-  // Render versions rows
-  const tbody = body.querySelector("#versionsTbody");
+  // Meta row (icons)
+  const metaRow = body.querySelector("#pkgMetaRow");
+  if (metaRow) {
+    const blocks = [];
+    blocks.push(metaIconRow("fa-id-card", "Name", meta?.name || null, null));
+    blocks.push(metaIconRow("fa-scale-balanced", "License", meta?.license || null, null));
+    blocks.push(metaIconRow("fa-user", "Author", meta?.author || null, null));
+    blocks.push(metaIconRow("fa-globe", "Homepage", meta?.homepage || null, meta?.homepage || null));
+    blocks.push(metaIconRow("fa-code-branch", "Source", meta?.source_url || null, meta?.source_url || null));
+    blocks.push(metaIconRow("fa-book", "README", meta?.readme_url || null, meta?.readme_url || null));
 
+    const html = blocks.filter(Boolean).join("");
+    metaRow.innerHTML = html ? html : `<span class="text-muted small">No metadata available.</span>`;
+  }
+
+  // Quick include (channels) ABOVE versions list
+  const quickBox = body.querySelector("#pkgQuickInclude");
+  if (quickBox) {
+    const kind = quick.kind;
+    const file = quick.file;
+
+    if (!kind || !file) {
+      quickBox.innerHTML = `<div class="alert alert-secondary mb-0">No includable asset found (expected .js or .css in manifest files).</div>`;
+    } else {
+      const hasLatest = !!pkgIndex.last_latest;
+      const hasStable = !!pkgIndex.last_stable;
+      const hasBeta = !!pkgIndex.last_beta;
+
+      const pinnedLine = quick.pinnedVer
+        ? buildIncludeLine(kind, baseAbs, pkg, quick.pinnedVer, file, quick.integrityPinned || "")
+        : "";
+
+      const latestLine = buildIncludeLine(kind, baseAbs, pkg, "@latest", file, "");
+      const stableLine = buildIncludeLine(kind, baseAbs, pkg, "@stable", file, "");
+      const betaLine = buildIncludeLine(kind, baseAbs, pkg, "@beta", file, "");
+
+      const copyMap = new Map();
+      const keyPinned = `${pkg}:quick:pinned`;
+      const keyLatest = `${pkg}:quick:latest`;
+      const keyStable = `${pkg}:quick:stable`;
+      const keyBeta = `${pkg}:quick:beta`;
+
+      if (pinnedLine) copyMap.set(keyPinned, pinnedLine);
+      if (hasLatest) copyMap.set(keyLatest, latestLine);
+      if (hasStable) copyMap.set(keyStable, stableLine);
+      if (hasBeta) copyMap.set(keyBeta, betaLine);
+
+      const blocks = [];
+      if (pinnedLine) blocks.push(buildSnippetBlock("Pinned (latest version, with SRI)", pinnedLine, keyPinned));
+      if (hasLatest) blocks.push(buildSnippetBlock("@latest", latestLine, keyLatest));
+      if (hasStable) blocks.push(buildSnippetBlock("@stable", stableLine, keyStable));
+      if (hasBeta) blocks.push(buildSnippetBlock("@beta", betaLine, keyBeta));
+
+      quickBox.innerHTML = `
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <strong>Quick include</strong>
+            <span class="text-muted ms-2">${escapeHtml(kind.toUpperCase())}: <code>${escapeHtml(file)}</code></span>
+          </div>
+          <span class="text-muted small">
+            ${hasStable || hasBeta ? "Semver channels available" : "No stable/beta channels"}
+          </span>
+        </div>
+        <div class="mt-3">
+          ${blocks.join("")}
+          <div class="text-muted small">Pinned versions are immutable. Pointers can move.</div>
+        </div>
+      `;
+
+      wireCopyButtons(quickBox, copyMap);
+    }
+  }
+
+  // Versions rows (ONLY pinned per version; hide pinned block if empty)
+  const tbody = body.querySelector("#versionsTbody");
   for (const v of list) {
     const ver = v.version; // includes leading "v"
     const manifest = await fetchJson(`./${pkg}/${ver}/manifest.json`).catch(() => null);
     const files = manifest?.files || {};
-    const mainJs =
-      Object.keys(files).find(n => n.endsWith(".min.js")) ||
-      Object.keys(files).find(n => n.endsWith(".js"));
+    const main = pickMainAsset(files);
 
-    const integrity = mainJs ? files[mainJs]?.integrity : null;
+    const integrity = main.file ? files[main.file]?.integrity : null;
 
     const filesHtml = manifest
       ? `<div class="small">
-          ${Object.entries(files).map(([name, meta]) => `
+          ${Object.entries(files).map(([name, meta2]) => `
             <div class="mb-2">
-              <div><code>${escapeHtml(name)}</code> <span class="text-muted ms-2">${meta.bytes ?? ""} bytes</span></div>
-              <div class="text-muted text-break"><small>${escapeHtml(meta.integrity ?? "")}</small></div>
+              <div><code>${escapeHtml(name)}</code> <span class="text-muted ms-2">${meta2.bytes ?? ""} bytes</span></div>
+              <div class="text-muted text-break"><small>${escapeHtml(meta2.integrity ?? "")}</small></div>
             </div>
           `).join("")}
         </div>`
       : `<span class="text-muted">manifest missing</span>`;
 
-    const pinnedSnippet = mainJs ? buildScriptLine(baseAbs, pkg, ver, mainJs, integrity) : "";
-    const stableSnippet = mainJs ? buildScriptLine(baseAbs, pkg, "@stable", mainJs, "") : "";
-    const betaSnippet = mainJs ? buildScriptLine(baseAbs, pkg, "@beta", mainJs, "") : "";
-    const latestSnippet = mainJs ? buildScriptLine(baseAbs, pkg, "@latest", mainJs, "") : "";
+    const pinnedSnippet = (main.kind && main.file)
+      ? buildIncludeLine(main.kind, baseAbs, pkg, ver, main.file, integrity || "")
+      : "";
 
-    const badge = v.channel === "stable" ? "text-bg-success" : "text-bg-warning";
+    const badge =
+      v.channel === "stable" ? "text-bg-success" :
+        v.channel === "beta" ? "text-bg-warning" :
+          "text-bg-secondary";
 
-    // Copy-map (unique per row)
     const copyMap = new Map();
     const keyPinned = `${pkg}:${ver}:pinned`;
-    const keyStable = `${pkg}:${ver}:stable`;
-    const keyBeta = `${pkg}:${ver}:beta`;
-    const keyLatest = `${pkg}:${ver}:latest`;
+    if (pinnedSnippet) copyMap.set(keyPinned, pinnedSnippet);
 
-    copyMap.set(keyPinned, pinnedSnippet);
-    copyMap.set(keyStable, stableSnippet);
-    copyMap.set(keyBeta, betaSnippet);
-    copyMap.set(keyLatest, latestSnippet);
-
-    const snippetsHtml = `
-      ${buildSnippetBlock("Pinned (with SRI)", pinnedSnippet, keyPinned)}
-      ${buildSnippetBlock("@stable", stableSnippet, keyStable)}
-      ${buildSnippetBlock("@beta", betaSnippet, keyBeta)}
-      ${buildSnippetBlock("@latest", latestSnippet, keyLatest)}
-      <div class="text-muted small mt-1">SRI is stable only for pinned versions (channels move).</div>
-    `;
+    const pinnedHtml = pinnedSnippet
+      ? buildSnippetBlock("Pinned (with SRI)", pinnedSnippet, keyPinned)
+      : `<span class="text-muted small">-</span>`;
 
     const row = document.createElement("tr");
     row.innerHTML = `
       <td><code>${escapeHtml(ver)}</code></td>
-      <td><span class="badge ${badge}">${escapeHtml(v.channel)}</span></td>
+      <td><span class="badge ${badge}">${escapeHtml(v.channel ?? "n/a")}</span></td>
       <td>${fmtDate(v.built_at)}</td>
       <td style="min-width:320px">${filesHtml}</td>
-      <td style="min-width:360px">${snippetsHtml}</td>
+      <td style="min-width:360px">${pinnedHtml}</td>
     `;
     tbody.appendChild(row);
 
-    wireCopyButtons(row, copyMap);
+    if (pinnedSnippet) wireCopyButtons(row, copyMap);
   }
 }
 
@@ -352,8 +482,6 @@ function applyFilterAndRender() {
   const tbody = document.querySelector("#pkgTable tbody");
   tbody.innerHTML = "";
 
-  const baseAbs = getCdnBaseUrl();
-
   for (const item of slice) {
     const { pkg, meta } = item;
 
@@ -366,9 +494,7 @@ function applyFilterAndRender() {
     const tr = document.createElement("tr");
     tr.style.cursor = "pointer";
     tr.innerHTML = `
-      <td>
-        <strong>${escapeHtml(pkg)}</strong>
-      </td>
+      <td><strong>${escapeHtml(pkg)}</strong></td>
       <td>${versionCell(stable)}</td>
       <td>${versionCell(beta)}</td>
       <td>${versionCell(latest)}</td>
@@ -378,7 +504,6 @@ function applyFilterAndRender() {
     tbody.appendChild(tr);
   }
 
-  // UI meta
   document.getElementById("resultsMeta").textContent = `${total} result(s)`;
   document.getElementById("pageInfo").textContent = `Page ${_page} / ${pages}`;
 
@@ -387,18 +512,15 @@ function applyFilterAndRender() {
 }
 
 (async () => {
-  // Global analytics chart (best-effort)
   try { await tryRenderGlobalAnalytics(); } catch { }
 
-  const idx = await fetchJson(`./_index/index.json`);
-  document.getElementById("generatedAt").textContent = `Generated: ${fmtDate(idx.generated_at)}`;
+  _indexJson = await fetchJson(`./_index/index.json`);
+  document.getElementById("generatedAt").textContent = `Generated: ${fmtDate(_indexJson.generated_at)}`;
 
-  // Prepare data model for search + pagination
-  _allPackages = Object.entries(idx.packages || {})
+  _allPackages = Object.entries(_indexJson.packages || {})
     .map(([pkg, meta]) => ({ pkg, meta }))
     .sort((a, b) => a.pkg.localeCompare(b.pkg));
 
-  // Wire controls
   document.getElementById("searchInput").addEventListener("input", () => {
     _page = 1;
     applyFilterAndRender();

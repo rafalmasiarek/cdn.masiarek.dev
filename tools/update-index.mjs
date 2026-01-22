@@ -9,7 +9,11 @@ import path from "node:path";
  * @returns {T}
  */
 function readJson(fp, def) {
-  try { return JSON.parse(fs.readFileSync(fp, "utf8")); } catch { return def; }
+  try {
+    return JSON.parse(fs.readFileSync(fp, "utf8"));
+  } catch {
+    return def;
+  }
 }
 
 /**
@@ -28,8 +32,8 @@ function writeJson(fp, data) {
  * @param {object} opts
  * @param {string} opts.publicDir path to gh-pages working tree
  * @param {string} opts.pkg package name (folder)
- * @param {string} opts.version version with leading "v" (e.g. "v1.2.3" or "v1.2.3-beta.1")
- * @param {"stable"|"beta"} opts.channel channel for this release
+ * @param {string} opts.version version with leading "v" (e.g. "v1.2.3" or "v1.2.3-beta.1" or "v<sha12>")
+ * @param {"stable"|"beta"|null} opts.channel channel for this release (null for raw sources)
  * @param {string} opts.builtAt ISO
  * @param {object|null} [opts.meta] optional package metadata
  */
@@ -39,10 +43,10 @@ export function updateIndexes({ publicDir, pkg, version, channel, builtAt, meta 
   const globalFp = path.join(publicDir, "_index", "index.json");
 
   const versions = readJson(versionsFp, { package: pkg, versions: [] });
-  const entry = { version, channel, built_at: builtAt };
+  const entry = { version, channel: channel ?? null, built_at: builtAt };
 
   // Upsert version entry
-  versions.versions = versions.versions.filter(v => v.version !== version);
+  versions.versions = versions.versions.filter((v) => v.version !== version);
   versions.versions.push(entry);
 
   // Sort newest first by built_at
@@ -55,8 +59,8 @@ export function updateIndexes({ publicDir, pkg, version, channel, builtAt, meta 
   global.generated_at = builtAt;
   global.packages[pkg] = global.packages[pkg] || {};
 
-  const lastStable = versions.versions.find(v => v.channel === "stable") || null;
-  const lastBeta = versions.versions.find(v => v.channel === "beta") || null;
+  const lastStable = versions.versions.find((v) => v.channel === "stable") || null;
+  const lastBeta = versions.versions.find((v) => v.channel === "beta") || null;
   const lastLatest = versions.versions[0] || null;
 
   global.packages[pkg] = {

@@ -29,14 +29,34 @@
       "package": "js-fair-consent",
       "type": "github-release-assets-semver",
       "repo": "rafalmasiarek/js-fair-consent",
-      "asset_regex": "(.+\\.min\\.js|.+\\.min\\.css|.+\\.css|.+\\.js)$",
+      "asset_regex": ".*",
+      "zipball_fallback": true,
+      "extract": [
+        {
+          "file_regex": "(^|/)dist/.*\\.min\\.js$",
+          "out_name": "js-fair-consent.min.js"
+        },
+        {
+          "file_regex": "(^|/)dist/.*\\.min\\.css$",
+          "out_name": "js-fair-consent.min.css"
+        },
+        {
+          "file_regex": "(^|/)dist/.*(?<!\\.min)\\.js$",
+          "out_name": "js-fair-consent.js"
+        },
+        {
+          "file_regex": "(^|/)dist/.*(?<!\\.min)\\.css$",
+          "out_name": "js-fair-consent.css"
+        },
+        {
+          "file_regex": "(^|/)README\\.md$",
+          "out_name": "README.md"
+        }
+      ],
       "meta": {
         "name": "js-fair-consent",
-        "homepage": "",
-        "license": "",
         "source_url": "https://github.com/rafalmasiarek/js-fair-consent",
-        "author": "Rafał Masiarek",
-        "readme_url": ""
+        "author": "Rafał Masiarek"
       }
     },
     {
@@ -44,7 +64,6 @@
       "type": "github-raw-file",
       "repo": "picturepan2/instagram.css",
       "ref": "master",
-      "channel": "beta",
       "files": [
         {
           "path": "dist/instagram.css",

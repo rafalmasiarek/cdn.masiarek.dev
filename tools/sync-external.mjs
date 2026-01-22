@@ -2,11 +2,12 @@
 //
 // Supported source types:
 //  - github-release-asset: uses /releases/latest only
-//  - github-raw-file: uses raw file pinned by commit SHA
+//  - github-raw-file: uses raw file pinned by commit SHA (published as v<sha12>, pointer @latest only)
 //  - github-release-assets-semver:
 //      * If releases exist: uses /releases/latest as @latest (GitHub "latest" semantics)
 //      * Additionally, can publish stable/beta channels based on semver + prerelease
-//      * If no releases: falls back to highest semver tag (from /tags)
+//      * If a release has NO assets and src.zipball_fallback=true: downloads zipball_url and extracts configured files
+//      * If no releases: falls back to highest semver tag (from /tags) BUT cannot publish unless zipball_fallback=true
 //
 // Output:
 //  public/<pkg>/v<version>/... + manifest.json
@@ -19,8 +20,11 @@
 //  public/_index/index.json
 //  public/_index/external-state.json
 //  public/_index/bundle-manifest.json
+//  public/_index/sync-report.json (new)
 //
-// NOTE: All comments/log messages are in English per preference.
+// Exit behavior:
+//  - By default: exits 0 even if some sources failed (but prints FAIL rows)
+//  - If FAIL_ON_EXTERNAL_ERROR=1: exits 1 when at least one source failed
 
 import fs from "node:fs";
 import path from "node:path";
@@ -31,14 +35,22 @@ import { updateIndexes } from "./update-index.mjs";
 import { buildBundleManifest } from "./build-bundle-manifest.mjs";
 
 function readJson(fp, def) {
-  try { return JSON.parse(fs.readFileSync(fp, "utf8")); } catch { return def; }
+  try {
+    return JSON.parse(fs.readFileSync(fp, "utf8"));
+  } catch {
+    return def;
+  }
 }
 function writeJson(fp, data) {
   fs.mkdirSync(path.dirname(fp), { recursive: true });
   fs.writeFileSync(fp, JSON.stringify(data, null, 2) + "\n", "utf8");
 }
-function mkdirp(p) { fs.mkdirSync(p, { recursive: true }); }
-function rmrf(p) { fs.rmSync(p, { recursive: true, force: true }); }
+function mkdirp(p) {
+  fs.mkdirSync(p, { recursive: true });
+}
+function rmrf(p) {
+  fs.rmSync(p, { recursive: true, force: true });
+}
 
 function sriSha384(buf) {
   const hash = crypto.createHash("sha384").update(buf).digest("base64");
@@ -70,12 +82,100 @@ function stripV(tag) {
 function ghAuthHeaders() {
   // Optional: improves rate limits when running from Actions
   const tok = process.env.GITHUB_TOKEN || "";
-  if (!tok) return { "Accept": "application/vnd.github+json" };
+  if (!tok) return { Accept: "application/vnd.github+json" };
   return {
-    "Accept": "application/vnd.github+json",
-    "Authorization": `Bearer ${tok}`,
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${tok}`,
     "X-GitHub-Api-Version": "2022-11-28",
   };
+}
+
+function getDefaultBranch(repo) {
+  const info = httpGetJson(`https://api.github.com/repos/${repo}`, ghAuthHeaders());
+  return info?.default_branch || "main";
+}
+
+function sha12(sha) {
+  return String(sha || "").slice(0, 12);
+}
+
+function safeOneLine(s, max = 220) {
+  const str = String(s ?? "");
+  const one = str.replace(/\s+/g, " ").trim();
+  return one.length > max ? one.slice(0, max - 3) + "..." : one;
+}
+
+function padRight(s, n) {
+  const str = String(s ?? "");
+  return str + " ".repeat(Math.max(0, n - str.length));
+}
+
+function toMarkdownTable(rows) {
+  // rows: Array<{package,type,upstream,action,status,details}>
+  const headers = ["package", "type", "upstream", "action", "status", "details"];
+  const out = [];
+  out.push(`| ${headers.join(" | ")} |`);
+  out.push(`| ${headers.map(() => "---").join(" | ")} |`);
+  for (const r of rows) {
+    out.push(
+      `| ${safeOneLine(r.package)} | ${safeOneLine(r.type)} | ${safeOneLine(r.upstream)} | ${safeOneLine(
+        r.action
+      )} | ${safeOneLine(r.status)} | ${safeOneLine(r.details)} |`
+    );
+  }
+  return out.join("\n");
+}
+
+function toAsciiTable(rows) {
+  const cols = ["package", "type", "upstream", "action", "status", "details"];
+  const widths = Object.fromEntries(cols.map((c) => [c, c.length]));
+  for (const r of rows) {
+    for (const c of cols) widths[c] = Math.max(widths[c], safeOneLine(r[c]).length);
+  }
+  const line = cols.map((c) => padRight(c, widths[c])).join("  ");
+  const sep = cols.map((c) => "-".repeat(widths[c])).join("  ");
+  const body = rows
+    .map((r) => cols.map((c) => padRight(safeOneLine(r[c]), widths[c])).join("  "))
+    .join("\n");
+  return [line, sep, body].join("\n");
+}
+
+function listZipEntries(zipPath) {
+  return execSync(`unzip -Z1 ${JSON.stringify(zipPath)}`, { encoding: "utf8" })
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Extract matching files from a zip into tmpDir using extract rules.
+ *
+ * @param {object} opts
+ * @param {string} opts.zipPath
+ * @param {Array<{file_regex:string,out_name?:string}>} opts.extractRules
+ * @param {string} opts.tmpDir
+ * @returns {Array<{localPath:string,outName?:string}>}
+ */
+function extractFromZip({ zipPath, extractRules, tmpDir }) {
+  if (!extractRules || !extractRules.length) return [];
+
+  const entries = listZipEntries(zipPath);
+  const out = [];
+
+  for (const rule of extractRules) {
+    const fre = new RegExp(rule.file_regex);
+    const matches = entries.filter((p) => fre.test(p));
+
+    for (const inside of matches) {
+      const outName = rule.out_name || path.basename(inside);
+      const extractedPath = path.join(tmpDir, `extracted__${outName}`);
+
+      execSync(`unzip -p ${JSON.stringify(zipPath)} ${JSON.stringify(inside)} > ${JSON.stringify(extractedPath)}`);
+      out.push({ localPath: extractedPath, outName });
+    }
+  }
+
+  return out;
 }
 
 /**
@@ -84,8 +184,8 @@ function ghAuthHeaders() {
  * @param {object} opts
  * @param {string} opts.publicDir
  * @param {string} opts.pkg
- * @param {string} opts.version version without leading "v" (e.g. "1.2.3" or "1.2.3-beta.1")
- * @param {"stable"|"beta"} opts.channel
+ * @param {string} opts.version version without leading "v" (e.g. "1.2.3" or "1.2.3-beta.1" or "<sha12>")
+ * @param {"stable"|"beta"|null} opts.channel
  * @param {string} opts.builtAt ISO
  * @param {object|null} opts.upstream upstream metadata
  * @param {Array<{localPath:string, outName?:string}>} opts.files
@@ -119,7 +219,7 @@ function publishExternal({ publicDir, pkg, version, channel, builtAt, upstream, 
   const manifest = {
     package: pkg,
     version: `v${version}`,
-    channel,
+    channel: channel ?? null,
     built_at: builtAt,
     commit: null,
     upstream: upstream || null,
@@ -131,7 +231,8 @@ function publishExternal({ publicDir, pkg, version, channel, builtAt, upstream, 
 
   // Update pointers based on updatePointer
   function syncPointer(dir) {
-    rmrf(dir); mkdirp(dir);
+    rmrf(dir);
+    mkdirp(dir);
     for (const name of Object.keys(manifestFiles)) {
       fs.copyFileSync(path.join(versionDir, name), path.join(dir, name));
     }
@@ -160,7 +261,8 @@ function downloadReleaseAssets({ repo, release, assetRegex, extract, tmpDir }) {
   const assets = (release.assets || []).filter((a) => re.test(a.name));
   if (!assets.length) return [];
 
-  rmrf(tmpDir); mkdirp(tmpDir);
+  rmrf(tmpDir);
+  mkdirp(tmpDir);
 
   const out = [];
   const headers = ghAuthHeaders();
@@ -179,15 +281,14 @@ function downloadReleaseAssets({ repo, release, assetRegex, extract, tmpDir }) {
         }
         const fre = new RegExp(rule.file_regex);
 
-        // List zip contents and extract matching entries
-        const list = execSync(`unzip -Z1 ${JSON.stringify(assetPath)}`, { encoding: "utf8" })
-          .split("\n").map((s) => s.trim()).filter(Boolean);
-
+        const list = listZipEntries(assetPath);
         const matches = list.filter((p) => fre.test(p));
         for (const inside of matches) {
           const outName = rule.out_name || path.basename(inside);
           const extractedPath = path.join(tmpDir, `extracted__${outName}`);
-          execSync(`unzip -p ${JSON.stringify(assetPath)} ${JSON.stringify(inside)} > ${JSON.stringify(extractedPath)}`);
+          execSync(
+            `unzip -p ${JSON.stringify(assetPath)} ${JSON.stringify(inside)} > ${JSON.stringify(extractedPath)}`
+          );
           out.push({ localPath: extractedPath, outName });
         }
       }
@@ -196,11 +297,9 @@ function downloadReleaseAssets({ repo, release, assetRegex, extract, tmpDir }) {
     }
   }
 
-  // If extract produced outputs, prefer them (ignore raw zip blobs)
-  const extracted = out.filter((x) => (x.outName || "").startsWith("") && path.basename(x.localPath).startsWith("extracted__"));
+  const extracted = out.filter((x) => path.basename(x.localPath).startsWith("extracted__"));
   if (extract && extract.length && extracted.length) return extracted;
 
-  // Otherwise return downloaded assets as-is
   return out;
 }
 
@@ -246,88 +345,416 @@ function normalizeUpstreamTagToVersion(tag) {
   return stripV(tag);
 }
 
+/**
+ * If a release has no assets, optionally download zipball and extract files based on src.extract.
+ *
+ * @param {object} opts
+ * @param {string} opts.repo "owner/name"
+ * @param {object} opts.release GitHub release JSON
+ * @param {Array<{file_regex:string,out_name?:string}>} opts.extract
+ * @param {string} opts.tmpDir
+ * @returns {Array<{localPath:string,outName?:string}>}
+ */
+function downloadZipballAndExtract({ repo, release, extract, tmpDir }) {
+  if (!release?.zipball_url) return [];
+  if (!extract || !extract.length) return [];
+
+  rmrf(tmpDir);
+  mkdirp(tmpDir);
+
+  const zipPath = path.join(tmpDir, `${repo.replace("/", "__")}__zipball.zip`);
+  httpDownload(release.zipball_url, zipPath, ghAuthHeaders());
+
+  return extractFromZip({ zipPath, extractRules: extract, tmpDir });
+}
+
+// ------------------------------------------------------------
+// Main
+// ------------------------------------------------------------
+
 const ROOT = process.cwd();
 const publicDir = path.join(ROOT, "public");
 const cfg = readJson(path.join(ROOT, "external-sources.json"), { sources: [] });
 const stateFp = path.join(publicDir, "_index", "external-state.json");
 const state = readJson(stateFp, {});
+const reportFp = path.join(publicDir, "_index", "sync-report.json");
 
 const builtAt = new Date().toISOString().replace(".000Z", "Z");
 let changed = false;
+
+const results = [];
+let hadFailure = false;
+
+function logGroupStart(pkg, type) {
+  console.log(`\n=== [external:${pkg}] type=${type} ===`);
+}
+
+function pushResult(r) {
+  results.push({
+    package: r.package,
+    type: r.type,
+    upstream: r.upstream || "",
+    action: r.action || "",
+    status: r.status || "",
+    details: r.details || "",
+  });
+}
+
+/**
+ * Helper to record status rows consistently (and optionally log).
+ *
+ * @param {object} row
+ * @param {string} row.package
+ * @param {string} row.type
+ * @param {string} row.upstream
+ * @param {string} row.action
+ * @param {"OK"|"SKIP"|"FAIL"} row.status
+ * @param {string} row.details
+ * @param {boolean} [row.log]
+ */
+function record(row) {
+  pushResult(row);
+  if (row.log !== false) {
+    const prefix = `[external:${row.package}]`;
+    const msg = `${prefix} ${row.status} action=${row.action} upstream=${safeOneLine(row.upstream)} details=${safeOneLine(
+      row.details
+    )}`;
+    if (row.status === "FAIL") console.log(msg);
+    else console.log(msg);
+  }
+}
 
 for (const src of cfg.sources || []) {
   const pkg = src.package;
   if (!pkg) continue;
 
-  // -----------------------------
-  // github-release-assets-semver
-  // -----------------------------
-  if (src.type === "github-release-assets-semver") {
-    const repo = src.repo;
-    if (!repo) continue;
+  const type = src.type || "unknown";
+  logGroupStart(pkg, type);
 
-    // 1) Determine @latest
-    let latest = getLatestRelease(repo);
-    let latestTag = latest?.tag_name || latest?.name || null;
+  try {
+    // -----------------------------
+    // github-release-assets-semver
+    // -----------------------------
+    if (src.type === "github-release-assets-semver") {
+      const repo = src.repo;
+      if (!repo) {
+        record({
+          package: pkg,
+          type,
+          upstream: "",
+          action: "skip",
+          status: "FAIL",
+          details: "Missing src.repo",
+        });
+        hadFailure = true;
+        continue;
+      }
 
-    // 2) If no releases/latest, fallback to highest semver tag
-    if (!latestTag) {
-      const topTag = getHighestSemverTag(repo);
-      if (!topTag) continue;
-      latestTag = topTag;
+      console.log(`[external:${pkg}] repo=${repo}`);
+      console.log(`[external:${pkg}] fetching releases/latest...`);
 
-      // Fake a "release-like" object so downstream can download raw tag assets (not possible).
-      // Therefore, if no releases exist, you MUST use github-raw-file sources instead.
-      // We keep this fallback only to compute channel pointers/versions.json, but assets must be raw.
-      // If you want "no releases" support, define src.fallback_raw_files.
+      // 1) Determine @latest
+      let latest = getLatestRelease(repo);
+      let latestTag = latest?.tag_name || latest?.name || null;
+
+      // 2) If no releases/latest, fallback to highest semver tag (but cannot publish without zipball fallback)
+      if (!latestTag) {
+        console.log(`[external:${pkg}] no /releases/latest, trying /tags highest semver...`);
+        const topTag = getHighestSemverTag(repo);
+        if (!topTag) {
+          record({
+            package: pkg,
+            type,
+            upstream: "",
+            action: "skip",
+            status: "FAIL",
+            details: "No releases and no semver tags found",
+          });
+          hadFailure = true;
+          continue;
+        }
+        latestTag = topTag;
+      }
+
+      const latestKey = `${repo}@latest:${latestTag}`;
+      const prevLatestKey = state[pkg]?.latest_key;
+      const needLatest = prevLatestKey !== latestKey;
+
+      console.log(`[external:${pkg}] latestTag=${latestTag} needLatest=${needLatest}`);
+
+      // Determine stable/beta "latest"
+      console.log(`[external:${pkg}] listing recent releases to detect stable/beta...`);
+      const releases = getReleases(repo, src.releases_per_page || 30);
+      const parsed = releases
+        .map((r) => {
+          const t = r.tag_name || r.name || "";
+          const v = semver.coerce(stripV(t))?.version || null;
+          return { r, tag: t, v, prerelease: !!(r.prerelease || (v && semver.prerelease(v))) };
+        })
+        .filter((x) => x.v && semver.valid(x.v));
+
+      const stable =
+        parsed.filter((x) => !x.prerelease).sort((a, b) => semver.rcompare(a.v, b.v))[0] || null;
+      const beta =
+        parsed.filter((x) => x.prerelease).sort((a, b) => semver.rcompare(a.v, b.v))[0] || null;
+
+      const stableTag = stable?.tag || null;
+      const betaTag = beta?.tag || null;
+
+      const stableKey = stableTag ? `${repo}@stable:${stableTag}` : null;
+      const betaKey = betaTag ? `${repo}@beta:${betaTag}` : null;
+
+      const needStable = stableKey && state[pkg]?.stable_key !== stableKey;
+      const needBeta = betaKey && state[pkg]?.beta_key !== betaKey;
+
+      if (!needLatest && !needStable && !needBeta) {
+        record({
+          package: pkg,
+          type,
+          upstream: latestTag,
+          action: "skip",
+          status: "SKIP",
+          details: "No changes (keys match external-state.json)",
+        });
+        continue;
+      }
+
+      function publishFromRelease(releaseObj, pointerName) {
+        const tag = releaseObj.tag_name || releaseObj.name;
+        const version = normalizeUpstreamTagToVersion(tag);
+        const channel = detectChannelFromVersion(version);
+
+        console.log(`[external:${pkg}] downloading assets for ${pointerName} tag=${tag}...`);
+        const tmpDir = path.join(ROOT, ".tmp", "external", pkg, `${pointerName}__${stripV(tag)}`);
+
+        let files = downloadReleaseAssets({
+          repo,
+          release: releaseObj,
+          assetRegex: src.asset_regex,
+          extract: src.extract || [],
+          tmpDir,
+        });
+
+        // Zipball fallback when release has no assets (or no matches) and requested.
+        if ((!files || !files.length) && src.zipball_fallback) {
+          console.log(`[external:${pkg}] no assets matched; zipball_fallback=true -> downloading zipball...`);
+          const zipTmpDir = path.join(tmpDir, "zipball");
+          files = downloadZipballAndExtract({
+            repo,
+            release: releaseObj,
+            extract: src.extract || [],
+            tmpDir: zipTmpDir,
+          });
+        }
+
+        if (!files.length) {
+          return {
+            ok: false,
+            reason:
+              "No matching release assets (or assets empty). If you rely on zipball, set zipball_fallback=true and provide extract rules.",
+          };
+        }
+
+        publishExternal({
+          publicDir,
+          pkg,
+          version,
+          channel,
+          builtAt,
+          upstream: {
+            type: "github-release",
+            repo,
+            tag,
+            release_html_url: releaseObj.html_url || null,
+          },
+          meta: src.meta || null,
+          files,
+          updatePointer: pointerName, // latest|stable|beta
+        });
+
+        updateIndexes({
+          publicDir,
+          pkg,
+          version: `v${version}`,
+          channel,
+          builtAt,
+          meta: src.meta || null,
+        });
+
+        return { ok: true, tag, version, channel, files };
+      }
+
+      // Publish @latest
+      if (needLatest) {
+        if (!latest || !latest.tag_name) {
+          // If there is no releases/latest object, we cannot fetch assets or zipball here reliably.
+          // Users should prefer github-raw-file for such repos.
+          record({
+            package: pkg,
+            type,
+            upstream: latestTag,
+            action: "publish",
+            status: "FAIL",
+            details: "No GitHub release object for @latest (use github-raw-file or create a release)",
+          });
+          hadFailure = true;
+        } else {
+          const r = publishFromRelease(latest, "latest");
+          if (!r.ok) {
+            record({
+              package: pkg,
+              type,
+              upstream: latest.tag_name,
+              action: "publish",
+              status: "FAIL",
+              details: r.reason,
+            });
+            hadFailure = true;
+          } else {
+            state[pkg] = state[pkg] || {};
+            state[pkg].latest_key = latestKey;
+            state[pkg].last_upstream_tag = latest.tag_name;
+            changed = true;
+
+            record({
+              package: pkg,
+              type,
+              upstream: latest.tag_name,
+              action: "publish",
+              status: "OK",
+              details: `@latest v${r.version} files=${r.files.length}`,
+            });
+          }
+        }
+      }
+
+      // Publish @stable
+      if (needStable && stable?.r) {
+        const r = publishFromRelease(stable.r, "stable");
+        if (!r.ok) {
+          record({
+            package: pkg,
+            type,
+            upstream: stableTag || "",
+            action: "publish",
+            status: "FAIL",
+            details: r.reason,
+          });
+          hadFailure = true;
+        } else {
+          state[pkg] = state[pkg] || {};
+          state[pkg].stable_key = stableKey;
+          state[pkg].last_upstream_stable_tag = stableTag;
+          changed = true;
+
+          record({
+            package: pkg,
+            type,
+            upstream: stableTag || "",
+            action: "publish",
+            status: "OK",
+            details: `@stable v${r.version} files=${r.files.length}`,
+          });
+        }
+      }
+
+      // Publish @beta
+      if (needBeta && beta?.r) {
+        const r = publishFromRelease(beta.r, "beta");
+        if (!r.ok) {
+          record({
+            package: pkg,
+            type,
+            upstream: betaTag || "",
+            action: "publish",
+            status: "FAIL",
+            details: r.reason,
+          });
+          hadFailure = true;
+        } else {
+          state[pkg] = state[pkg] || {};
+          state[pkg].beta_key = betaKey;
+          state[pkg].last_upstream_beta_tag = betaTag;
+          changed = true;
+
+          record({
+            package: pkg,
+            type,
+            upstream: betaTag || "",
+            action: "publish",
+            status: "OK",
+            details: `@beta v${r.version} files=${r.files.length}`,
+          });
+        }
+      }
+
+      continue;
     }
 
-    const latestVersion = normalizeUpstreamTagToVersion(latestTag);
-    const latestKey = `${repo}@latest:${latestTag}`;
+    // -----------------------------
+    // github-release-asset (legacy)
+    // -----------------------------
+    if (src.type === "github-release-asset") {
+      const repo = src.repo;
+      if (!repo) {
+        record({ package: pkg, type, upstream: "", action: "skip", status: "FAIL", details: "Missing src.repo" });
+        hadFailure = true;
+        continue;
+      }
 
-    const prevLatestKey = state[pkg]?.latest_key;
-    const needLatest = prevLatestKey !== latestKey;
+      console.log(`[external:${pkg}] repo=${repo}`);
+      const rel = httpGetJson(`https://api.github.com/repos/${repo}/releases/latest`, ghAuthHeaders());
+      const tag = rel.tag_name || rel.name;
+      if (!tag) {
+        record({
+          package: pkg,
+          type,
+          upstream: "",
+          action: "skip",
+          status: "FAIL",
+          details: "GitHub /releases/latest returned no tag_name/name",
+        });
+        hadFailure = true;
+        continue;
+      }
 
-    // Determine stable/beta "latest"
-    const releases = getReleases(repo, src.releases_per_page || 30);
-    const parsed = releases
-      .map((r) => {
-        const t = r.tag_name || r.name || "";
-        const v = semver.coerce(stripV(t))?.version || null;
-        return { r, tag: t, v, prerelease: !!(r.prerelease || (v && semver.prerelease(v))) };
-      })
-      .filter((x) => x.v && semver.valid(x.v));
+      const prev = state[pkg]?.last_upstream_tag;
+      if (prev === tag) {
+        record({
+          package: pkg,
+          type,
+          upstream: tag,
+          action: "skip",
+          status: "SKIP",
+          details: "No changes (same upstream tag)",
+        });
+        continue;
+      }
 
-    const stable = parsed.filter((x) => !x.prerelease).sort((a, b) => semver.rcompare(a.v, b.v))[0] || null;
-    const beta = parsed.filter((x) => x.prerelease).sort((a, b) => semver.rcompare(a.v, b.v))[0] || null;
-
-    const stableTag = stable?.tag || null;
-    const betaTag = beta?.tag || null;
-
-    const stableKey = stableTag ? `${repo}@stable:${stableTag}` : null;
-    const betaKey = betaTag ? `${repo}@beta:${betaTag}` : null;
-
-    const needStable = stableKey && state[pkg]?.stable_key !== stableKey;
-    const needBeta = betaKey && state[pkg]?.beta_key !== betaKey;
-
-    // If nothing changed, skip.
-    if (!needLatest && !needStable && !needBeta) continue;
-
-    // Download/publish helper
-    function publishFromRelease(releaseObj, pointerName) {
-      const tag = releaseObj.tag_name || releaseObj.name;
-      const version = normalizeUpstreamTagToVersion(tag);
-      const channel = detectChannelFromVersion(version);
-
-      const tmpDir = path.join(ROOT, ".tmp", "external", pkg, `${pointerName}__${stripV(tag)}`);
+      const tmpDir = path.join(ROOT, ".tmp", "external", pkg, tag);
       const files = downloadReleaseAssets({
         repo,
-        release: releaseObj,
+        release: rel,
         assetRegex: src.asset_regex,
         extract: src.extract || [],
         tmpDir,
       });
-      if (!files.length) return false;
+
+      if (!files.length) {
+        record({
+          package: pkg,
+          type,
+          upstream: tag,
+          action: "publish",
+          status: "FAIL",
+          details: "No matching assets (assets empty or regex mismatch)",
+        });
+        hadFailure = true;
+        continue;
+      }
+
+      const version = stripV(tag);
+      const channel = src.channel || detectChannelFromVersion(version);
 
       publishExternal({
         publicDir,
@@ -339,11 +766,11 @@ for (const src of cfg.sources || []) {
           type: "github-release",
           repo,
           tag,
-          release_html_url: releaseObj.html_url || null,
+          release_html_url: rel.html_url,
         },
         meta: src.meta || null,
         files,
-        updatePointer: pointerName, // "latest" | "stable" | "beta"
+        updatePointer: "latest",
       });
 
       updateIndexes({
@@ -355,183 +782,189 @@ for (const src of cfg.sources || []) {
         meta: src.meta || null,
       });
 
-      return { tag, version, channel };
+      state[pkg] = { ...(state[pkg] || {}), last_upstream_tag: tag };
+      changed = true;
+
+      record({
+        package: pkg,
+        type,
+        upstream: tag,
+        action: "publish",
+        status: "OK",
+        details: `@latest v${version} files=${files.length}`,
+      });
+
+      continue;
     }
 
-    // Publish @latest (must be a real release object)
-    if (needLatest) {
-      if (!latest || !latest.tag_name) {
-        // No releases/latest => cannot fetch assets from "tags" with this mode.
-        // Use github-raw-file for such repos.
-        console.log(`[external:${pkg}] No GitHub releases available for ${repo}. Use github-raw-file instead.`);
-      } else {
-        const ok = publishFromRelease(latest, "latest");
-        if (ok) {
-          state[pkg] = state[pkg] || {};
-          state[pkg].latest_key = latestKey;
-          state[pkg].last_upstream_tag = latest.tag_name;
-          changed = true;
-        }
+    // -----------------------------
+    // github-raw-file
+    // -----------------------------
+    if (src.type === "github-raw-file") {
+      const repo = src.repo;
+      if (!repo) {
+        record({ package: pkg, type, upstream: "", action: "skip", status: "FAIL", details: "Missing src.repo" });
+        hadFailure = true;
+        continue;
       }
-    }
 
-    // Publish @stable
-    if (needStable && stable?.r) {
-      const ok = publishFromRelease(stable.r, "stable");
-      if (ok) {
-        state[pkg] = state[pkg] || {};
-        state[pkg].stable_key = stableKey;
-        state[pkg].last_upstream_stable_tag = stableTag;
-        changed = true;
+      const ref = src.ref || getDefaultBranch(repo);
+      console.log(`[external:${pkg}] repo=${repo} ref=${ref}`);
+
+      const refInfo = httpGetJson(`https://api.github.com/repos/${repo}/commits/${encodeURIComponent(ref)}`, ghAuthHeaders());
+      const sha = refInfo.sha;
+      if (!sha) {
+        record({
+          package: pkg,
+          type,
+          upstream: `${ref}@?`,
+          action: "skip",
+          status: "FAIL",
+          details: "Could not resolve commit SHA for ref",
+        });
+        hadFailure = true;
+        continue;
       }
-    }
 
-    // Publish @beta
-    if (needBeta && beta?.r) {
-      const ok = publishFromRelease(beta.r, "beta");
-      if (ok) {
-        state[pkg] = state[pkg] || {};
-        state[pkg].beta_key = betaKey;
-        state[pkg].last_upstream_beta_tag = betaTag;
-        changed = true;
+      const upstreamStr = `${ref}@${sha12(sha)}`;
+
+      const prev = state[pkg]?.last_commit;
+      if (prev === sha) {
+        record({
+          package: pkg,
+          type,
+          upstream: upstreamStr,
+          action: "skip",
+          status: "SKIP",
+          details: "No changes (same commit SHA)",
+        });
+        continue;
       }
-    }
-  }
 
-  // -----------------------------
-  // github-release-asset
-  // -----------------------------
-  if (src.type === "github-release-asset") {
-    const rel = httpGetJson(`https://api.github.com/repos/${src.repo}/releases/latest`, ghAuthHeaders());
-    const tag = rel.tag_name || rel.name;
-    if (!tag) continue;
+      // Accept:
+      // - src.path: "dist/file.js"
+      // - src.paths: ["dist/a.js", "dist/b.js"]
+      // - src.files: [{ path: "dist/a.js", out_name: "a.js" }, ...]
+      let toFetch = [];
 
-    const prev = state[pkg]?.last_upstream_tag;
-    if (prev === tag) continue;
+      if (Array.isArray(src.files) && src.files.length) {
+        toFetch = src.files
+          .filter((x) => x && typeof x.path === "string" && x.path.length)
+          .map((x) => ({ path: x.path, outName: x.out_name || null }));
+      } else if (Array.isArray(src.paths) && src.paths.length) {
+        toFetch = src.paths.filter((p) => typeof p === "string" && p.length).map((p) => ({ path: p, outName: null }));
+      } else if (typeof src.path === "string" && src.path.length) {
+        toFetch = [{ path: src.path, outName: null }];
+      }
 
-    const tmpDir = path.join(ROOT, ".tmp", "external", pkg, tag);
-    const files = downloadReleaseAssets({
-      repo: src.repo,
-      release: rel,
-      assetRegex: src.asset_regex,
-      extract: src.extract || [],
-      tmpDir,
-    });
-    if (!files.length) continue;
+      if (!toFetch.length) {
+        record({
+          package: pkg,
+          type,
+          upstream: upstreamStr,
+          action: "skip",
+          status: "FAIL",
+          details: "No files configured (use path/paths/files[])",
+        });
+        hadFailure = true;
+        continue;
+      }
 
-    const version = String(tag).replace(/^v/i, "");
-    const channel = src.channel || detectChannelFromVersion(version);
+      const tmpDir = path.join(ROOT, ".tmp", "external", pkg, sha12(sha));
+      rmrf(tmpDir);
+      mkdirp(tmpDir);
 
-    publishExternal({
-      publicDir,
-      pkg,
-      version,
-      channel,
-      builtAt,
-      upstream: {
-        type: "github-release",
-        repo: src.repo,
-        tag,
-        release_html_url: rel.html_url,
-      },
-      meta: src.meta || null,
-      files,
-      updatePointer: "latest", // legacy mode: update @latest only
-    });
+      const downloaded = [];
+      for (const f of toFetch) {
+        const rawUrl = `https://raw.githubusercontent.com/${repo}/${sha}/${f.path}`;
+        const outName = f.outName || path.basename(f.path);
+        const outPath = path.join(tmpDir, outName);
 
-    updateIndexes({
-      publicDir,
-      pkg,
-      version: `v${version}`,
-      channel,
-      builtAt,
-      meta: src.meta || null,
-    });
+        console.log(`[external:${pkg}] download ${f.path} -> ${outName}`);
+        httpDownload(rawUrl, outPath, ghAuthHeaders());
+        downloaded.push({ localPath: outPath, outName });
+      }
 
-    state[pkg] = { ...(state[pkg] || {}), last_upstream_tag: tag };
-    changed = true;
-  }
+      // For raw sources:
+      // - version = sha12 (immutable)
+      // - channel = null
+      // - pointer: @latest only
+      const version = sha12(sha);
+      const channel = null;
 
-  // -----------------------------
-  // github-raw-file
-  // -----------------------------
-  if (src.type === "github-raw-file") {
-    const ref = src.ref || "main";
-    const refInfo = httpGetJson(`https://api.github.com/repos/${src.repo}/commits/${encodeURIComponent(ref)}`);
-    const sha = refInfo.sha;
-    if (!sha) continue;
+      publishExternal({
+        publicDir,
+        pkg,
+        version,
+        channel,
+        builtAt,
+        upstream: {
+          type: "github-raw",
+          repo,
+          ref,
+          commit: sha,
+          paths: toFetch.map((x) => x.path),
+        },
+        meta: src.meta || null,
+        files: downloaded,
+        updatePointer: "latest",
+      });
 
-    const prev = state[pkg]?.last_commit;
-    if (prev === sha) continue;
+      updateIndexes({
+        publicDir,
+        pkg,
+        version: `v${version}`,
+        channel,
+        builtAt,
+        meta: src.meta || null,
+      });
 
-    // Accept:
-    // - src.path: "dist/file.js"
-    // - src.paths: ["dist/a.js", "dist/b.js"]
-    // - src.files: [{ path: "dist/a.js", out_name: "a.js" }, ...]
-    let toFetch = [];
+      state[pkg] = { ...(state[pkg] || {}), last_commit: sha, last_upstream_ref: ref };
+      changed = true;
 
-    if (Array.isArray(src.files) && src.files.length) {
-      toFetch = src.files
-        .filter(x => x && typeof x.path === "string" && x.path.length)
-        .map(x => ({ path: x.path, outName: x.out_name || null }));
-    } else if (Array.isArray(src.paths) && src.paths.length) {
-      toFetch = src.paths
-        .filter(p => typeof p === "string" && p.length)
-        .map(p => ({ path: p, outName: null }));
-    } else if (typeof src.path === "string" && src.path.length) {
-      toFetch = [{ path: src.path, outName: null }];
-    }
+      record({
+        package: pkg,
+        type,
+        upstream: upstreamStr,
+        action: "publish",
+        status: "OK",
+        details: `@latest v${version} files=${downloaded.length}`,
+      });
 
-    if (!toFetch.length) continue;
-
-    const tmpDir = path.join(ROOT, ".tmp", "external", pkg, sha.slice(0, 12));
-    rmrf(tmpDir); mkdirp(tmpDir);
-
-    const downloaded = [];
-    for (const f of toFetch) {
-      const rawUrl = `https://raw.githubusercontent.com/${src.repo}/${sha}/${f.path}`;
-      const outName = f.outName || path.basename(f.path);
-      const outPath = path.join(tmpDir, outName);
-
-      httpDownload(rawUrl, outPath);
-      downloaded.push({ localPath: outPath, outName });
+      continue;
     }
 
-    // Commit-based versioning is immutable and safe.
-    const version = `0.0.0-${sha.slice(0, 12)}`;
-    const channel = src.channel || "beta";
-
-    publishExternal({
-      publicDir,
-      pkg,
-      version,
-      channel,
-      builtAt,
-      upstream: {
-        type: "github-raw",
-        repo: src.repo,
-        ref,
-        commit: sha,
-        paths: toFetch.map(x => x.path),
-      },
-      files: downloaded
+    // Unknown type
+    record({
+      package: pkg,
+      type,
+      upstream: "",
+      action: "skip",
+      status: "FAIL",
+      details: `Unknown source type: ${type}`,
     });
+    hadFailure = true;
+  } catch (e) {
+    hadFailure = true;
+    const msg = e?.stack || String(e);
 
-    updateIndexes({
-      publicDir,
-      pkg,
-      version: `v${version}`,
-      channel,
-      builtAt
+    console.log(`[external:${pkg}] ERROR: ${safeOneLine(msg, 500)}`);
+    record({
+      package: pkg,
+      type,
+      upstream: "",
+      action: "publish",
+      status: "FAIL",
+      details: safeOneLine(msg, 240),
     });
-
-    state[pkg] = { last_commit: sha, last_upstream_ref: ref };
-    changed = true;
+    // Continue to next source
   }
 }
 
+// If any changes were applied, keep UI files updated and rebuild bundle manifest.
 if (changed) {
-  // Keep UI files updated on scheduled sync as well.
+  console.log("\n[external] changes detected: updating UI + state + bundle-manifest...");
+
   for (const f of ["index.html", "app.js", "styles.css"]) {
     const srcFp = path.join(ROOT, "pages", f);
     const dstFp = path.join(publicDir, f);
@@ -545,4 +978,33 @@ if (changed) {
     baseUrl: process.env.CDN_BASE_URL || "",
     builtAt,
   });
+} else {
+  console.log("\n[external] no changes detected: bundle-manifest not rebuilt.");
 }
+
+// Always write a run report (useful for debugging)
+try {
+  writeJson(reportFp, {
+    generated_at: builtAt,
+    changed,
+    failures: results.filter((r) => r.status === "FAIL").length,
+    results,
+  });
+} catch (e) {
+  console.log(`[external] WARN: failed to write sync report: ${safeOneLine(e?.stack || String(e))}`);
+}
+
+// Print a summary table
+console.log("\n=== External sync summary (markdown) ===");
+console.log(toMarkdownTable(results));
+
+console.log("\n=== External sync summary (ascii) ===");
+console.log(toAsciiTable(results));
+
+// Exit strategy
+if (hadFailure && process.env.FAIL_ON_EXTERNAL_ERROR === "1") {
+  console.error("\n[external] FAIL_ON_EXTERNAL_ERROR=1 and at least one source failed -> exit 1");
+  process.exit(1);
+}
+
+console.log("\n[external] done.");

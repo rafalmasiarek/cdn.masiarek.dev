@@ -1,0 +1,137 @@
+name: Publish Tagged Release to Pages
+
+on:
+  push:
+    tags:
+      - "*@*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Parse tag
+        id: tag
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"         # e.g. vinyl-loader@1.4.3-beta.1
+          PKG="${TAG%@*}"
+          VER="${TAG#*@}"                  # 1.4.3-beta.1
+          echo "pkg=$PKG" >> $GITHUB_OUTPUT
+          echo "ver=$VER" >> $GITHUB_OUTPUT
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build package
+        run: |
+          set -euo pipefail
+          PKG="${{ steps.tag.outputs.pkg }}"
+          cd "packages/$PKG"
+          npm ci
+          npm run build
+
+      - name: Checkout gh-pages branch into ./public
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          rm -rf public
+          git clone --branch gh-pages --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" public || true
+          mkdir -p public/_index
+
+      - name: Generate manifests, update channels, update indexes, bundle manifest, and UI
+        env:
+          PKG: ${{ steps.tag.outputs.pkg }}
+          VER: ${{ steps.tag.outputs.ver }}
+          SHA: ${{ github.sha }}
+          CDN_BASE_URL: ${{ vars.CDN_BASE_URL }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$VER" == *"-"* ]]; then
+            CHANNEL="beta"
+          else
+            CHANNEL="stable"
+          fi
+
+          BUILT_AT="$(date -u +%FT%TZ)"
+          PKG_DIR="public/$PKG"
+          VERSION_DIR="$PKG_DIR/v$VER"
+          LATEST_DIR="$PKG_DIR/@latest"
+          STABLE_DIR="$PKG_DIR/@stable"
+          BETA_DIR="$PKG_DIR/@beta"
+
+          mkdir -p "$VERSION_DIR" "$LATEST_DIR" "$STABLE_DIR" "$BETA_DIR"
+
+          # Copy dist -> versioned folder (immutable)
+          rm -rf "$VERSION_DIR"/*
+          cp -r "packages/$PKG/dist/"* "$VERSION_DIR/"
+
+          # Update @latest always
+          rm -rf "$LATEST_DIR"/*
+          cp -r "packages/$PKG/dist/"* "$LATEST_DIR/"
+
+          # Update channel pointers
+          if [[ "$CHANNEL" == "stable" ]]; then
+            rm -rf "$STABLE_DIR"/*
+            cp -r "packages/$PKG/dist/"* "$STABLE_DIR/"
+          else
+            rm -rf "$BETA_DIR"/*
+            cp -r "packages/$PKG/dist/"* "$BETA_DIR/"
+          fi
+
+          # Build manifest with SRI
+          node -e "import {computeSriMap} from './tools/sri.mjs'; import fs from 'node:fs';
+          const files = computeSriMap('$VERSION_DIR');
+          const manifest = {
+            package: process.env.PKG,
+            version: 'v' + process.env.VER,
+            channel: '$CHANNEL',
+            built_at: '$BUILT_AT',
+            commit: process.env.SHA,
+            files
+          };
+          fs.writeFileSync('$VERSION_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\n');
+          fs.writeFileSync('$LATEST_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\n');
+          if ('$CHANNEL'==='stable') fs.writeFileSync('$STABLE_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\n');
+          if ('$CHANNEL'==='beta') fs.writeFileSync('$BETA_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\n');
+          "
+
+          # Update indexes
+          node -e "import {updateIndexes} from './tools/update-index.mjs';
+          updateIndexes({
+            publicDir: 'public',
+            pkg: process.env.PKG,
+            version: 'v' + process.env.VER,
+            channel: '$CHANNEL',
+            builtAt: '$BUILT_AT'
+          });"
+
+          # Build bundle manifest
+          node -e "import {buildBundleManifest} from './tools/build-bundle-manifest.mjs';
+          buildBundleManifest({ publicDir: 'public', baseUrl: process.env.CDN_BASE_URL || '', builtAt: '$BUILT_AT' });"
+
+          # Copy pages UI
+          cp -f pages/index.html public/index.html
+          cp -f pages/app.js public/app.js
+          cp -f pages/styles.css public/styles.css
+
+      - name: Publish to gh-pages (commit & push)
+        run: |
+          set -euo pipefail
+          cd public
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "publish: ${{ steps.tag.outputs.pkg }}@${{ steps.tag.outputs.ver }}" || exit 0
+          git push origin gh-pages

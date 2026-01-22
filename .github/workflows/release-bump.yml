@@ -1,0 +1,52 @@
+name: Bump & Tag Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Package folder name (e.g. vinyl-loader)"
+        required: true
+        type: string
+      channel:
+        description: "Release channel"
+        required: true
+        type: choice
+        options: [stable, beta]
+      bump:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options: [patch, minor, major, prerelease]
+      prerelease_id:
+        description: "Prerelease identifier (only for beta/prerelease), e.g. beta"
+        required: false
+        default: "beta"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bump_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history for tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Bump version + commit + tag + push
+        env:
+          PKG: ${{ inputs.package }}
+          CHANNEL: ${{ inputs.channel }}
+          BUMP: ${{ inputs.bump }}
+          PREID: ${{ inputs.prerelease_id }}
+        run: node tools/release.mjs

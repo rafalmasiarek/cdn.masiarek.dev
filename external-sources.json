@@ -1,0 +1,21 @@
+{
+  "sources": [
+    {
+      "name": "example-release-asset",
+      "type": "github-release-asset",
+      "repo": "someowner/somerepo",
+      "asset_regex": "foo\\.min\\.js$",
+      "package": "vendor-foo",
+      "channel": "stable"
+    },
+    {
+      "name": "example-raw-file",
+      "type": "github-raw-file",
+      "repo": "otherowner/otherrepo",
+      "ref": "main",
+      "path": "dist/bar.min.js",
+      "package": "vendor-bar",
+      "channel": "beta"
+    }
+  ]
+}

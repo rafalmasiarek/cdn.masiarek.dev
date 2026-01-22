@@ -1,4 +1,4 @@
-name: Publish Tagged Release to Pages
+name: "Pages: Publish Package Release"
 
 on:
   push:
@@ -7,12 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to publish (e.g. vinyl-loader@1.0.1)"
+        description: "Tag to publish (e.g. your-awesome-script@2.0.1)"
         required: true
         type: string
 
 permissions:
   contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -28,14 +32,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          # For manual runs, always prefer the provided input tag.
           TAG="${{ inputs.tag }}"
           if [[ -z "$TAG" ]]; then
             TAG="${GITHUB_REF_NAME}"
           fi
 
           if [[ "$TAG" != *"@"* ]]; then
-            echo "Invalid tag '$TAG'. Expected format: <package>@<version>, e.g. vinyl-loader@1.0.1"
+            echo "Invalid tag '$TAG'. Expected: <package>@<version>"
             exit 1
           fi
 
@@ -64,7 +67,7 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
-      - name: Checkout gh-pages branch into ./public (create if missing)
+      - name: Checkout gh-pages into ./public (create if missing)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -77,7 +80,6 @@ jobs:
           git init
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-          # If gh-pages exists, fetch & checkout it. Otherwise create an orphan gh-pages branch.
           if git fetch origin gh-pages --depth 1; then
             git checkout -B gh-pages FETCH_HEAD
           else
@@ -87,12 +89,10 @@ jobs:
             echo "gh-pages initialized" > _index/.init
           fi
 
-          echo "== public repo status =="
-          pwd
-          git branch --show-current
-          git status
+          mkdir -p _index
+          touch .nojekyll
 
-      - name: Generate manifests, update channels, update indexes, bundle manifest, and UI
+      - name: Publish dist + manifests + indexes + UI
         env:
           PKG: ${{ steps.tag.outputs.pkg }}
           VER: ${{ steps.tag.outputs.ver }}
@@ -117,15 +117,12 @@ jobs:
 
           mkdir -p "$VERSION_DIR" "$LATEST_DIR" "$STABLE_DIR" "$BETA_DIR" "public/_index"
 
-          # Copy dist -> versioned folder (immutable)
           rm -rf "$VERSION_DIR"/*
           cp -r "packages/$PKG/dist/"* "$VERSION_DIR/"
 
-          # Update @latest always
           rm -rf "$LATEST_DIR"/*
           cp -r "packages/$PKG/dist/"* "$LATEST_DIR/"
 
-          # Update channel pointers
           if [[ "$CHANNEL" == "stable" ]]; then
             rm -rf "$STABLE_DIR"/*
             cp -r "packages/$PKG/dist/"* "$STABLE_DIR/"
@@ -134,7 +131,6 @@ jobs:
             cp -r "packages/$PKG/dist/"* "$BETA_DIR/"
           fi
 
-          # Build manifest with SRI
           node -e "import {computeSriMap} from './tools/sri.mjs'; import fs from 'node:fs';
           const files = computeSriMap('$VERSION_DIR');
           const manifest = {
@@ -151,47 +147,32 @@ jobs:
           if ('$CHANNEL'==='beta') fs.writeFileSync('$BETA_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
           "
 
-          # Update indexes
           node -e "import {updateIndexes} from './tools/update-index.mjs';
-          updateIndexes({
-            publicDir: 'public',
-            pkg: process.env.PKG,
-            version: 'v' + process.env.VER,
-            channel: '$CHANNEL',
-            builtAt: '$BUILT_AT'
-          });"
+          updateIndexes({ publicDir: 'public', pkg: process.env.PKG, version: 'v' + process.env.VER, channel: '$CHANNEL', builtAt: '$BUILT_AT' });"
 
-          # Build bundle manifest
           node -e "import {buildBundleManifest} from './tools/build-bundle-manifest.mjs';
           buildBundleManifest({ publicDir: 'public', baseUrl: process.env.CDN_BASE_URL || '', builtAt: '$BUILT_AT' });"
 
-          # Copy pages UI
           cp -f pages/index.html public/index.html
           cp -f pages/app.js public/app.js
           cp -f pages/styles.css public/styles.css
 
           touch public/.nojekyll
 
-          # Custom domain for GitHub Pages (optional)
           if [[ -n "${CDN_CUSTOM_DOMAIN:-}" ]]; then
             echo "${CDN_CUSTOM_DOMAIN}" > public/CNAME
           fi
 
-      - name: Publish to gh-pages (commit & push)
+      - name: Commit & push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           cd public
 
-          echo "== final sanity =="
-          pwd
-          git branch --show-current
-          git status
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          git commit -m "publish: ${{ steps.tag.outputs.pkg }}@${{ steps.tag.outputs.ver }}" || true
+          git commit -m "pages(pkg): ${{ steps.tag.outputs.pkg }}@${{ steps.tag.outputs.ver }}" || true
           git push -u origin gh-pages

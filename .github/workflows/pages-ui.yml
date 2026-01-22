@@ -1,8 +1,10 @@
-name: "Pages: Analytics JSON"
+name: "Pages: Deploy UI"
 
 on:
-    schedule:
-        - cron: "7 * * * *"
+    push:
+        branches: ["main"]
+        paths:
+            - "pages/**"
     workflow_dispatch: {}
 
 permissions:
@@ -13,21 +15,13 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
-    analytics:
+    ui:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout source
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
-
-            - name: Setup Node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-
-            - name: Install root deps
-              run: npm install --no-audit --no-fund
 
             - name: Checkout gh-pages into ./public (create if missing)
               env:
@@ -54,18 +48,21 @@ jobs:
                   mkdir -p _index
                   touch .nojekyll
 
-                  if [[ -n "${{ vars.CDN_CUSTOM_DOMAIN }}" ]]; then
-                    echo "${{ vars.CDN_CUSTOM_DOMAIN }}" > CNAME
-                  fi
-
-            - name: Fetch + write analytics JSONs
+            - name: Copy UI files to gh-pages root
               env:
-                  CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-                  CF_ZONE_TAG: ${{ secrets.CF_ZONE_TAG }}
                   CDN_CUSTOM_DOMAIN: ${{ vars.CDN_CUSTOM_DOMAIN }}
               run: |
                   set -euo pipefail
-                  node tools/fetch-analytics.mjs
+
+                  cp -f pages/index.html public/index.html
+                  cp -f pages/app.js public/app.js
+                  cp -f pages/styles.css public/styles.css
+
+                  touch public/.nojekyll
+
+                  if [[ -n "${CDN_CUSTOM_DOMAIN:-}" ]]; then
+                    echo "${CDN_CUSTOM_DOMAIN}" > public/CNAME
+                  fi
 
             - name: Commit & push if changed
               env:
@@ -74,15 +71,10 @@ jobs:
                   set -euo pipefail
                   cd public
 
-                  touch .nojekyll
-                  if [[ -n "${{ vars.CDN_CUSTOM_DOMAIN }}" ]]; then
-                    echo "${{ vars.CDN_CUSTOM_DOMAIN }}" > CNAME
-                  fi
-
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
 
                   git add -A
                   git diff --cached --quiet && exit 0
-                  git commit -m "pages(analytics): update"
+                  git commit -m "pages(ui): deploy"
                   git push -u origin gh-pages

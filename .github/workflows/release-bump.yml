@@ -1,4 +1,4 @@
-name: Bump & Tag Release
+name: "Release: Bump & Tag"
 
 on:
   workflow_dispatch:

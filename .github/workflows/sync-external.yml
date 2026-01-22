@@ -1,4 +1,4 @@
-name: Sync External Scripts
+name: "Pages: Sync External Scripts"
 
 on:
   schedule:
@@ -7,6 +7,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -43,16 +47,16 @@ jobs:
           else
             git checkout --orphan gh-pages
             git rm -rf . >/dev/null 2>&1 || true
+            mkdir -p _index
+            echo "gh-pages initialized" > _index/.init
           fi
 
           mkdir -p _index
-
           touch .nojekyll
 
-          echo "== public repo status =="
-          pwd
-          git branch --show-current
-          git status
+          if [[ -n "${{ vars.CDN_CUSTOM_DOMAIN }}" ]]; then
+            echo "${{ vars.CDN_CUSTOM_DOMAIN }}" > CNAME
+          fi
 
       - name: Sync externals (download + publish + update indexes + bundle manifest)
         env:
@@ -60,9 +64,6 @@ jobs:
           CDN_BASE_URL: ${{ vars.CDN_BASE_URL }}
         run: |
           set -euo pipefail
-
-          touch public/.nojekyll
-
           node tools/sync-external.mjs
 
       - name: Commit & push if changed
@@ -72,12 +73,15 @@ jobs:
           set -euo pipefail
           cd public
 
-          # Ensure .nojekyll is committed
           touch .nojekyll
+          if [[ -n "${{ vars.CDN_CUSTOM_DOMAIN }}" ]]; then
+            echo "${{ vars.CDN_CUSTOM_DOMAIN }}" > CNAME
+          fi
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add -A
           git diff --cached --quiet && exit 0
-          git commit -m "sync: external scripts"
+          git commit -m "pages(sync): external scripts"
           git push -u origin gh-pages

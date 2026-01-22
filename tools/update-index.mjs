@@ -31,8 +31,9 @@ function writeJson(fp, data) {
  * @param {string} opts.version version with leading "v" (e.g. "v1.2.3" or "v1.2.3-beta.1")
  * @param {"stable"|"beta"} opts.channel channel for this release
  * @param {string} opts.builtAt ISO
+ * @param {object|null} [opts.meta] optional package metadata
  */
-export function updateIndexes({ publicDir, pkg, version, channel, builtAt }) {
+export function updateIndexes({ publicDir, pkg, version, channel, builtAt, meta = null }) {
   const pkgDir = path.join(publicDir, pkg);
   const versionsFp = path.join(pkgDir, "versions.json");
   const globalFp = path.join(publicDir, "_index", "index.json");
@@ -54,7 +55,6 @@ export function updateIndexes({ publicDir, pkg, version, channel, builtAt }) {
   global.generated_at = builtAt;
   global.packages[pkg] = global.packages[pkg] || {};
 
-  // Compute last stable / last beta / last latest from versions list
   const lastStable = versions.versions.find(v => v.channel === "stable") || null;
   const lastBeta = versions.versions.find(v => v.channel === "beta") || null;
   const lastLatest = versions.versions[0] || null;
@@ -62,7 +62,8 @@ export function updateIndexes({ publicDir, pkg, version, channel, builtAt }) {
   global.packages[pkg] = {
     last_stable: lastStable,
     last_beta: lastBeta,
-    last_latest: lastLatest
+    last_latest: lastLatest,
+    meta: meta || global.packages[pkg]?.meta || null,
   };
 
   writeJson(globalFp, global);

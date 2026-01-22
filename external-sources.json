@@ -1,21 +1,68 @@
 {
   "sources": [
     {
-      "name": "example-release-asset",
-      "type": "github-release-asset",
-      "repo": "someowner/somerepo",
-      "asset_regex": "foo\\.min\\.js$",
-      "package": "vendor-foo",
-      "channel": "stable"
+      "package": "bootstrap",
+      "type": "github-release-assets-semver",
+      "repo": "twbs/bootstrap",
+      "asset_regex": "bootstrap-.*-dist\\.zip$",
+      "extract": [
+        {
+          "zip_asset_regex": "bootstrap-.*-dist\\.zip$",
+          "file_regex": "(^|/)(bootstrap\\.min\\.css)$",
+          "out_name": "bootstrap.min.css"
+        },
+        {
+          "zip_asset_regex": "bootstrap-.*-dist\\.zip$",
+          "file_regex": "(^|/)(bootstrap\\.bundle\\.min\\.js)$",
+          "out_name": "bootstrap.bundle.min.js"
+        }
+      ],
+      "meta": {
+        "name": "Bootstrap",
+        "homepage": "https://getbootstrap.com/",
+        "license": "MIT",
+        "source_url": "https://github.com/twbs/bootstrap",
+        "author": "The Bootstrap Authors"
+      }
     },
     {
-      "name": "example-raw-file",
+      "package": "js-fair-consent",
+      "type": "github-release-assets-semver",
+      "repo": "rafalmasiarek/js-fair-consent",
+      "asset_regex": "(.+\\.min\\.js|.+\\.min\\.css|.+\\.css|.+\\.js)$",
+      "meta": {
+        "name": "js-fair-consent",
+        "homepage": "",
+        "license": "",
+        "source_url": "https://github.com/rafalmasiarek/js-fair-consent",
+        "author": "Rafał Masiarek",
+        "readme_url": ""
+      }
+    },
+    {
+      "package": "instagram.css",
       "type": "github-raw-file",
-      "repo": "otherowner/otherrepo",
+      "repo": "picturepan2/instagram.css",
       "ref": "main",
-      "path": "dist/bar.min.js",
-      "package": "vendor-bar",
-      "channel": "beta"
+      "channel": "beta",
+      "files": [
+        {
+          "path": "dist/instagram.css",
+          "out_name": "instagram.css"
+        },
+        {
+          "path": "dist/instagram.min.css",
+          "out_name": "instagram.min.css"
+        }
+      ],
+      "meta": {
+        "name": "instagram.css",
+        "homepage": "",
+        "license": "",
+        "source_url": "https://github.com/picturepan2/instagram.css",
+        "author": "",
+        "readme_url": ""
+      }
     }
   ]
 }

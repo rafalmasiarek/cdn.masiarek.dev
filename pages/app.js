@@ -51,12 +51,28 @@ function buildIncludeLine(kind, baseAbs, pkg, ver, file, integrity) {
 async function copyToClipboard(text, btn) {
   try {
     await navigator.clipboard.writeText(text);
-    if (btn) {
-      const old = btn.textContent;
-      btn.textContent = "Copied!";
-      btn.disabled = true;
-      setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 900);
-    }
+
+    if (!btn) return;
+
+    const oldTitle = btn.getAttribute("title");
+    const oldAria = btn.getAttribute("aria-label");
+
+    btn.disabled = true;
+    btn.classList.add("copied");
+    btn.setAttribute("title", "Copied!");
+    btn.setAttribute("aria-label", "Copied!");
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.classList.remove("copied");
+
+      if (oldTitle !== null) btn.setAttribute("title", oldTitle);
+      else btn.removeAttribute("title");
+
+      if (oldAria !== null) btn.setAttribute("aria-label", oldAria);
+      else btn.removeAttribute("aria-label");
+    }, 900);
+
   } catch {
     alert("Copy failed (browser permissions).");
   }

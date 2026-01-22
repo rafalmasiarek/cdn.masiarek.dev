@@ -1,3 +1,4 @@
+// app.js
 async function fetchJson(url) {
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
@@ -38,6 +39,13 @@ function buildCssLine(baseAbs, pkg, ver, file, integrity) {
   const href = `${baseAbs}/${pkg}/${ver}/${file}`;
   const sri = integrity ? ` integrity="${integrity}" crossorigin="anonymous"` : "";
   return `<link rel="stylesheet" href="${href}"${sri}>`;
+}
+
+function buildIncludeLine(kind, baseAbs, pkg, ver, file, integrity) {
+  if (!kind || !file) return "";
+  if (kind === "js") return buildScriptLine(baseAbs, pkg, ver, file, integrity);
+  if (kind === "css") return buildCssLine(baseAbs, pkg, ver, file, integrity);
+  return "";
 }
 
 async function copyToClipboard(text, btn) {
@@ -165,30 +173,6 @@ function wireCopyButtons(container, map) {
   });
 }
 
-function pickMainAsset(files) {
-  const keys = Object.keys(files || {});
-  const js =
-    keys.find(n => n.endsWith(".min.js")) ||
-    keys.find(n => n.endsWith(".js")) ||
-    null;
-
-  const css =
-    keys.find(n => n.endsWith(".min.css")) ||
-    keys.find(n => n.endsWith(".css")) ||
-    null;
-
-  if (js) return { kind: "js", file: js };
-  if (css) return { kind: "css", file: css };
-  return { kind: null, file: null };
-}
-
-function buildIncludeLine(kind, baseAbs, pkg, ver, file, integrity) {
-  if (!kind || !file) return "";
-  if (kind === "js") return buildScriptLine(baseAbs, pkg, ver, file, integrity);
-  if (kind === "css") return buildCssLine(baseAbs, pkg, ver, file, integrity);
-  return "";
-}
-
 function metaIconRow(icon, label, value, href) {
   if (!value) return "";
   const v = escapeHtml(value);
@@ -200,11 +184,6 @@ function metaIconRow(icon, label, value, href) {
   return `<div class="me-4 mb-2"><i class="fa-solid ${icon} me-2 text-muted"></i><span class="text-muted">${l}:</span> <span>${v}</span></div>`;
 }
 
-/**
- * Build a compact "files table" (no headers) where each file row has:
- * - left: name + bytes + integrity
- * - right: Copy button + dark code box with the include snippet (1-line + horizontal scroll)
- */
 function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPrefix) {
   if (!entries.length) return `<span class="text-muted">-</span>`;
 
@@ -212,22 +191,23 @@ function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPre
     const bytes = meta2?.bytes ?? "";
     const integrity = meta2?.integrity ?? "";
 
-    // Build snippet per file type
     let snippet = "";
     if (name.endsWith(".css")) snippet = buildCssLine(baseAbs, pkg, ver, name, integrity);
     else if (name.endsWith(".js")) snippet = buildScriptLine(baseAbs, pkg, ver, name, integrity);
-    else snippet = ""; // non js/css: no include line
 
     const k = `${copyKeyPrefix}:${idx}`;
     if (snippet) copyMap.set(k, snippet);
 
-    const copyBtnHtml = snippet
-      ? `<button class="btn btn-sm btn-outline-primary copy-btn" data-copy-key="${escapeHtml(k)}">Copy</button>`
-      : `<span class="text-muted small">—</span>`;
-
     const codeHtml = snippet
-      ? `<div class="code-box"><code>${escapeHtml(snippet)}</code></div>`
+      ? `
+        <div class="code-box">
+          <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(k)}">Copy</button>
+          <code>${escapeHtml(snippet)}</code>
+        </div>
+      `
       : ``;
+
+    const emptyHtml = snippet ? `` : `<span class="text-muted small">—</span>`;
 
     return `
       <tr>
@@ -237,7 +217,7 @@ function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPre
           <div class="file-meta file-sri">${escapeHtml(String(integrity))}</div>
         </td>
         <td class="file-right">
-          ${copyBtnHtml}
+          ${emptyHtml}
           ${codeHtml}
         </td>
       </tr>
@@ -253,7 +233,6 @@ function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPre
   `;
 }
 
-// Loaded once on page init
 let _indexJson = null;
 
 async function renderDetailsInModal(pkg) {
@@ -309,7 +288,13 @@ async function renderDetailsInModal(pkg) {
     <div class="mb-4" id="pkgQuickInclude"></div>
 
     <div class="table-responsive">
-      <table class="table table-sm align-middle">
+      <table class="table table-sm align-middle pkg-versions-table">
+        <colgroup>
+          <col style="width:25%">
+          <col style="width:25%">
+          <col style="width:25%">
+          <col style="width:25%">
+        </colgroup>
         <thead>
           <tr>
             <th>Version</th>
@@ -325,7 +310,6 @@ async function renderDetailsInModal(pkg) {
 
   subtitle.textContent = `${list.length} version(s)`;
 
-  // Analytics (best-effort)
   (async () => {
     const wrap = body.querySelector("#pkgAnalyticsWrap");
     const tabs = body.querySelector("#pkgAnalyticsTabs");
@@ -390,7 +374,6 @@ async function renderDetailsInModal(pkg) {
     }
   })();
 
-  // Meta row
   const metaRow = body.querySelector("#pkgMetaRow");
   if (metaRow) {
     const blocks = [];
@@ -403,7 +386,6 @@ async function renderDetailsInModal(pkg) {
     metaRow.innerHTML = blocks.filter(Boolean).join("") || "";
   }
 
-  // Quick include (@latest / @stable / @beta)
   const quickBox = body.querySelector("#pkgQuickInclude");
   if (quickBox) {
     const hasLatest = !!pkgIndex.last_latest;
@@ -420,9 +402,7 @@ async function renderDetailsInModal(pkg) {
       const stableLine = buildIncludeLine(kind, baseAbs, pkg, "@stable", file, "");
       const betaLine = buildIncludeLine(kind, baseAbs, pkg, "@beta", file, "");
 
-      blocks.push(
-        `<div class="text-muted small mb-2">${escapeHtml(label)}: <code>${escapeHtml(file)}</code></div>`
-      );
+      blocks.push(`<div class="text-muted small mb-2">${escapeHtml(label)}: <code>${escapeHtml(file)}</code></div>`);
 
       if (hasLatest) {
         const k = `${pkg}:quick:${label}:latest`;
@@ -441,8 +421,8 @@ async function renderDetailsInModal(pkg) {
       }
     };
 
-    addSet("CSS", "css", quick?.cssFile);
-    addSet("JS", "js", quick?.jsFile);
+    addSet("JS", "js", quick.jsFile);
+    addSet("CSS", "css", quick.cssFile);
 
     if (!blocks.length || (!hasLatest && !hasStable && !hasBeta)) {
       quickBox.innerHTML = "";
@@ -452,7 +432,6 @@ async function renderDetailsInModal(pkg) {
     }
   }
 
-  // Versions rows
   const tbody = body.querySelector("#versionsTbody");
   for (const v of list) {
     const ver = v.version;
@@ -482,7 +461,7 @@ async function renderDetailsInModal(pkg) {
       <td><code>${escapeHtml(ver)}</code></td>
       <td>${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
       <td>${fmtDate(v.built_at)}</td>
-      <td style="min-width:560px">${filesHtml}</td>
+      <td>${filesHtml}</td>
     `;
     tbody.appendChild(row);
 

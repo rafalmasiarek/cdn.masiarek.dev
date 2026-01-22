@@ -64,14 +64,33 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
-      - name: Checkout gh-pages branch into ./public
+      - name: Checkout gh-pages branch into ./public (create if missing)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+
           rm -rf public
-          git clone --branch gh-pages --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" public || true
-          mkdir -p public/_index
+          mkdir -p public
+          cd public
+
+          git init
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          # If gh-pages exists, fetch & checkout it. Otherwise create an orphan gh-pages branch.
+          if git fetch origin gh-pages --depth 1; then
+            git checkout -B gh-pages FETCH_HEAD
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . >/dev/null 2>&1 || true
+            mkdir -p _index
+            echo "gh-pages initialized" > _index/.init
+          fi
+
+          echo "== public repo status =="
+          pwd
+          git branch --show-current
+          git status
 
       - name: Generate manifests, update channels, update indexes, bundle manifest, and UI
         env:
@@ -79,6 +98,7 @@ jobs:
           VER: ${{ steps.tag.outputs.ver }}
           SHA: ${{ github.sha }}
           CDN_BASE_URL: ${{ vars.CDN_BASE_URL }}
+          CDN_CUSTOM_DOMAIN: ${{ vars.CDN_CUSTOM_DOMAIN }}
         run: |
           set -euo pipefail
 
@@ -95,7 +115,7 @@ jobs:
           STABLE_DIR="$PKG_DIR/@stable"
           BETA_DIR="$PKG_DIR/@beta"
 
-          mkdir -p "$VERSION_DIR" "$LATEST_DIR" "$STABLE_DIR" "$BETA_DIR"
+          mkdir -p "$VERSION_DIR" "$LATEST_DIR" "$STABLE_DIR" "$BETA_DIR" "public/_index"
 
           # Copy dist -> versioned folder (immutable)
           rm -rf "$VERSION_DIR"/*
@@ -125,10 +145,10 @@ jobs:
             commit: process.env.SHA,
             files
           };
-          fs.writeFileSync('$VERSION_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\n');
-          fs.writeFileSync('$LATEST_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\n');
-          if ('$CHANNEL'==='stable') fs.writeFileSync('$STABLE_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\n');
-          if ('$CHANNEL'==='beta') fs.writeFileSync('$BETA_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\n');
+          fs.writeFileSync('$VERSION_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
+          fs.writeFileSync('$LATEST_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
+          if ('$CHANNEL'==='stable') fs.writeFileSync('$STABLE_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
+          if ('$CHANNEL'==='beta') fs.writeFileSync('$BETA_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
           "
 
           # Update indexes
@@ -150,12 +170,26 @@ jobs:
           cp -f pages/app.js public/app.js
           cp -f pages/styles.css public/styles.css
 
+          # Custom domain for GitHub Pages (optional)
+          if [[ -n "${CDN_CUSTOM_DOMAIN:-}" ]]; then
+            echo "${CDN_CUSTOM_DOMAIN}" > public/CNAME
+          fi
+
       - name: Publish to gh-pages (commit & push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           cd public
+
+          echo "== final sanity =="
+          pwd
+          git branch --show-current
+          git status
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add -A
-          git commit -m "publish: ${{ steps.tag.outputs.pkg }}@${{ steps.tag.outputs.ver }}" || exit 0
-          git push origin gh-pages
+          git commit -m "publish: ${{ steps.tag.outputs.pkg }}@${{ steps.tag.outputs.ver }}" || true
+          git push -u origin gh-pages

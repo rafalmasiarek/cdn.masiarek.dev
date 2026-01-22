@@ -40,9 +40,6 @@ function buildCssLine(baseAbs, pkg, ver, file, integrity) {
   return `<link rel="stylesheet" href="${href}"${sri}>`;
 }
 
-/**
- * Clipboard helper
- */
 async function copyToClipboard(text, btn) {
   try {
     await navigator.clipboard.writeText(text);
@@ -57,9 +54,6 @@ async function copyToClipboard(text, btn) {
   }
 }
 
-/**
- * Chart helpers
- */
 const _charts = new Map();
 
 function destroyChart(key) {
@@ -132,9 +126,6 @@ async function tryRenderGlobalAnalytics() {
   if (ch) _charts.set("globalHourly", ch);
 }
 
-/**
- * Modal helpers
- */
 function modalEls() {
   return {
     modal: document.getElementById("pkgModal"),
@@ -153,7 +144,7 @@ function showModal() {
 function buildSnippetBlock(title, codeText, copyKey) {
   const safe = escapeHtml(codeText);
   return `
-    <div class="mb-3">
+    <div class="mb-3 snippet-block">
       <div class="d-flex align-items-center justify-content-between">
         <strong>${escapeHtml(title)}</strong>
         <button class="btn btn-sm btn-outline-primary copy-btn" data-copy-key="${escapeHtml(copyKey)}">Copy</button>
@@ -212,9 +203,6 @@ function metaIconRow(icon, label, value, href) {
 // Loaded once on page init
 let _indexJson = null;
 
-/**
- * Render package details INTO modal (popup).
- */
 async function renderDetailsInModal(pkg) {
   const baseAbs = getCdnBaseUrl();
   const { title, subtitle, body } = modalEls();
@@ -233,18 +221,14 @@ async function renderDetailsInModal(pkg) {
 
   const pinnedCandidate = pkgIndex?.last_latest?.version || list[0]?.version || null;
 
-  // Quick include data (from pinnedCandidate manifest)
   let quick = { jsFile: null, cssFile: null, pinnedVer: null, meta: null };
   if (pinnedCandidate) {
     const m = await fetchJson(`./${pkg}/${pinnedCandidate}/manifest.json`).catch(() => null);
     const files = m?.files || {};
     const keys = Object.keys(files);
 
-    const jsFile = keys.find(n => n.endsWith(".min.js")) || keys.find(n => n.endsWith(".js")) || null;
-    const cssFile = keys.find(n => n.endsWith(".min.css")) || keys.find(n => n.endsWith(".css")) || null;
-
-    quick.jsFile = jsFile;
-    quick.cssFile = cssFile;
+    quick.jsFile = keys.find(n => n.endsWith(".min.js")) || keys.find(n => n.endsWith(".js")) || null;
+    quick.cssFile = keys.find(n => n.endsWith(".min.css")) || keys.find(n => n.endsWith(".css")) || null;
     quick.pinnedVer = pinnedCandidate;
     quick.meta = m?.meta || null;
   }
@@ -278,7 +262,7 @@ async function renderDetailsInModal(pkg) {
             <th>Version</th>
             <th>Channel</th>
             <th>Built</th>
-            <th>Files + SRI</th>
+            <th>Files</th>
             <th>Pinned include</th>
           </tr>
         </thead>
@@ -289,7 +273,6 @@ async function renderDetailsInModal(pkg) {
 
   subtitle.textContent = `${list.length} version(s)`;
 
-  // Analytics (best-effort)
   (async () => {
     const wrap = body.querySelector("#pkgAnalyticsWrap");
     const tabs = body.querySelector("#pkgAnalyticsTabs");
@@ -327,7 +310,6 @@ async function renderDetailsInModal(pkg) {
     if (!showTabs) {
       hourlyPane.style.display = hasHourly ? "" : "none";
       dailyPane.style.display = hasDaily ? "" : "none";
-
       hourlyPane.classList.toggle("show", hasHourly);
       hourlyPane.classList.toggle("active", hasHourly);
       dailyPane.classList.toggle("show", hasDaily);
@@ -355,7 +337,6 @@ async function renderDetailsInModal(pkg) {
     }
   })();
 
-  // Meta row (icons)
   const metaRow = body.querySelector("#pkgMetaRow");
   if (metaRow) {
     const blocks = [];
@@ -366,11 +347,9 @@ async function renderDetailsInModal(pkg) {
     blocks.push(metaIconRow("fa-code-branch", "Source", meta?.source_url || null, meta?.source_url || null));
     blocks.push(metaIconRow("fa-book", "README", meta?.readme_url || null, meta?.readme_url || null));
 
-    const html = blocks.filter(Boolean).join("");
-    metaRow.innerHTML = html || "";
+    metaRow.innerHTML = blocks.filter(Boolean).join("") || "";
   }
 
-  // Quick include (channels) ABOVE versions list
   const quickBox = body.querySelector("#pkgQuickInclude");
   if (quickBox) {
     const hasLatest = !!pkgIndex.last_latest;
@@ -417,55 +396,75 @@ async function renderDetailsInModal(pkg) {
     }
   }
 
-  // Versions rows (ONLY pinned per version; hide pinned block if empty)
+  // Versions rows
   const tbody = body.querySelector("#versionsTbody");
   for (const v of list) {
-    const ver = v.version; // includes leading "v"
+    const ver = v.version;
     const manifest = await fetchJson(`./${pkg}/${ver}/manifest.json`).catch(() => null);
     const files = manifest?.files || {};
-    const main = pickMainAsset(files);
-
-    const integrity = main.file ? files[main.file]?.integrity : null;
+    const entries = Object.entries(files);
 
     const filesHtml = manifest
       ? `<div class="small">
-          ${Object.entries(files).map(([name, meta2]) => `
-            <div class="mb-2">
-              <div><code>${escapeHtml(name)}</code> <span class="text-muted ms-2">${meta2.bytes ?? ""} bytes</span></div>
-              <div class="text-muted text-break"><small>${escapeHtml(meta2.integrity ?? "")}</small></div>
-            </div>
-          `).join("")}
-        </div>`
+        ${entries.map(([name, meta2]) => `
+          <div class="mb-2">
+            <div><code>${escapeHtml(name)}</code> <span class="text-muted ms-2">${meta2.bytes ?? ""} bytes</span></div>
+            <div class="text-muted text-break"><small>${escapeHtml(meta2.integrity ?? "")}</small></div>
+          </div>
+        `).join("")}
+      </div>`
       : `<span class="text-muted">manifest missing</span>`;
 
-    const pinnedSnippet = (main.kind && main.file)
-      ? buildIncludeLine(main.kind, baseAbs, pkg, ver, main.file, integrity || "")
-      : "";
+    // Pinned: build up to 2 blocks (CSS + JS) in the same order as "Files"
+    const pinnedParts = [];
+    const copyMap = new Map();
+    let cssDone = false;
+    let jsDone = false;
+
+    for (const [name, meta2] of entries) {
+      const integrity = meta2?.integrity || "";
+
+      if (!cssDone && name.endsWith(".css")) {
+        const line = buildCssLine(baseAbs, pkg, ver, name, integrity);
+        const key = `${pkg}:${ver}:pinned:css`;
+        copyMap.set(key, line);
+        pinnedParts.push(buildSnippetBlock("CSS", line, key));
+        cssDone = true;
+        continue;
+      }
+
+      if (!jsDone && name.endsWith(".js")) {
+        const line = buildScriptLine(baseAbs, pkg, ver, name, integrity);
+        const key = `${pkg}:${ver}:pinned:js`;
+        copyMap.set(key, line);
+        pinnedParts.push(buildSnippetBlock("JS", line, key));
+        jsDone = true;
+        continue;
+      }
+
+      if (cssDone && jsDone) break;
+    }
+
+    const pinnedHtml = pinnedParts.length
+      ? `<div class="pinned-grid">${pinnedParts.join("")}</div>`
+      : `<span class="text-muted small">-</span>`;
 
     const badge =
       v.channel === "stable" ? "text-bg-success" :
         v.channel === "beta" ? "text-bg-warning" :
           "text-bg-secondary";
 
-    const copyMap = new Map();
-    const keyPinned = `${pkg}:${ver}:pinned`;
-    if (pinnedSnippet) copyMap.set(keyPinned, pinnedSnippet);
-
-    const pinnedHtml = pinnedSnippet
-      ? buildSnippetBlock("Pinned (with SRI)", pinnedSnippet, keyPinned)
-      : `<span class="text-muted small">-</span>`;
-
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><code>${escapeHtml(ver)}</code></td>
-      <td>${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
-      <td>${fmtDate(v.built_at)}</td>
-      <td style="min-width:320px">${filesHtml}</td>
-      <td style="min-width:360px">${pinnedHtml}</td>
-    `;
+    <td><code>${escapeHtml(ver)}</code></td>
+    <td>${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
+    <td>${fmtDate(v.built_at)}</td>
+    <td style="min-width:320px">${filesHtml}</td>
+    <td style="min-width:360px">${pinnedHtml}</td>
+  `;
     tbody.appendChild(row);
 
-    if (pinnedSnippet) wireCopyButtons(row, copyMap);
+    if (pinnedParts.length) wireCopyButtons(row, copyMap);
   }
 }
 

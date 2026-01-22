@@ -2,6 +2,11 @@
   "package": "vinyl-loader",
   "versions": [
     {
+      "version": "v1.1.1",
+      "channel": "stable",
+      "built_at": "2026-01-22T14:44:52Z"
+    },
+    {
       "version": "v1.0.1",
       "channel": "stable",
       "built_at": "2026-01-22T01:13:39Z"

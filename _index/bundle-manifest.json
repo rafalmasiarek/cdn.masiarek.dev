@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-22T01:13:39Z",
+  "generated_at": "2026-01-22T14:44:52Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -40,18 +40,36 @@
     "vinyl-loader": {
       "channels": {
         "last_stable": {
-          "version": "v1.0.1",
+          "version": "v1.1.1",
           "channel": "stable",
-          "built_at": "2026-01-22T01:13:39Z"
+          "built_at": "2026-01-22T14:44:52Z"
         },
         "last_beta": null,
         "last_latest": {
-          "version": "v1.0.1",
+          "version": "v1.1.1",
           "channel": "stable",
-          "built_at": "2026-01-22T01:13:39Z"
+          "built_at": "2026-01-22T14:44:52Z"
         }
       },
       "versions": {
+        "v1.1.1": {
+          "channel": "stable",
+          "built_at": "2026-01-22T14:44:52Z",
+          "commit": "4abe2e8f917d5000cea2d9b8675cfeb060b47e3d",
+          "upstream": null,
+          "files": {
+            "vinyl-loader.min.js": {
+              "url": "/vinyl-loader/v1.1.1/vinyl-loader.min.js",
+              "integrity": "sha384-dJKWEUZnNkdNea0dd4W0bfTlD8db+lyitd5bDMsc5CJJpwtDpF2qasH58InWlf/K",
+              "bytes": 185
+            },
+            "vinyl-loader.min.js.map": {
+              "url": "/vinyl-loader/v1.1.1/vinyl-loader.min.js.map",
+              "integrity": "sha384-UuO/CKp1Pr3KfLyMmG6kdPDBTzP0A20XYYYBCU5K0QIEegH5PToB35PX6QCCJ9mx",
+              "bytes": 433
+            }
+          }
+        },
         "v1.0.1": {
           "channel": "stable",
           "built_at": "2026-01-22T01:13:39Z",

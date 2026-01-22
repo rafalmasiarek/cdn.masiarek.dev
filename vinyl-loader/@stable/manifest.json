@@ -1,9 +1,9 @@
 {
   "package": "vinyl-loader",
-  "version": "v1.0.1",
+  "version": "v1.1.1",
   "channel": "stable",
-  "built_at": "2026-01-22T01:13:39Z",
-  "commit": "d98737b151bb7b43011671eddf4c2fa8c1cc8ed3",
+  "built_at": "2026-01-22T14:44:52Z",
+  "commit": "4abe2e8f917d5000cea2d9b8675cfeb060b47e3d",
   "files": {
     "vinyl-loader.min.js": {
       "integrity": "sha384-dJKWEUZnNkdNea0dd4W0bfTlD8db+lyitd5bDMsc5CJJpwtDpF2qasH58InWlf/K",

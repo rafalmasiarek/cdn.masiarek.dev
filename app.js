@@ -51,12 +51,28 @@ function buildIncludeLine(kind, baseAbs, pkg, ver, file, integrity) {
 async function copyToClipboard(text, btn) {
   try {
     await navigator.clipboard.writeText(text);
-    if (btn) {
-      const old = btn.textContent;
-      btn.textContent = "Copied!";
-      btn.disabled = true;
-      setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 900);
-    }
+
+    if (!btn) return;
+
+    const oldTitle = btn.getAttribute("title");
+    const oldAria = btn.getAttribute("aria-label");
+
+    btn.disabled = true;
+    btn.classList.add("copied");
+    btn.setAttribute("title", "Copied!");
+    btn.setAttribute("aria-label", "Copied!");
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.classList.remove("copied");
+
+      if (oldTitle !== null) btn.setAttribute("title", oldTitle);
+      else btn.removeAttribute("title");
+
+      if (oldAria !== null) btn.setAttribute("aria-label", oldAria);
+      else btn.removeAttribute("aria-label");
+    }, 900);
+
   } catch {
     alert("Copy failed (browser permissions).");
   }
@@ -173,11 +189,15 @@ function metaIconRow(icon, label, value, href) {
 
 function buildSnippetBlock(title, codeText, copyKey) {
   const safe = escapeHtml(codeText);
+  const uid = `snip_${copyKey.replaceAll(":", "_").replaceAll(".", "_").replaceAll("@", "_")}`;
+
   return `
     <div class="snippet-block-center">
       <div class="snippet-title">${escapeHtml(title)}</div>
       <div class="code-box">
-        <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(copyKey)}">Copy</button>
+        <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(copyKey)}" aria-label="Copy">
+          <i class="fa-solid fa-clipboard"></i>
+        </button>
         <code>${safe}</code>
       </div>
     </div>
@@ -187,8 +207,8 @@ function buildSnippetBlock(title, codeText, copyKey) {
 function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPrefix) {
   if (!entries.length) return `<span class="text-muted">-</span>`;
 
-  const rows = entries.map(([name, meta2], idx) => {
-    const bytes = meta2?.bytes ?? "";
+  const blocks = entries.map(([name, meta2], idx) => {
+    const bytes = Number(meta2?.bytes ?? 0);
     const integrity = meta2?.integrity ?? "";
 
     let snippet = "";
@@ -198,39 +218,38 @@ function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPre
     const k = `${copyKeyPrefix}:${idx}`;
     if (snippet) copyMap.set(k, snippet);
 
+    const sizeBadge = bytes
+      ? `<span class="badge text-bg-light ms-2">${escapeHtml(String(bytes))} B</span>`
+      : "";
+
+    const sriHtml = integrity
+      ? `<div class="file-meta file-sri">${escapeHtml(String(integrity))}</div>`
+      : "";
+
     const codeHtml = snippet
       ? `
-        <div class="code-box">
-          <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(k)}">Copy</button>
+        <div class="code-box mt-2">
+          <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(k)}" aria-label="Copy">
+            <i class="fa-solid fa-clipboard"></i>
+          </button>
           <code>${escapeHtml(snippet)}</code>
         </div>
       `
-      : ``;
-
-    const emptyHtml = snippet ? `` : `<span class="text-muted small">—</span>`;
+      : `<div class="text-muted small mt-2">—</div>`;
 
     return `
-      <tr>
-        <td class="file-left">
-          <div class="file-name"><code>${escapeHtml(name)}</code></div>
-          <div class="file-meta">${escapeHtml(String(bytes))} bytes</div>
-          <div class="file-meta file-sri">${escapeHtml(String(integrity))}</div>
-        </td>
-        <td class="file-right">
-          ${emptyHtml}
-          ${codeHtml}
-        </td>
-      </tr>
+      <div class="file-block">
+        <div class="file-head">
+          <a class="file-link" href="${escapeHtml(`${baseAbs}/${pkg}/${ver}/${name}`)}" target="_blank" rel="noopener">${escapeHtml(name)}</a>
+          ${sizeBadge}
+        </div>
+        ${sriHtml}
+        ${codeHtml}
+      </div>
     `;
   }).join("");
 
-  return `
-    <table class="files-mini">
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
-  `;
+  return `<div class="files-stack">${blocks}</div>`;
 }
 
 let _indexJson = null;
@@ -393,80 +412,67 @@ async function renderDetailsInModal(pkg) {
     const hasBeta = !!pkgIndex.last_beta;
 
     const copyMap = new Map();
-    const blocks = [];
 
-    const addSet = (label, kind, file) => {
+    const items = [];
+
+    const addItem = (fileLabel, kind, file) => {
       if (!file) return;
 
-      const latestLine = buildIncludeLine(kind, baseAbs, pkg, "@latest", file, "");
-      const stableLine = buildIncludeLine(kind, baseAbs, pkg, "@stable", file, "");
-      const betaLine = buildIncludeLine(kind, baseAbs, pkg, "@beta", file, "");
+      const accId = `acc_${pkg}_${fileLabel}`.replaceAll(".", "_").replaceAll("/", "_");
+      const collapseId = `col_${accId}`;
 
-      blocks.push(`<div class="text-muted small mb-2">${escapeHtml(label)}: <code>${escapeHtml(file)}</code></div>`);
+      const rows = [];
 
-      if (hasLatest) {
-        const k = `${pkg}:quick:${label}:latest`;
-        copyMap.set(k, latestLine);
-        blocks.push(buildSnippetBlock("@latest", latestLine, k));
-      }
-      if (hasStable) {
-        const k = `${pkg}:quick:${label}:stable`;
-        copyMap.set(k, stableLine);
-        blocks.push(buildSnippetBlock("@stable", stableLine, k));
-      }
-      if (hasBeta) {
-        const k = `${pkg}:quick:${label}:beta`;
-        copyMap.set(k, betaLine);
-        blocks.push(buildSnippetBlock("@beta", betaLine, k));
-      }
+      const pushRow = (tag, ver) => {
+        const line = buildIncludeLine(kind, baseAbs, pkg, ver, file, "");
+        if (!line) return;
+        const k = `${pkg}:quick:${fileLabel}:${ver}`;
+        copyMap.set(k, line);
+
+        rows.push(`
+        <div class="snippet-block-center">
+          <div class="snippet-title">${escapeHtml(ver)}</div>
+          <div class="code-box">
+            <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(k)}" aria-label="Copy">
+              <i class="fa-solid fa-clipboard"></i>
+            </button>
+            <code>${escapeHtml(line)}</code>
+          </div>
+        </div>
+      `);
+      };
+
+      if (hasLatest) pushRow(fileLabel, "@latest");
+      if (hasStable) pushRow(fileLabel, "@stable");
+      if (hasBeta) pushRow(fileLabel, "@beta");
+
+      if (!rows.length) return;
+
+      items.push(`
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="h_${accId}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+            ${escapeHtml(file)}
+          </button>
+        </h2>
+        <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#pkgQuickAccordion">
+          <div class="accordion-body">
+            ${rows.join("")}
+          </div>
+        </div>
+      </div>
+    `);
     };
 
-    addSet("JS", "js", quick.jsFile);
-    addSet("CSS", "css", quick.cssFile);
+    addItem("CSS", "css", quick.cssFile);
+    addItem("JS", "js", quick.jsFile);
 
-    if (!blocks.length || (!hasLatest && !hasStable && !hasBeta)) {
+    if (!items.length) {
       quickBox.innerHTML = "";
     } else {
-      quickBox.innerHTML = `<div class="mt-3">${blocks.join("")}</div>`;
+      quickBox.innerHTML = `<div class="accordion" id="pkgQuickAccordion">${items.join("")}</div>`;
       wireCopyButtons(quickBox, copyMap);
     }
-  }
-
-  const tbody = body.querySelector("#versionsTbody");
-  for (const v of list) {
-    const ver = v.version;
-    const manifest = await fetchJson(`./${pkg}/${ver}/manifest.json`).catch(() => null);
-    const files = manifest?.files || {};
-    const entries = Object.entries(files);
-
-    const cssEntries = entries.filter(([n]) => n.endsWith(".css")).sort((a, b) => a[0].localeCompare(b[0]));
-    const jsEntries = entries.filter(([n]) => n.endsWith(".js")).sort((a, b) => a[0].localeCompare(b[0]));
-    const otherEntries = entries
-      .filter(([n]) => !n.endsWith(".css") && !n.endsWith(".js"))
-      .sort((a, b) => a[0].localeCompare(b[0]));
-    const ordered = [...cssEntries, ...jsEntries, ...otherEntries];
-
-    const copyMap = new Map();
-    const filesHtml = manifest
-      ? buildFilesMiniTableHtml(baseAbs, pkg, ver, ordered, copyMap, `${pkg}:${ver}:file`)
-      : `<span class="text-muted">manifest missing</span>`;
-
-    const badge =
-      v.channel === "stable" ? "text-bg-success" :
-        v.channel === "beta" ? "text-bg-warning" :
-          "text-bg-secondary";
-
-    const row = document.createElement("tr");
-    row.classList.add("align-middle");
-    row.innerHTML = `
-      <td class="align-middle"><code>${escapeHtml(ver)}</code></td>
-      <td class="align-middle">${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
-      <td class="align-middle">${fmtDate(v.built_at)}</td>
-      <td class="align-middle">${filesHtml}</td>
-    `;
-    tbody.appendChild(row);
-
-    wireCopyButtons(row, copyMap);
   }
 }
 

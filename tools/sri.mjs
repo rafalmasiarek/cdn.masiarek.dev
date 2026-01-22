@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import path from "node:path";
 import crypto from "node:crypto";
 
 /**
@@ -19,7 +20,7 @@ function sriSha384(buf) {
 export function computeSriMap(dir) {
   const out = {};
   for (const name of fs.readdirSync(dir)) {
-    const fp = new URL(name, `file://${dir}/`).pathname;
+    const fp = path.join(dir, name);
     const stat = fs.statSync(fp);
     if (!stat.isFile()) continue;
     const buf = fs.readFileSync(fp);

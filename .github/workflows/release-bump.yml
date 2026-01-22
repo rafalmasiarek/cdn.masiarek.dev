@@ -26,6 +26,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   bump_tag:
     runs-on: ubuntu-latest
@@ -41,11 +45,12 @@ jobs:
           node-version: "20"
 
       - name: Install root deps
-        run: npm install
+        run: npm install --no-audit --no-fund
 
-      - name: Configure authenticated remote for pushes
+      - name: Configure git author
         run: |
-          git remote set-url origin "https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/${{ github.repository }}.git"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Bump version + commit + tag + push
         env:
@@ -53,4 +58,15 @@ jobs:
           CHANNEL: ${{ inputs.channel }}
           BUMP: ${{ inputs.bump }}
           PREID: ${{ inputs.prerelease_id }}
-        run: node tools/release.mjs
+        run: |
+          set -euo pipefail
+          node tools/release.mjs
+
+      - name: Push commit + tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Use the checkout-authenticated origin (GITHUB_TOKEN)
+          git push origin HEAD:main
+          git push origin --tags

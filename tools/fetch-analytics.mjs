@@ -7,12 +7,8 @@
 //
 // Retention:
 //   - hourly: last 72 hours
-//   - daily:  last 90 days
+//   - daily:  last 7 days
 //
-// Notes:
-//   - Uses httpRequestsAdaptiveGroups and "count" as request count.
-//   - Uses clientRequestHTTPHost filter for the CDN hostname.
-//   - Per-package uses clientRequestPath_like: "/<pkg>/%" (includes all versions/files).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -21,7 +17,7 @@ const PUBLIC_DIR = "public";
 const OUT_DIR = path.join(PUBLIC_DIR, "_index", "analytics");
 
 const HOURLY_HOURS = 72;
-const DAILY_DAYS = 90;
+const DAILY_DAYS = 7;
 
 function mustEnv(name) {
     const v = process.env[name];
@@ -59,12 +55,10 @@ function ymdTodayUtc() {
 
 function nowUtcHourKey() {
     // "YYYY-MM-DDTHH" in UTC
-    const d = new Date();
-    return d.toISOString().slice(0, 13);
+    return new Date().toISOString().slice(0, 13);
 }
 
 function isFirstRunTodayUtc(oldGeneratedAt) {
-    // If we already generated today (UTC date), don't regenerate daily again.
     const today = ymdTodayUtc();
     if (!oldGeneratedAt) return true;
     try {
@@ -108,7 +102,7 @@ async function cfGraphql(query, variables) {
 
     const json = await res.json();
     if (json?.errors?.length) {
-        throw new Error(`Cloudflare GraphQL errors: ${JSON.stringify(json.errors).slice(0, 1200)}`);
+        throw new Error(`Cloudflare GraphQL errors: ${JSON.stringify(json.errors).slice(0, 1500)}`);
     }
     return json?.data;
 }
@@ -135,10 +129,12 @@ function clipSeriesByIso(series, minIso) {
 }
 
 function clipDailyByYmd(series, minYmd) {
+    // series.t is YYYY-MM-DD
     return (series || []).filter((x) => String(x.t) >= String(minYmd));
 }
 
 function normalizeHourly(rows) {
+    // rows: [{ dimensions: { datetimeHour }, count }]
     return rows
         .map((r) => ({ t: r.dimensions?.datetimeHour, count: Number(r.count || 0) }))
         .filter((x) => x.t)
@@ -146,6 +142,7 @@ function normalizeHourly(rows) {
 }
 
 function normalizeDaily(rows) {
+    // rows: [{ dimensions: { date }, count }]
     return rows
         .map((r) => ({ t: r.dimensions?.date, count: Number(r.count || 0) }))
         .filter((x) => x.t)
@@ -172,7 +169,7 @@ async function queryHourly({ pathLike }) {
 
     const nowIso = new Date().toISOString();
 
-    // chunk to 24h windows
+    // Chunk into 24h windows (required by your zone)
     const ranges = [];
     for (let fromH = HOURLY_HOURS; fromH > 0; fromH -= 24) {
         const toH = Math.max(0, fromH - 24);
@@ -183,7 +180,6 @@ async function queryHourly({ pathLike }) {
     }
 
     const all = [];
-
     for (const r of ranges) {
         const filter = {
             datetime_geq: r.from,
@@ -219,21 +215,22 @@ async function queryDaily({ pathLike }) {
     }
   `;
 
-    // Your zone enforces <= 86400s range even for daily, so we must query 1 day at a time.
-    const end = ymdTodayUtc();          // exclude today (partial)
+    // Exclude today (partial)
+    const end = ymdTodayUtc();
     const start = ymdDaysAgo(DAILY_DAYS);
 
-    const CHUNK_DAYS = 1; // REQUIRED for your plan/zone
+    // REQUIRED: one day at a time (<=86400s)
+    const CHUNK_DAYS = 1;
 
     const all = [];
-
     let cur = start;
+
     while (cur < end) {
         const to = ymdAddDays(cur, CHUNK_DAYS);
 
         const filter = {
             date_geq: cur,
-            date_lt: to, // exclusive => exactly 1 day
+            date_lt: to, // exclusive => exactly one day
             clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
             requestSource: "eyeball",
         };
@@ -247,7 +244,7 @@ async function queryDaily({ pathLike }) {
         cur = to;
     }
 
-    // merge (t=YYYY-MM-DD)
+    // Merge (t=YYYY-MM-DD)
     const map = new Map();
     for (const series of all) {
         for (const p of series || []) {
@@ -300,10 +297,8 @@ async function main() {
     // Global hourly always
     const globalHourly = await queryHourly({ pathLike: null });
 
-    // Global daily only once per day
-    const globalDaily = shouldRefreshDaily
-        ? await queryDaily({ pathLike: null })
-        : (oldGlobal?.daily || []);
+    // Global daily only once per UTC day
+    const globalDaily = shouldRefreshDaily ? await queryDaily({ pathLike: null }) : (oldGlobal?.daily || []);
 
     const globalObj = {
         generated_at: generatedAt,
@@ -329,10 +324,8 @@ async function main() {
         // hourly always
         const hourly = await queryHourly({ pathLike: `/${pkg}/%` });
 
-        // daily only once per day (reuse old daily if already generated today)
-        const daily = shouldRefreshDaily
-            ? await queryDaily({ pathLike: `/${pkg}/%` })
-            : (old?.daily || []);
+        // daily only once per UTC day
+        const daily = shouldRefreshDaily ? await queryDaily({ pathLike: `/${pkg}/%` }) : (old?.daily || []);
 
         const obj = {
             generated_at: generatedAt,

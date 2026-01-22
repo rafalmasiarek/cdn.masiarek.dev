@@ -1,0 +1,10 @@
+{
+  "package": "twemoji-windows",
+  "versions": [
+    {
+      "version": "v2.0.1",
+      "channel": "stable",
+      "built_at": "2026-01-22T00:57:24Z"
+    }
+  ]
+}

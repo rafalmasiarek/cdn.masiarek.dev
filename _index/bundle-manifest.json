@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-01-22T00:57:24Z",
+  "base_url": "",
+  "packages": {
+    "twemoji-windows": {
+      "channels": {
+        "last_stable": {
+          "version": "v2.0.1",
+          "channel": "stable",
+          "built_at": "2026-01-22T00:57:24Z"
+        },
+        "last_beta": null,
+        "last_latest": {
+          "version": "v2.0.1",
+          "channel": "stable",
+          "built_at": "2026-01-22T00:57:24Z"
+        }
+      },
+      "versions": {
+        "v2.0.1": {
+          "channel": "stable",
+          "built_at": "2026-01-22T00:57:24Z",
+          "commit": "7f0d55f70776dd01994ba11141e280c863f4e758",
+          "upstream": null,
+          "files": {
+            "twemoji-windows.min.js": {
+              "url": "/twemoji-windows/v2.0.1/twemoji-windows.min.js",
+              "integrity": "sha384-0Q0vVszYvYSeMLcOyzgeSqfLn6GCrYVpm24Ipg4DpYQDv3aKLFDLmK3dZf90Piz9",
+              "bytes": 164
+            },
+            "twemoji-windows.min.js.map": {
+              "url": "/twemoji-windows/v2.0.1/twemoji-windows.min.js.map",
+              "integrity": "sha384-cPOh28Wbv5yDFoaXtq2AgPZhv9LYI9m6RtE35+tYMzW2OdEOe6vCtudtKHX+pEyI",
+              "bytes": 345
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-01-22T00:57:24Z",
+  "packages": {
+    "twemoji-windows": {
+      "last_stable": {
+        "version": "v2.0.1",
+        "channel": "stable",
+        "built_at": "2026-01-22T00:57:24Z"
+      },
+      "last_beta": null,
+      "last_latest": {
+        "version": "v2.0.1",
+        "channel": "stable",
+        "built_at": "2026-01-22T00:57:24Z"
+      }
+    }
+  }
+}

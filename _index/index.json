@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-22T16:13:13.432Z",
+  "generated_at": "2026-01-22T19:12:56.941Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -64,6 +64,24 @@
         "built_at": "2026-01-22T16:13:13.432Z"
       },
       "meta": null
+    },
+    "js-fair-consent": {
+      "last_stable": {
+        "version": "v1.4.3",
+        "channel": "stable",
+        "built_at": "2026-01-22T19:12:56.941Z"
+      },
+      "last_beta": null,
+      "last_latest": {
+        "version": "v1.4.3",
+        "channel": "stable",
+        "built_at": "2026-01-22T19:12:56.941Z"
+      },
+      "meta": {
+        "name": "js-fair-consent",
+        "source_url": "https://github.com/rafalmasiarek/js-fair-consent",
+        "author": "Rafał Masiarek"
+      }
     }
   }
 }

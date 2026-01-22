@@ -10,5 +10,11 @@
   "instagram.css": {
     "last_commit": "b08f80f0578926e24ad195a26bdc0fc7f46749da",
     "last_upstream_ref": "master"
+  },
+  "js-fair-consent": {
+    "latest_key": "rafalmasiarek/js-fair-consent@latest:v1.4.3",
+    "last_upstream_tag": "v1.4.3",
+    "stable_key": "rafalmasiarek/js-fair-consent@stable:v1.4.3",
+    "last_upstream_stable_tag": "v1.4.3"
   }
 }

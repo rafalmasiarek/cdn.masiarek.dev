@@ -1,0 +1,10 @@
+/* consent-analytics.css (v1.4.3) */
+.consent-banner{position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#0b1220;color:#e6f1ff;border-top:1px solid #15233b;display:none}
+.consent-banner.show{display:block}
+.consent-banner .container{max-width:1100px;margin:0 auto;padding:16px;display:flex;gap:16px;align-items:flex-start;justify-content:space-between}
+.consent-title{margin:0 0 6px 0;font-size:16px}
+.consent-text{margin:0;font-size:14px;line-height:1.45}
+.consent-actions{display:flex;gap:8px}
+.consent-btn{border:1px solid #3b82f6;background:transparent;color:#e6f1ff;border-radius:8px;padding:8px 12px;cursor:pointer}
+.consent-btn.primary{background:#3b82f6;color:#fff;border-color:#3b82f6}
+@media (max-width:680px){.consent-banner .container{flex-direction:column;align-items:stretch}}

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-22T16:13:13.432Z",
+  "generated_at": "2026-01-22T19:12:56.941Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -222,6 +222,66 @@
               "url": "/instagram.css/v0.0.0-b08f80f05789/instagram.min.css",
               "integrity": "sha384-GG4u3G/lMeCW9tEEawgiUYY8ScmxaBZO867WGi6e8HOHF4qFMDO57wmQXTMl/mps",
               "bytes": 13405
+            }
+          }
+        }
+      }
+    },
+    "js-fair-consent": {
+      "channels": {
+        "last_stable": {
+          "version": "v1.4.3",
+          "channel": "stable",
+          "built_at": "2026-01-22T19:12:56.941Z"
+        },
+        "last_beta": null,
+        "last_latest": {
+          "version": "v1.4.3",
+          "channel": "stable",
+          "built_at": "2026-01-22T19:12:56.941Z"
+        },
+        "meta": {
+          "name": "js-fair-consent",
+          "source_url": "https://github.com/rafalmasiarek/js-fair-consent",
+          "author": "Rafał Masiarek"
+        }
+      },
+      "versions": {
+        "v1.4.3": {
+          "channel": "stable",
+          "built_at": "2026-01-22T19:12:56.941Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-release",
+            "repo": "rafalmasiarek/js-fair-consent",
+            "tag": "v1.4.3",
+            "release_html_url": "https://github.com/rafalmasiarek/js-fair-consent/releases/tag/v1.4.3"
+          },
+          "files": {
+            "js-fair-consent.min.js": {
+              "url": "/js-fair-consent/v1.4.3/js-fair-consent.min.js",
+              "integrity": "sha384-ETTJXTrsR77p35l0fOsnQ/tlr7c/qrpdGKAOQ5ZY1QLwBUJDh6lcwLoTJtZlRUhm",
+              "bytes": 10039
+            },
+            "js-fair-consent.min.css": {
+              "url": "/js-fair-consent/v1.4.3/js-fair-consent.min.css",
+              "integrity": "sha384-qoOLkJsH4pTIL7A031oAsQ0bYJaEckljN8XPcTNc+ih01H5oadBeSTDRGzzdCbV7",
+              "bytes": 743
+            },
+            "js-fair-consent.js": {
+              "url": "/js-fair-consent/v1.4.3/js-fair-consent.js",
+              "integrity": "sha384-XsJY3Hpp6jTcWFTqVChvXOB1FBzGxraIjMx80v3oDqpTMwDesoSkHT8VUSWSVFX8",
+              "bytes": 17184
+            },
+            "js-fair-consent.css": {
+              "url": "/js-fair-consent/v1.4.3/js-fair-consent.css",
+              "integrity": "sha384-nbiqJCS0O7B4Nasdoe51FEE2v647ASq0MzeP6xMA2romq/RmmDUT1lmKfusI14+t",
+              "bytes": 802
+            },
+            "README.md": {
+              "url": "/js-fair-consent/v1.4.3/README.md",
+              "integrity": "sha384-AYxjJDMMZe4Tdke68bA/b+fs7LXTzSL+GJ9HKSgsvOPcx8JdgpwZuPuKMUijxSVX",
+              "bytes": 5616
             }
           }
         }

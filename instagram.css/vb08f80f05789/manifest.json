@@ -1,0 +1,35 @@
+{
+  "package": "instagram.css",
+  "version": "vb08f80f05789",
+  "channel": null,
+  "built_at": "2026-01-22T19:24:19.674Z",
+  "commit": null,
+  "upstream": {
+    "type": "github-raw",
+    "repo": "picturepan2/instagram.css",
+    "ref": "master",
+    "commit": "b08f80f0578926e24ad195a26bdc0fc7f46749da",
+    "paths": [
+      "dist/instagram.css",
+      "dist/instagram.min.css"
+    ]
+  },
+  "meta": {
+    "name": "instagram.css",
+    "homepage": "",
+    "license": "",
+    "source_url": "https://github.com/picturepan2/instagram.css",
+    "author": "",
+    "readme_url": ""
+  },
+  "files": {
+    "instagram.css": {
+      "integrity": "sha384-6KV/zXif7LzTKiu910iQDVp+Dh+emTINmfxc71o1mHpqMk/ryOmoAyt/hmjT9fd7",
+      "bytes": 15055
+    },
+    "instagram.min.css": {
+      "integrity": "sha384-GG4u3G/lMeCW9tEEawgiUYY8ScmxaBZO867WGi6e8HOHF4qFMDO57wmQXTMl/mps",
+      "bytes": 13405
+    }
+  }
+}

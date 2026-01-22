@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-22T19:12:56.941Z",
+  "generated_at": "2026-01-22T19:24:19.674Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -67,6 +67,23 @@
         "name": "js-fair-consent",
         "source_url": "https://github.com/rafalmasiarek/js-fair-consent",
         "author": "Rafał Masiarek"
+      }
+    },
+    "instagram.css": {
+      "last_stable": null,
+      "last_beta": null,
+      "last_latest": {
+        "version": "vb08f80f05789",
+        "channel": null,
+        "built_at": "2026-01-22T19:24:19.674Z"
+      },
+      "meta": {
+        "name": "instagram.css",
+        "homepage": "",
+        "license": "",
+        "source_url": "https://github.com/picturepan2/instagram.css",
+        "author": "",
+        "readme_url": ""
       }
     }
   }

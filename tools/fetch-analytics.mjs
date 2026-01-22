@@ -31,7 +31,7 @@ function mustEnv(name) {
 
 const CF_API_TOKEN = mustEnv("CF_API_TOKEN");
 const CF_ZONE_TAG = mustEnv("CF_ZONE_TAG");
-const CF_HOSTNAME = mustEnv("CF_HOSTNAME");
+const CDN_CUSTOM_DOMAIN = mustEnv("CDN_CUSTOM_DOMAIN");
 
 function isoHoursAgo(n) {
     const d = new Date(Date.now() - n * 60 * 60 * 1000);
@@ -127,7 +127,7 @@ async function queryHourly({ pathLike }) {
     const filter = {
         datetime_geq: isoHoursAgo(HOURLY_HOURS),
         datetime_lt: new Date().toISOString(),
-        clientRequestHTTPHost: CF_HOSTNAME,
+        clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
         requestSource: "eyeball",
     };
 
@@ -159,7 +159,7 @@ async function queryDaily({ pathLike }) {
     const filter = {
         datetime_geq: isoDaysAgo(DAILY_DAYS),
         datetime_lt: new Date().toISOString(),
-        clientRequestHTTPHost: CF_HOSTNAME,
+        clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
         requestSource: "eyeball",
     };
 
@@ -205,7 +205,7 @@ async function main() {
 
     const globalObj = {
         generated_at: new Date().toISOString(),
-        hostname: CF_HOSTNAME,
+        hostname: CDN_CUSTOM_DOMAIN,
         retention: { hourly_hours: HOURLY_HOURS, daily_days: DAILY_DAYS },
         hourly: clipSeries(globalHourly, isoHoursAgo(HOURLY_HOURS)),
         daily: clipSeries(globalDaily, isoDaysAgo(DAILY_DAYS)),
@@ -225,7 +225,7 @@ async function main() {
 
         const obj = {
             generated_at: new Date().toISOString(),
-            hostname: CF_HOSTNAME,
+            hostname: CDN_CUSTOM_DOMAIN,
             package: pkg,
             retention: { hourly_hours: HOURLY_HOURS, daily_days: DAILY_DAYS },
             hourly: clipSeries(hourly, isoHoursAgo(HOURLY_HOURS)),

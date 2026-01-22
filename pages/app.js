@@ -141,6 +141,19 @@ function showModal() {
   inst.show();
 }
 
+function buildSnippetBlock(title, codeText, copyKey) {
+  const safe = escapeHtml(codeText);
+  return `
+    <div class="mb-3 snippet-block">
+      <div class="d-flex align-items-center justify-content-between">
+        <strong>${escapeHtml(title)}</strong>
+        <button class="btn btn-sm btn-outline-primary copy-btn" data-copy-key="${escapeHtml(copyKey)}">Copy</button>
+      </div>
+      <pre class="mb-0 mt-2"><code>${safe}</code></pre>
+    </div>
+  `;
+}
+
 function wireCopyButtons(container, map) {
   container.querySelectorAll(".copy-btn").forEach(btn => {
     btn.addEventListener("click", async (e) => {
@@ -150,6 +163,30 @@ function wireCopyButtons(container, map) {
       await copyToClipboard(text, btn);
     });
   });
+}
+
+function pickMainAsset(files) {
+  const keys = Object.keys(files || {});
+  const js =
+    keys.find(n => n.endsWith(".min.js")) ||
+    keys.find(n => n.endsWith(".js")) ||
+    null;
+
+  const css =
+    keys.find(n => n.endsWith(".min.css")) ||
+    keys.find(n => n.endsWith(".css")) ||
+    null;
+
+  if (js) return { kind: "js", file: js };
+  if (css) return { kind: "css", file: css };
+  return { kind: null, file: null };
+}
+
+function buildIncludeLine(kind, baseAbs, pkg, ver, file, integrity) {
+  if (!kind || !file) return "";
+  if (kind === "js") return buildScriptLine(baseAbs, pkg, ver, file, integrity);
+  if (kind === "css") return buildCssLine(baseAbs, pkg, ver, file, integrity);
+  return "";
 }
 
 function metaIconRow(icon, label, value, href) {
@@ -235,15 +272,21 @@ async function renderDetailsInModal(pkg) {
   const versions = await fetchJson(`./${pkg}/versions.json`);
   const list = versions.versions || [];
 
-  // Best effort meta from pinnedCandidate manifest
   const pinnedCandidate = pkgIndex?.last_latest?.version || list[0]?.version || null;
-  let metaFromManifest = null;
+
+  let quick = { jsFile: null, cssFile: null, pinnedVer: null, meta: null };
   if (pinnedCandidate) {
     const m = await fetchJson(`./${pkg}/${pinnedCandidate}/manifest.json`).catch(() => null);
-    metaFromManifest = m?.meta || null;
+    const files = m?.files || {};
+    const keys = Object.keys(files);
+
+    quick.jsFile = keys.find(n => n.endsWith(".min.js")) || keys.find(n => n.endsWith(".js")) || null;
+    quick.cssFile = keys.find(n => n.endsWith(".min.css")) || keys.find(n => n.endsWith(".css")) || null;
+    quick.pinnedVer = pinnedCandidate;
+    quick.meta = m?.meta || null;
   }
 
-  const meta = metaFromManifest || pkgMetaFromIndex || null;
+  const meta = quick.meta || pkgMetaFromIndex || null;
 
   body.innerHTML = `
     <div class="mb-4" id="pkgAnalyticsWrap" style="display:none;">
@@ -263,6 +306,7 @@ async function renderDetailsInModal(pkg) {
     </div>
 
     <div class="d-flex flex-wrap align-items-center mt-2" id="pkgMetaRow"></div>
+    <div class="mb-4" id="pkgQuickInclude"></div>
 
     <div class="table-responsive">
       <table class="table table-sm align-middle">
@@ -359,6 +403,56 @@ async function renderDetailsInModal(pkg) {
     metaRow.innerHTML = blocks.filter(Boolean).join("") || "";
   }
 
+  // Quick include (@latest / @stable / @beta)
+  const quickBox = body.querySelector("#pkgQuickInclude");
+  if (quickBox) {
+    const hasLatest = !!pkgIndex.last_latest;
+    const hasStable = !!pkgIndex.last_stable;
+    const hasBeta = !!pkgIndex.last_beta;
+
+    const copyMap = new Map();
+    const blocks = [];
+
+    const addSet = (label, kind, file) => {
+      if (!file) return;
+
+      const latestLine = buildIncludeLine(kind, baseAbs, pkg, "@latest", file, "");
+      const stableLine = buildIncludeLine(kind, baseAbs, pkg, "@stable", file, "");
+      const betaLine = buildIncludeLine(kind, baseAbs, pkg, "@beta", file, "");
+
+      blocks.push(
+        `<div class="text-muted small mb-2">${escapeHtml(label)}: <code>${escapeHtml(file)}</code></div>`
+      );
+
+      if (hasLatest) {
+        const k = `${pkg}:quick:${label}:latest`;
+        copyMap.set(k, latestLine);
+        blocks.push(buildSnippetBlock("@latest", latestLine, k));
+      }
+      if (hasStable) {
+        const k = `${pkg}:quick:${label}:stable`;
+        copyMap.set(k, stableLine);
+        blocks.push(buildSnippetBlock("@stable", stableLine, k));
+      }
+      if (hasBeta) {
+        const k = `${pkg}:quick:${label}:beta`;
+        copyMap.set(k, betaLine);
+        blocks.push(buildSnippetBlock("@beta", betaLine, k));
+      }
+    };
+
+    addSet("CSS", "css", quick?.cssFile);
+    addSet("JS", "js", quick?.jsFile);
+
+    if (!blocks.length || (!hasLatest && !hasStable && !hasBeta)) {
+      quickBox.innerHTML = "";
+    } else {
+      quickBox.innerHTML = `<div class="mt-3">${blocks.join("")}</div>`;
+      wireCopyButtons(quickBox, copyMap);
+    }
+  }
+
+  // Versions rows
   const tbody = body.querySelector("#versionsTbody");
   for (const v of list) {
     const ver = v.version;

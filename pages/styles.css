@@ -1,3 +1,4 @@
+/* style.css (no comments in your request — so here is pure CSS) */
 pre {
     white-space: pre-wrap;
     word-break: break-word;
@@ -42,16 +43,12 @@ code {
     word-break: break-word;
 }
 
-.file-right .copy-btn {
-    margin-bottom: 6px;
-}
-
 .code-box {
+    position: relative;
     background: #111;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 10px 12px;
+    padding: 28px 12px 10px 12px;
     border-radius: 0;
-    /* square */
     overflow-x: auto;
     overflow-y: hidden;
     max-width: 100%;
@@ -60,12 +57,20 @@ code {
 .code-box code {
     color: #f1f1f1;
     white-space: nowrap;
-    /* one line */
     display: inline-block;
 }
 
 .code-box::-webkit-scrollbar {
     height: 10px;
+}
+
+.code-box .code-copy {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 2px 8px;
+    line-height: 1.1;
+    z-index: 2;
 }
 
 .pinned-include {
@@ -82,4 +87,28 @@ code {
     color: #6c757d;
     margin-bottom: 4px;
     letter-spacing: 0.04em;
+}
+
+.pkg-versions-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.pkg-versions-table th,
+.pkg-versions-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+}
+
+.file-left,
+.file-right {
+    max-width: 100%;
+}
+
+.file-sri {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }

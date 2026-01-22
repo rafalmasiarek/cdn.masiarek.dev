@@ -124,7 +124,7 @@ async function tryRenderGlobalAnalytics() {
   }
 
   card.style.display = "";
-  meta.textContent = `Updated: ${fmtDate(json.generated_at)} · Host: ${json.hostname || "-"}`;
+  if (meta) meta.textContent = "";
 
   destroyChart("globalHourly");
   const { labels, data } = seriesToChart(json.hourly, "hourly");
@@ -231,19 +231,20 @@ async function renderDetailsInModal(pkg) {
   const versions = await fetchJson(`./${pkg}/versions.json`);
   const list = versions.versions || [];
 
-  // Determine "best" pinned version to base quick-include on (prefer last_latest from index)
   const pinnedCandidate = pkgIndex?.last_latest?.version || list[0]?.version || null;
 
   // Quick include data (from pinnedCandidate manifest)
-  let quick = { kind: null, file: null, integrityPinned: null, pinnedVer: null, meta: null };
+  let quick = { jsFile: null, cssFile: null, pinnedVer: null, meta: null };
   if (pinnedCandidate) {
     const m = await fetchJson(`./${pkg}/${pinnedCandidate}/manifest.json`).catch(() => null);
     const files = m?.files || {};
-    const main = pickMainAsset(files);
+    const keys = Object.keys(files);
 
-    quick.kind = main.kind;
-    quick.file = main.file;
-    quick.integrityPinned = main.file ? files[main.file]?.integrity : null;
+    const jsFile = keys.find(n => n.endsWith(".min.js")) || keys.find(n => n.endsWith(".js")) || null;
+    const cssFile = keys.find(n => n.endsWith(".min.css")) || keys.find(n => n.endsWith(".css")) || null;
+
+    quick.jsFile = jsFile;
+    quick.cssFile = cssFile;
     quick.pinnedVer = pinnedCandidate;
     quick.meta = m?.meta || null;
   }
@@ -251,40 +252,23 @@ async function renderDetailsInModal(pkg) {
   const meta = quick.meta || pkgMetaFromIndex || null;
 
   body.innerHTML = `
-    <div class="mb-4" id="pkgAnalyticsWrap">
-      <div class="d-flex align-items-center justify-content-between mb-2">
-        <div>
-          <strong>Downloads</strong>
-          <span class="text-muted ms-2">hourly (72h) + daily (90d)</span>
-        </div>
-        <span class="text-muted small" id="pkgAnalyticsMeta"></span>
-      </div>
-
-      <div class="row g-3">
-        <div class="col-12 col-lg-6">
-          <div class="card border-0 bg-light">
-            <div class="card-body">
+    <div class="mb-4" id="pkgAnalyticsWrap" style="display:none;">
+      <ul class="nav nav-pills mb-2" id="pkgAnalyticsTabs"></ul>
+      <div class="card border-0 bg-light">
+        <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="pkgTabHourly" role="tabpanel">
               <canvas id="pkgHourlyChart" height="130"></canvas>
             </div>
-          </div>
-        </div>
-        <div class="col-12 col-lg-6">
-          <div class="card border-0 bg-light">
-            <div class="card-body">
+            <div class="tab-pane fade" id="pkgTabDaily" role="tabpanel">
               <canvas id="pkgDailyChart" height="130"></canvas>
             </div>
           </div>
         </div>
       </div>
-      <div class="text-muted small mt-2">
-        Requests are sourced from Cloudflare analytics. Pinned versions + SRI remain the recommended security mode.
-      </div>
     </div>
 
     <div class="d-flex flex-wrap align-items-center mt-2" id="pkgMetaRow"></div>
-
-    <hr class="my-4"/>
-
     <div class="mb-4" id="pkgQuickInclude"></div>
 
     <div class="table-responsive">
@@ -308,28 +292,63 @@ async function renderDetailsInModal(pkg) {
   // Analytics (best-effort)
   (async () => {
     const wrap = body.querySelector("#pkgAnalyticsWrap");
-    const metaEl = body.querySelector("#pkgAnalyticsMeta");
+    const tabs = body.querySelector("#pkgAnalyticsTabs");
+    const hourlyPane = body.querySelector("#pkgTabHourly");
+    const dailyPane = body.querySelector("#pkgTabDaily");
     const hourlyCanvas = body.querySelector("#pkgHourlyChart");
     const dailyCanvas = body.querySelector("#pkgDailyChart");
 
     const a = await fetchJson(`./_index/analytics/${pkg}.json`).catch(() => null);
-    if (!a) {
-      if (wrap) wrap.style.display = "none";
+    const hasHourly = !!a?.hourly?.length;
+    const hasDaily = !!a?.daily?.length;
+
+    if (!wrap || !hourlyPane || !dailyPane) return;
+
+    if (!hasHourly && !hasDaily) {
+      wrap.style.display = "none";
       return;
     }
 
-    if (metaEl) metaEl.textContent = `Updated: ${fmtDate(a.generated_at)} · Host: ${a.hostname || "-"}`;
+    wrap.style.display = "";
+
+    const showTabs = hasHourly && hasDaily;
+    if (tabs) {
+      tabs.style.display = showTabs ? "" : "none";
+      tabs.innerHTML = showTabs ? `
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pkgTabHourly" type="button">Hourly</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pkgTabDaily" type="button">Daily</button>
+        </li>
+      ` : "";
+    }
+
+    if (!showTabs) {
+      hourlyPane.style.display = hasHourly ? "" : "none";
+      dailyPane.style.display = hasDaily ? "" : "none";
+
+      hourlyPane.classList.toggle("show", hasHourly);
+      hourlyPane.classList.toggle("active", hasHourly);
+      dailyPane.classList.toggle("show", hasDaily);
+      dailyPane.classList.toggle("active", hasDaily);
+    } else {
+      hourlyPane.style.display = "";
+      dailyPane.style.display = "";
+      hourlyPane.classList.add("show", "active");
+      dailyPane.classList.remove("show", "active");
+    }
 
     destroyChart(`pkgHourly:${pkg}`);
     destroyChart(`pkgDaily:${pkg}`);
 
-    if (hourlyCanvas && a.hourly?.length) {
+    if (hasHourly && hourlyCanvas) {
       const { labels, data } = seriesToChart(a.hourly, "hourly");
       const ch = makeLineChart(hourlyCanvas, labels, data, "Requests (hourly)");
       if (ch) _charts.set(`pkgHourly:${pkg}`, ch);
     }
 
-    if (dailyCanvas && a.daily?.length) {
+    if (hasDaily && dailyCanvas) {
       const { labels, data } = seriesToChart(a.daily, "daily");
       const ch = makeBarChart(dailyCanvas, labels, data, "Requests (daily)");
       if (ch) _charts.set(`pkgDaily:${pkg}`, ch);
@@ -348,54 +367,52 @@ async function renderDetailsInModal(pkg) {
     blocks.push(metaIconRow("fa-book", "README", meta?.readme_url || null, meta?.readme_url || null));
 
     const html = blocks.filter(Boolean).join("");
-    metaRow.innerHTML = html ? html : `<span class="text-muted small">No metadata available.</span>`;
+    metaRow.innerHTML = html || "";
   }
 
   // Quick include (channels) ABOVE versions list
   const quickBox = body.querySelector("#pkgQuickInclude");
   if (quickBox) {
-    const kind = quick.kind;
-    const file = quick.file;
+    const hasLatest = !!pkgIndex.last_latest;
+    const hasStable = !!pkgIndex.last_stable;
+    const hasBeta = !!pkgIndex.last_beta;
 
-    if (!kind || !file) {
-      quickBox.innerHTML = `<div class="alert alert-secondary mb-0">No includable asset found (expected .js or .css in manifest files).</div>`;
-    } else {
-      const hasLatest = !!pkgIndex.last_latest;
-      const hasStable = !!pkgIndex.last_stable;
-      const hasBeta = !!pkgIndex.last_beta;
+    const copyMap = new Map();
+    const blocks = [];
 
-      const pinnedLine = quick.pinnedVer
-        ? buildIncludeLine(kind, baseAbs, pkg, quick.pinnedVer, file, quick.integrityPinned || "")
-        : "";
+    const addSet = (label, kind, file) => {
+      if (!file) return;
 
       const latestLine = buildIncludeLine(kind, baseAbs, pkg, "@latest", file, "");
       const stableLine = buildIncludeLine(kind, baseAbs, pkg, "@stable", file, "");
       const betaLine = buildIncludeLine(kind, baseAbs, pkg, "@beta", file, "");
 
-      const copyMap = new Map();
-      const keyPinned = `${pkg}:quick:pinned`;
-      const keyLatest = `${pkg}:quick:latest`;
-      const keyStable = `${pkg}:quick:stable`;
-      const keyBeta = `${pkg}:quick:beta`;
+      blocks.push(`<div class="text-muted small mb-2">${escapeHtml(label)}: <code>${escapeHtml(file)}</code></div>`);
 
-      if (pinnedLine) copyMap.set(keyPinned, pinnedLine);
-      if (hasLatest) copyMap.set(keyLatest, latestLine);
-      if (hasStable) copyMap.set(keyStable, stableLine);
-      if (hasBeta) copyMap.set(keyBeta, betaLine);
+      if (hasLatest) {
+        const k = `${pkg}:quick:${label}:latest`;
+        copyMap.set(k, latestLine);
+        blocks.push(buildSnippetBlock("@latest", latestLine, k));
+      }
+      if (hasStable) {
+        const k = `${pkg}:quick:${label}:stable`;
+        copyMap.set(k, stableLine);
+        blocks.push(buildSnippetBlock("@stable", stableLine, k));
+      }
+      if (hasBeta) {
+        const k = `${pkg}:quick:${label}:beta`;
+        copyMap.set(k, betaLine);
+        blocks.push(buildSnippetBlock("@beta", betaLine, k));
+      }
+    };
 
-      const blocks = [];
-      if (hasLatest) blocks.push(buildSnippetBlock("@latest", latestLine, keyLatest));
-      if (hasStable) blocks.push(buildSnippetBlock("@stable", stableLine, keyStable));
-      if (hasBeta) blocks.push(buildSnippetBlock("@beta", betaLine, keyBeta));
+    addSet("JS", "js", quick.jsFile);
+    addSet("CSS", "css", quick.cssFile);
 
-      quickBox.innerHTML = `
-        <div class="d-flex align-items-center justify-content-between">
-          <div>
-            <span class="text-muted ms-2">${escapeHtml(kind.toUpperCase())}: <code>${escapeHtml(file)}</code></span>
-          </div>
-        </div>
-      `;
-
+    if (!blocks.length || (!hasLatest && !hasStable && !hasBeta)) {
+      quickBox.innerHTML = "";
+    } else {
+      quickBox.innerHTML = `<div class="mt-3">${blocks.join("")}</div>`;
       wireCopyButtons(quickBox, copyMap);
     }
   }

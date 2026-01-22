@@ -64,6 +64,12 @@ jobs:
                     echo "${CDN_CUSTOM_DOMAIN}" > public/CNAME
                   fi
 
+            - name: Inject build fingerprint into index.html
+              run: |
+                  set -euo pipefail
+                  BUILD="${GITHUB_SHA::8}"
+                  sed -i "s/__BUILD__/${BUILD}/g" public/index.html
+
             - name: Commit & push if changed
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -78,3 +84,28 @@ jobs:
                   git diff --cached --quiet && exit 0
                   git commit -m "pages(ui): deploy"
                   git push -u origin gh-pages
+
+            - name: Purge Cloudflare cache (index.html, styles.css, app.js)
+              if: always()
+              env:
+                  CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+                  CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+                  CDN_CUSTOM_DOMAIN: ${{ vars.CDN_CUSTOM_DOMAIN }}
+              run: |
+                  set -euo pipefail
+                  : "${CDN_CUSTOM_DOMAIN:?Missing vars.CDN_CUSTOM_DOMAIN}"
+                  : "${CF_API_TOKEN:?Missing secrets.CF_API_TOKEN}"
+                  : "${CF_ZONE_ID:?Missing secrets.CF_ZONE_ID}"
+
+                  BASE="https://${CDN_CUSTOM_DOMAIN}"
+                  curl -fsS -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+                    -H "Authorization: Bearer ${CF_API_TOKEN}" \
+                    -H "Content-Type: application/json" \
+                    --data "$(jq -n --arg b "$BASE" '{
+                      files: [
+                        ($b + "/"),
+                        ($b + "/index.html"),
+                        ($b + "/styles.css"),
+                        ($b + "/app.js")
+                      ]
+                    }')"

@@ -1,6 +1,6 @@
 {
   "name": "@cdn/twemoji-windows",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "devDependencies": {
     "esbuild": "^0.24.0"

@@ -43,6 +43,25 @@ function isoDaysAgo(n) {
     return d.toISOString();
 }
 
+function isoAtHoursAgo(n) {
+    return new Date(Date.now() - n * 60 * 60 * 1000).toISOString();
+}
+
+function mergeSeriesByT(seriesList) {
+    // Deduplicate by timestamp (t) and sum counts if duplicates appear
+    const map = new Map();
+    for (const series of seriesList) {
+        for (const p of series || []) {
+            if (!p?.t) continue;
+            const prev = map.get(p.t) || 0;
+            map.set(p.t, prev + Number(p.count || 0));
+        }
+    }
+    return Array.from(map.entries())
+        .map(([t, count]) => ({ t, count }))
+        .sort((a, b) => new Date(a.t) - new Date(b.t));
+}
+
 async function cfGraphql(query, variables) {
     const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
         method: "POST",
@@ -124,18 +143,36 @@ async function queryHourly({ pathLike }) {
     }
   `;
 
-    const filter = {
-        datetime_geq: isoHoursAgo(HOURLY_HOURS),
-        datetime_lt: new Date().toISOString(),
-        clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
-        requestSource: "eyeball",
-    };
+    // Cloudflare limit: hourly time range cannot exceed 86400s (24h) for some plans.
+    // We chunk the 72h window into 3x 24h queries and merge.
+    const nowIso = new Date().toISOString();
 
-    if (pathLike) filter.clientRequestPath_like = pathLike;
+    const ranges = [];
+    for (let fromH = HOURLY_HOURS; fromH > 0; fromH -= 24) {
+        const toH = Math.max(0, fromH - 24);
+        ranges.push({
+            from: isoAtHoursAgo(fromH),
+            to: toH === 0 ? nowIso : isoAtHoursAgo(toH),
+        });
+    }
 
-    const data = await cfGraphql(query, { zoneTag: CF_ZONE_TAG, filter });
-    const rows = data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [];
-    return normalizeHourly(rows);
+    const all = [];
+
+    for (const r of ranges) {
+        const filter = {
+            datetime_geq: r.from,
+            datetime_lt: r.to,
+            clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
+        };
+
+        if (pathLike) filter.clientRequestPath_like = pathLike;
+
+        const data = await cfGraphql(query, { zoneTag: CF_ZONE_TAG, filter });
+        const rows = data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [];
+        all.push(normalizeHourly(rows));
+    }
+
+    return mergeSeriesByT(all);
 }
 
 async function queryDaily({ pathLike }) {
@@ -160,7 +197,6 @@ async function queryDaily({ pathLike }) {
         datetime_geq: isoDaysAgo(DAILY_DAYS),
         datetime_lt: new Date().toISOString(),
         clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
-        requestSource: "eyeball",
     };
 
     if (pathLike) filter.clientRequestPath_like = pathLike;

@@ -66,9 +66,9 @@ async function cfGraphql(query, variables) {
     const res = await fetch("https://api.cloudflare.com/client/v4/graphql", {
         method: "POST",
         headers: {
-            "Authorization": `Bearer ${CF_API_TOKEN}`,
+            Authorization: `Bearer ${CF_API_TOKEN}`,
             "Content-Type": "application/json",
-            "Accept": "application/json",
+            Accept: "application/json",
         },
         body: JSON.stringify({ query, variables }),
     });
@@ -103,25 +103,25 @@ function writeJson(p, obj) {
 
 function clipSeries(series, minIso) {
     const minT = new Date(minIso).getTime();
-    return (series || []).filter(x => new Date(x.t).getTime() >= minT);
+    return (series || []).filter((x) => new Date(x.t).getTime() >= minT);
 }
 
 function normalizeHourly(rows) {
     // rows: [{ dimensions: { datetimeHour }, count }]
     return rows
-        .map(r => ({ t: r.dimensions?.datetimeHour, count: Number(r.count || 0) }))
-        .filter(x => x.t)
+        .map((r) => ({ t: r.dimensions?.datetimeHour, count: Number(r.count || 0) }))
+        .filter((x) => x.t)
         .sort((a, b) => new Date(a.t) - new Date(b.t));
 }
 
 function normalizeDaily(rows) {
     // Some zones return datetimeDay, some may return datetimeDate.
     return rows
-        .map(r => ({
+        .map((r) => ({
             t: r.dimensions?.datetimeDay || r.dimensions?.datetimeDate,
             count: Number(r.count || 0),
         }))
-        .filter(x => x.t)
+        .filter((x) => x.t)
         .sort((a, b) => new Date(a.t) - new Date(b.t));
 }
 
@@ -143,8 +143,6 @@ async function queryHourly({ pathLike }) {
     }
   `;
 
-    // Cloudflare limit: hourly time range cannot exceed 86400s (24h) for some plans.
-    // We chunk the 72h window into 3x 24h queries and merge.
     const nowIso = new Date().toISOString();
 
     const ranges = [];
@@ -183,7 +181,6 @@ async function queryDaily({ pathLike }) {
           httpRequestsAdaptiveGroups(
             limit: 5000
             filter: $filter
-            orderBy: [datetimeDay_ASC]
           ) {
             count
             dimensions { datetimeDay }
@@ -216,9 +213,10 @@ function loadPackagesFromGhPagesIndex() {
 function loadPackagesFromSourceRepo() {
     const p = "packages";
     if (!fs.existsSync(p)) return [];
-    return fs.readdirSync(p, { withFileTypes: true })
-        .filter(d => d.isDirectory())
-        .map(d => d.name)
+    return fs
+        .readdirSync(p, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => d.name)
         .sort();
 }
 
@@ -229,7 +227,7 @@ async function main() {
     const packages = pkgs.length ? pkgs : loadPackagesFromSourceRepo();
 
     if (!packages.length) {
-        throw new Error("No packages found (neither in public/_index/index.json nor in ./packages/*).");
+        throw new Error('No packages found (neither in public/_index/index.json nor in ./packages/*).');
     }
 
     // Global
@@ -245,6 +243,7 @@ async function main() {
         retention: { hourly_hours: HOURLY_HOURS, daily_days: DAILY_DAYS },
         hourly: clipSeries(globalHourly, isoHoursAgo(HOURLY_HOURS)),
         daily: clipSeries(globalDaily, isoDaysAgo(DAILY_DAYS)),
+
         // Keep a tiny metadata section for future extensions
         meta: { source: "cloudflare_graphql", previous_generated_at: oldGlobal?.generated_at || null },
     };

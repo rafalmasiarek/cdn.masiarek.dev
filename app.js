@@ -384,7 +384,6 @@ async function renderDetailsInModal(pkg) {
       if (hasBeta) copyMap.set(keyBeta, betaLine);
 
       const blocks = [];
-      if (pinnedLine) blocks.push(buildSnippetBlock("Pinned (latest version, with SRI)", pinnedLine, keyPinned));
       if (hasLatest) blocks.push(buildSnippetBlock("@latest", latestLine, keyLatest));
       if (hasStable) blocks.push(buildSnippetBlock("@stable", stableLine, keyStable));
       if (hasBeta) blocks.push(buildSnippetBlock("@beta", betaLine, keyBeta));
@@ -392,16 +391,8 @@ async function renderDetailsInModal(pkg) {
       quickBox.innerHTML = `
         <div class="d-flex align-items-center justify-content-between">
           <div>
-            <strong>Quick include</strong>
             <span class="text-muted ms-2">${escapeHtml(kind.toUpperCase())}: <code>${escapeHtml(file)}</code></span>
           </div>
-          <span class="text-muted small">
-            ${hasStable || hasBeta ? "Semver channels available" : "No stable/beta channels"}
-          </span>
-        </div>
-        <div class="mt-3">
-          ${blocks.join("")}
-          <div class="text-muted small">Pinned versions are immutable. Pointers can move.</div>
         </div>
       `;
 
@@ -450,7 +441,7 @@ async function renderDetailsInModal(pkg) {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td><code>${escapeHtml(ver)}</code></td>
-      <td><span class="badge ${badge}">${escapeHtml(v.channel ?? "n/a")}</span></td>
+      <td>${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
       <td>${fmtDate(v.built_at)}</td>
       <td style="min-width:320px">${filesHtml}</td>
       <td style="min-width:360px">${pinnedHtml}</td>

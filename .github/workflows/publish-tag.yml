@@ -27,11 +27,29 @@ jobs:
         id: tag
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME:-${{ inputs.tag }}}"
+
+          # For manual runs, always prefer the provided input tag.
+          TAG="${{ inputs.tag }}"
+          if [[ -z "$TAG" ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ "$TAG" != *"@"* ]]; then
+            echo "Invalid tag '$TAG'. Expected format: <package>@<version>, e.g. vinyl-loader@1.0.1"
+            exit 1
+          fi
+
           PKG="${TAG%@*}"
-          VER="${TAG#*@}"                  # 1.4.3-beta.1
+          VER="${TAG#*@}"
+
           echo "pkg=$PKG" >> $GITHUB_OUTPUT
           echo "ver=$VER" >> $GITHUB_OUTPUT
+
+      - name: Validate package exists
+        run: |
+          set -euo pipefail
+          PKG="${{ steps.tag.outputs.pkg }}"
+          test -d "packages/$PKG" || (echo "Package '$PKG' not found under packages/." && exit 1)
 
       - name: Setup Node
         uses: actions/setup-node@v4

@@ -72,7 +72,6 @@ async function copyToClipboard(text, btn) {
       if (oldAria !== null) btn.setAttribute("aria-label", oldAria);
       else btn.removeAttribute("aria-label");
     }, 900);
-
   } catch {
     alert("Copy failed (browser permissions).");
   }
@@ -189,17 +188,14 @@ function metaIconRow(icon, label, value, href) {
 
 function buildSnippetBlock(title, codeText, copyKey) {
   const safe = escapeHtml(codeText);
-  const uid = `snip_${copyKey.replaceAll(":", "_").replaceAll(".", "_").replaceAll("@", "_")}`;
-
   return `
     <div class="snippet-block-center">
-      <div class="snippet-title">${escapeHtml(title)}</div>
-      <div class="code-box">
-        <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(copyKey)}" aria-label="Copy">
+      <h3 class="snippet-title">${escapeHtml(title)}</h3>
+        <button class="btn btn-sm btn-outline-primary copy-btn code-copy"
+                data-copy-key="${escapeHtml(copyKey)}" aria-label="Copy">
           <i class="fa-solid fa-clipboard"></i>
         </button>
         <code>${safe}</code>
-      </div>
     </div>
   `;
 }
@@ -228,8 +224,9 @@ function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPre
 
     const codeHtml = snippet
       ? `
-        <div class="code-box mt-2">
-          <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(k)}" aria-label="Copy">
+        <div class="mt-2">
+          <button class="btn btn-sm btn-outline-primary copy-btn code-copy"
+                  data-copy-key="${escapeHtml(k)}" aria-label="Copy">
             <i class="fa-solid fa-clipboard"></i>
           </button>
           <code>${escapeHtml(snippet)}</code>
@@ -240,7 +237,8 @@ function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPre
     return `
       <div class="file-block">
         <div class="file-head">
-          <a class="file-link" href="${escapeHtml(`${baseAbs}/${pkg}/${ver}/${name}`)}" target="_blank" rel="noopener">${escapeHtml(name)}</a>
+          <a class="file-link" href="${escapeHtml(`${baseAbs}/${pkg}/${ver}/${name}`)}"
+             target="_blank" rel="noopener">${escapeHtml(name)}</a>
           ${sizeBadge}
         </div>
         ${sriHtml}
@@ -287,48 +285,49 @@ async function renderDetailsInModal(pkg) {
   const meta = quick.meta || pkgMetaFromIndex || null;
 
   body.innerHTML = `
-  <div class="mb-4" id="pkgAnalyticsWrap" style="display:none;">
-    <ul class="nav nav-pills mb-2" id="pkgAnalyticsTabs"></ul>
-    <div class="card border-0 bg-light">
-      <div class="card-body">
-        <div class="tab-content">
-          <div class="tab-pane fade show active" id="pkgTabHourly" role="tabpanel">
-            <canvas id="pkgHourlyChart" height="130"></canvas>
-          </div>
-          <div class="tab-pane fade" id="pkgTabDaily" role="tabpanel">
-            <canvas id="pkgDailyChart" height="130"></canvas>
+    <div class="mb-4" id="pkgAnalyticsWrap" style="display:none;">
+      <ul class="nav nav-pills mb-2" id="pkgAnalyticsTabs"></ul>
+      <div class="card border-0 bg-light">
+        <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="pkgTabHourly" role="tabpanel">
+              <canvas id="pkgHourlyChart" height="130"></canvas>
+            </div>
+            <div class="tab-pane fade" id="pkgTabDaily" role="tabpanel">
+              <canvas id="pkgDailyChart" height="130"></canvas>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="d-flex flex-wrap align-items-center mt-2" id="pkgMetaRow"></div>
-  <div class="mb-4" id="pkgQuickInclude"></div>
+    <div class="d-flex flex-wrap align-items-center mt-2" id="pkgMetaRow"></div>
+    <div class="mb-4" id="pkgQuickInclude"></div>
 
-  <div class="table-responsive">
-    <table class="table table-sm align-middle pkg-versions-table">
-      <colgroup>
-        <col style="width:15%">
-        <col style="width:10%">
-        <col style="width:20%">
-        <col style="width:55%">
-      </colgroup>
-      <thead>
-        <tr>
-          <th>Version</th>
-          <th>Channel</th>
-          <th>Built</th>
-          <th>Files</th>
-        </tr>
-      </thead>
-      <tbody id="versionsTbody"></tbody>
-    </table>
-  </div>
-`;
+    <div class="table-responsive">
+      <table class="table table-sm align-middle pkg-versions-table">
+        <colgroup>
+          <col style="width:15%">
+          <col style="width:10%">
+          <col style="width:20%">
+          <col style="width:55%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Channel</th>
+            <th>Built</th>
+            <th>Files</th>
+          </tr>
+        </thead>
+        <tbody id="versionsTbody"></tbody>
+      </table>
+    </div>
+  `;
 
   subtitle.textContent = `${list.length} version(s)`;
 
+  // Analytics
   (async () => {
     const wrap = body.querySelector("#pkgAnalyticsWrap");
     const tabs = body.querySelector("#pkgAnalyticsTabs");
@@ -393,6 +392,7 @@ async function renderDetailsInModal(pkg) {
     }
   })();
 
+  // Meta row
   const metaRow = body.querySelector("#pkgMetaRow");
   if (metaRow) {
     const blocks = [];
@@ -405,6 +405,7 @@ async function renderDetailsInModal(pkg) {
     metaRow.innerHTML = blocks.filter(Boolean).join("") || "";
   }
 
+  // Quick include accordion
   const quickBox = body.querySelector("#pkgQuickInclude");
   if (quickBox) {
     const hasLatest = !!pkgIndex.last_latest;
@@ -412,7 +413,6 @@ async function renderDetailsInModal(pkg) {
     const hasBeta = !!pkgIndex.last_beta;
 
     const copyMap = new Map();
-
     const items = [];
 
     const addItem = (fileLabel, kind, file) => {
@@ -423,45 +423,34 @@ async function renderDetailsInModal(pkg) {
 
       const rows = [];
 
-      const pushRow = (tag, ver) => {
-        const line = buildIncludeLine(kind, baseAbs, pkg, ver, file, "");
+      const pushRow = (verTag) => {
+        const line = buildIncludeLine(kind, baseAbs, pkg, verTag, file, "");
         if (!line) return;
-        const k = `${pkg}:quick:${fileLabel}:${ver}`;
+        const k = `${pkg}:quick:${fileLabel}:${verTag}`;
         copyMap.set(k, line);
-
-        rows.push(`
-        <div class="snippet-block-center">
-          <div class="snippet-title">${escapeHtml(ver)}</div>
-          <div class="code-box">
-            <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(k)}" aria-label="Copy">
-              <i class="fa-solid fa-clipboard"></i>
-            </button>
-            <code>${escapeHtml(line)}</code>
-          </div>
-        </div>
-      `);
+        rows.push(buildSnippetBlock(verTag, line, k));
       };
 
-      if (hasLatest) pushRow(fileLabel, "@latest");
-      if (hasStable) pushRow(fileLabel, "@stable");
-      if (hasBeta) pushRow(fileLabel, "@beta");
-
+      if (hasLatest) pushRow("@latest");
+      if (hasStable) pushRow("@stable");
+      if (hasBeta) pushRow("@beta");
       if (!rows.length) return;
 
       items.push(`
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="h_${accId}">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
-            ${escapeHtml(file)}
-          </button>
-        </h2>
-        <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#pkgQuickAccordion">
-          <div class="accordion-body">
-            ${rows.join("")}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="h_${accId}">
+            <button class="accordion-button collapsed" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+              ${escapeHtml(file)}
+            </button>
+          </h2>
+          <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#pkgQuickAccordion">
+            <div class="accordion-body">
+              ${rows.join("")}
+            </div>
           </div>
         </div>
-      </div>
-    `);
+      `);
     };
 
     addItem("CSS", "css", quick.cssFile);
@@ -472,6 +461,47 @@ async function renderDetailsInModal(pkg) {
     } else {
       quickBox.innerHTML = `<div class="accordion" id="pkgQuickAccordion">${items.join("")}</div>`;
       wireCopyButtons(quickBox, copyMap);
+    }
+  }
+
+  // Versions rows (THIS WAS MISSING)
+  const tbody = body.querySelector("#versionsTbody");
+  if (tbody) {
+    for (const v of list) {
+      const ver = v.version;
+
+      const manifest = await fetchJson(`./${pkg}/${ver}/manifest.json`).catch(() => null);
+      const files = manifest?.files || {};
+      const entries = Object.entries(files);
+
+      const cssEntries = entries.filter(([n]) => n.endsWith(".css")).sort((a, b) => a[0].localeCompare(b[0]));
+      const jsEntries = entries.filter(([n]) => n.endsWith(".js")).sort((a, b) => a[0].localeCompare(b[0]));
+      const otherEntries = entries
+        .filter(([n]) => !n.endsWith(".css") && !n.endsWith(".js"))
+        .sort((a, b) => a[0].localeCompare(b[0]));
+      const ordered = [...cssEntries, ...jsEntries, ...otherEntries];
+
+      const copyMap = new Map();
+      const filesHtml = manifest
+        ? buildFilesMiniTableHtml(baseAbs, pkg, ver, ordered, copyMap, `${pkg}:${ver}:file`)
+        : `<span class="text-muted">manifest missing</span>`;
+
+      const badge =
+        v.channel === "stable" ? "text-bg-success" :
+          v.channel === "beta" ? "text-bg-warning" :
+            "text-bg-secondary";
+
+      const row = document.createElement("tr");
+      row.classList.add("align-middle");
+      row.innerHTML = `
+        <td class="align-middle"><code>${escapeHtml(ver)}</code></td>
+        <td class="align-middle">${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
+        <td class="align-middle">${fmtDate(v.built_at)}</td>
+        <td class="align-middle">${filesHtml}</td>
+      `;
+      tbody.appendChild(row);
+
+      wireCopyButtons(row, copyMap);
     }
   }
 }

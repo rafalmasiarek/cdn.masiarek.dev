@@ -23,7 +23,7 @@ jobs:
           node-version: "20"
 
       - name: Install root deps
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Checkout gh-pages into ./public
         env:

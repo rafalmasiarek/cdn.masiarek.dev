@@ -1,0 +1,36 @@
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+*.tgz
+
+# --- Build outputs (per package) ---
+packages/*/dist/
+packages/*/.cache/
+packages/*/*.tsbuildinfo
+
+# --- Local gh-pages working tree (used by workflows locally sometimes) ---
+public/
+
+# --- External sync temp dirs ---
+.tmp/
+tmp/
+
+# --- Env / secrets ---
+.env
+.env.*
+*.local
+
+package-lock.json
+packages/*/package-lock.json
+npm-shrinkwrap.json

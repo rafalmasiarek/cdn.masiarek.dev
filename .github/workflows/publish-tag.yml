@@ -37,7 +37,7 @@ jobs:
           set -euo pipefail
           PKG="${{ steps.tag.outputs.pkg }}"
           cd "packages/$PKG"
-          npm ci
+          npm install --no-audit --no-fund
           npm run build
 
       - name: Checkout gh-pages branch into ./public

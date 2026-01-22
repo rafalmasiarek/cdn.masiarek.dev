@@ -34,17 +34,21 @@ const CF_ZONE_TAG = mustEnv("CF_ZONE_TAG");
 const CDN_CUSTOM_DOMAIN = mustEnv("CDN_CUSTOM_DOMAIN");
 
 function isoHoursAgo(n) {
-    const d = new Date(Date.now() - n * 60 * 60 * 1000);
-    return d.toISOString();
-}
-
-function isoDaysAgo(n) {
-    const d = new Date(Date.now() - n * 24 * 60 * 60 * 1000);
-    return d.toISOString();
+    return new Date(Date.now() - n * 60 * 60 * 1000).toISOString();
 }
 
 function isoAtHoursAgo(n) {
     return new Date(Date.now() - n * 60 * 60 * 1000).toISOString();
+}
+
+function ymdDaysAgo(n) {
+    // YYYY-MM-DD in UTC
+    const d = new Date(Date.now() - n * 24 * 60 * 60 * 1000);
+    return d.toISOString().slice(0, 10);
+}
+
+function ymdTodayUtc() {
+    return new Date().toISOString().slice(0, 10);
 }
 
 function mergeSeriesByT(seriesList) {
@@ -80,7 +84,7 @@ async function cfGraphql(query, variables) {
 
     const json = await res.json();
     if (json?.errors?.length) {
-        throw new Error(`Cloudflare GraphQL errors: ${JSON.stringify(json.errors).slice(0, 800)}`);
+        throw new Error(`Cloudflare GraphQL errors: ${JSON.stringify(json.errors).slice(0, 1200)}`);
     }
     return json?.data;
 }
@@ -101,9 +105,14 @@ function writeJson(p, obj) {
     fs.writeFileSync(p, JSON.stringify(obj, null, 2) + "\n");
 }
 
-function clipSeries(series, minIso) {
+function clipSeriesByIso(series, minIso) {
     const minT = new Date(minIso).getTime();
     return (series || []).filter((x) => new Date(x.t).getTime() >= minT);
+}
+
+function clipDailyByYmd(series, minYmd) {
+    // series.t is YYYY-MM-DD
+    return (series || []).filter((x) => String(x.t) >= String(minYmd));
 }
 
 function normalizeHourly(rows) {
@@ -115,14 +124,11 @@ function normalizeHourly(rows) {
 }
 
 function normalizeDaily(rows) {
-    // Some zones return datetimeDay, some may return datetimeDate.
+    // rows: [{ dimensions: { date }, count }]
     return rows
-        .map((r) => ({
-            t: r.dimensions?.datetimeDay || r.dimensions?.datetimeDate,
-            count: Number(r.count || 0),
-        }))
+        .map((r) => ({ t: r.dimensions?.date, count: Number(r.count || 0) }))
         .filter((x) => x.t)
-        .sort((a, b) => new Date(a.t) - new Date(b.t));
+        .sort((a, b) => String(a.t).localeCompare(String(b.t)));
 }
 
 async function queryHourly({ pathLike }) {
@@ -143,6 +149,8 @@ async function queryHourly({ pathLike }) {
     }
   `;
 
+    // Cloudflare limit: hourly time range cannot exceed 86400s (24h) for some plans.
+    // Chunk HOURLY_HOURS into 24h windows: [72..48), [48..24), [24..now)
     const nowIso = new Date().toISOString();
 
     const ranges = [];
@@ -161,6 +169,7 @@ async function queryHourly({ pathLike }) {
             datetime_geq: r.from,
             datetime_lt: r.to,
             clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
+            requestSource: "eyeball",
         };
 
         if (pathLike) filter.clientRequestPath_like = pathLike;
@@ -181,19 +190,22 @@ async function queryDaily({ pathLike }) {
           httpRequestsAdaptiveGroups(
             limit: 5000
             filter: $filter
+            orderBy: [date_ASC]
           ) {
             count
-            dimensions { datetimeDay }
+            dimensions { date }
           }
         }
       }
     }
   `;
 
+    // Daily uses date_* filters and dimensions.date (YYYY-MM-DD)
     const filter = {
-        datetime_geq: isoDaysAgo(DAILY_DAYS),
-        datetime_lt: new Date().toISOString(),
+        date_geq: ymdDaysAgo(DAILY_DAYS),
+        date_lt: ymdTodayUtc(), // today is excluded; gives full previous days up to yesterday
         clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
+        requestSource: "eyeball",
     };
 
     if (pathLike) filter.clientRequestPath_like = pathLike;
@@ -227,8 +239,10 @@ async function main() {
     const packages = pkgs.length ? pkgs : loadPackagesFromSourceRepo();
 
     if (!packages.length) {
-        throw new Error('No packages found (neither in public/_index/index.json nor in ./packages/*).');
+        throw new Error("No packages found (neither in public/_index/index.json nor in ./packages/*).");
     }
+
+    const generatedAt = new Date().toISOString();
 
     // Global
     const globalHourly = await queryHourly({ pathLike: null });
@@ -238,14 +252,15 @@ async function main() {
     const oldGlobal = readJsonIfExists(globalPath, {});
 
     const globalObj = {
-        generated_at: new Date().toISOString(),
+        generated_at: generatedAt,
         hostname: CDN_CUSTOM_DOMAIN,
         retention: { hourly_hours: HOURLY_HOURS, daily_days: DAILY_DAYS },
-        hourly: clipSeries(globalHourly, isoHoursAgo(HOURLY_HOURS)),
-        daily: clipSeries(globalDaily, isoDaysAgo(DAILY_DAYS)),
-
-        // Keep a tiny metadata section for future extensions
-        meta: { source: "cloudflare_graphql", previous_generated_at: oldGlobal?.generated_at || null },
+        hourly: clipSeriesByIso(globalHourly, isoHoursAgo(HOURLY_HOURS)),
+        daily: clipDailyByYmd(globalDaily, ymdDaysAgo(DAILY_DAYS)),
+        meta: {
+            source: "cloudflare_graphql",
+            previous_generated_at: oldGlobal?.generated_at || null,
+        },
     };
 
     writeJson(globalPath, globalObj);
@@ -259,13 +274,16 @@ async function main() {
         const old = readJsonIfExists(outPath, {});
 
         const obj = {
-            generated_at: new Date().toISOString(),
+            generated_at: generatedAt,
             hostname: CDN_CUSTOM_DOMAIN,
             package: pkg,
             retention: { hourly_hours: HOURLY_HOURS, daily_days: DAILY_DAYS },
-            hourly: clipSeries(hourly, isoHoursAgo(HOURLY_HOURS)),
-            daily: clipSeries(daily, isoDaysAgo(DAILY_DAYS)),
-            meta: { source: "cloudflare_graphql", previous_generated_at: old?.generated_at || null },
+            hourly: clipSeriesByIso(hourly, isoHoursAgo(HOURLY_HOURS)),
+            daily: clipDailyByYmd(daily, ymdDaysAgo(DAILY_DAYS)),
+            meta: {
+                source: "cloudflare_graphql",
+                previous_generated_at: old?.generated_at || null,
+            },
         };
 
         writeJson(outPath, obj);

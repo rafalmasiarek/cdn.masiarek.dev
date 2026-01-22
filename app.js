@@ -203,7 +203,11 @@ function buildSnippetBlock(title, codeText, copyKey) {
 function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPrefix) {
   if (!entries.length) return `<span class="text-muted">-</span>`;
 
-  const blocks = entries.map(([name, meta2], idx) => {
+  const filtered = entries
+    .filter(([name]) => name.endsWith(".css") || name.endsWith(".js"))
+    .sort((a, b) => a[0].localeCompare(b[0]));
+
+  const blocks = filtered.map(([name, meta2], idx) => {
     const bytes = Number(meta2?.bytes ?? 0);
     const integrity = meta2?.integrity ?? "";
 
@@ -224,7 +228,7 @@ function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPre
 
     const codeHtml = snippet
       ? `
-        <div class="mt-2">
+        <div class="code-box mt-2">
           <button class="btn btn-sm btn-outline-primary copy-btn code-copy"
                   data-copy-key="${escapeHtml(k)}" aria-label="Copy">
             <i class="fa-solid fa-clipboard"></i>

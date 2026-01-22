@@ -268,39 +268,45 @@ async function renderDetailsInModal(pkg) {
   const meta = quick.meta || pkgMetaFromIndex || null;
 
   body.innerHTML = `
-    <div class="mb-4" id="pkgAnalyticsWrap" style="display:none;">
-      <ul class="nav nav-pills mb-2" id="pkgAnalyticsTabs"></ul>
-      <div class="card border-0 bg-light">
-        <div class="card-body">
-          <div class="tab-content">
-            <div class="tab-pane fade show active" id="pkgTabHourly" role="tabpanel">
-              <canvas id="pkgHourlyChart" height="130"></canvas>
-            </div>
-            <div class="tab-pane fade" id="pkgTabDaily" role="tabpanel">
-              <canvas id="pkgDailyChart" height="130"></canvas>
-            </div>
+  <div class="mb-4" id="pkgAnalyticsWrap" style="display:none;">
+    <ul class="nav nav-pills mb-2" id="pkgAnalyticsTabs"></ul>
+    <div class="card border-0 bg-light">
+      <div class="card-body">
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="pkgTabHourly" role="tabpanel">
+            <canvas id="pkgHourlyChart" height="130"></canvas>
+          </div>
+          <div class="tab-pane fade" id="pkgTabDaily" role="tabpanel">
+            <canvas id="pkgDailyChart" height="130"></canvas>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="d-flex flex-wrap align-items-center mt-2" id="pkgMetaRow"></div>
-    <div class="mb-4" id="pkgQuickInclude"></div>
+  <div class="d-flex flex-wrap align-items-center mt-2" id="pkgMetaRow"></div>
+  <div class="mb-4" id="pkgQuickInclude"></div>
 
-    <div class="table-responsive">
-      <table class="table table-sm align-middle pkg-versions-table">
-        <thead>
-          <tr>
-            <th>Version</th>
-            <th>Channel</th>
-            <th>Built</th>
-            <th>Files</th>
-          </tr>
-        </thead>
-        <tbody id="versionsTbody"></tbody>
-      </table>
-    </div>
-  `;
+  <div class="table-responsive">
+    <table class="table table-sm align-middle pkg-versions-table">
+      <colgroup>
+        <col style="width:15%">
+        <col style="width:10%">
+        <col style="width:20%">
+        <col style="width:55%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Channel</th>
+          <th>Built</th>
+          <th>Files</th>
+        </tr>
+      </thead>
+      <tbody id="versionsTbody"></tbody>
+    </table>
+  </div>
+`;
 
   subtitle.textContent = `${list.length} version(s)`;
 

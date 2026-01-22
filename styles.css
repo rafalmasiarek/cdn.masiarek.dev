@@ -86,9 +86,43 @@ code {
 
 .pkg-versions-table th,
 .pkg-versions-table td {
+    vertical-align: middle;
+}
+
+.pkg-versions-table th:not(:last-child),
+.pkg-versions-table td:not(:last-child) {
     overflow: hidden;
     text-overflow: ellipsis;
-    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.pkg-versions-table td:last-child {
+    overflow: visible;
+}
+
+.pkg-versions-table td:last-child .code-box {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.pkg-versions-table th:nth-child(1),
+.pkg-versions-table td:nth-child(1) {
+    width: 14%;
+}
+
+.pkg-versions-table th:nth-child(2),
+.pkg-versions-table td:nth-child(2) {
+    width: 12%;
+}
+
+.pkg-versions-table th:nth-child(3),
+.pkg-versions-table td:nth-child(3) {
+    width: 16%;
+}
+
+.pkg-versions-table th:nth-child(4),
+.pkg-versions-table td:nth-child(4) {
+    width: 58%;
 }
 
 .file-left,

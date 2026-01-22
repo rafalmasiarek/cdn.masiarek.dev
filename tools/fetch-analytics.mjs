@@ -57,7 +57,25 @@ function ymdTodayUtc() {
     return new Date().toISOString().slice(0, 10);
 }
 
-function mergeSeriesByT(seriesList) {
+function nowUtcHourKey() {
+    // "YYYY-MM-DDTHH" in UTC
+    const d = new Date();
+    return d.toISOString().slice(0, 13);
+}
+
+function isFirstRunTodayUtc(oldGeneratedAt) {
+    // If we already generated today (UTC date), don't regenerate daily again.
+    const today = ymdTodayUtc();
+    if (!oldGeneratedAt) return true;
+    try {
+        const prevDay = String(oldGeneratedAt).slice(0, 10);
+        return prevDay !== today;
+    } catch {
+        return true;
+    }
+}
+
+function mergeSeriesByIso(seriesList) {
     // Deduplicate by timestamp (t) and sum counts if duplicates appear
     const map = new Map();
     for (const series of seriesList) {
@@ -117,12 +135,10 @@ function clipSeriesByIso(series, minIso) {
 }
 
 function clipDailyByYmd(series, minYmd) {
-    // series.t is YYYY-MM-DD
     return (series || []).filter((x) => String(x.t) >= String(minYmd));
 }
 
 function normalizeHourly(rows) {
-    // rows: [{ dimensions: { datetimeHour }, count }]
     return rows
         .map((r) => ({ t: r.dimensions?.datetimeHour, count: Number(r.count || 0) }))
         .filter((x) => x.t)
@@ -130,7 +146,6 @@ function normalizeHourly(rows) {
 }
 
 function normalizeDaily(rows) {
-    // rows: [{ dimensions: { date }, count }]
     return rows
         .map((r) => ({ t: r.dimensions?.date, count: Number(r.count || 0) }))
         .filter((x) => x.t)
@@ -157,6 +172,7 @@ async function queryHourly({ pathLike }) {
 
     const nowIso = new Date().toISOString();
 
+    // chunk to 24h windows
     const ranges = [];
     for (let fromH = HOURLY_HOURS; fromH > 0; fromH -= 24) {
         const toH = Math.max(0, fromH - 24);
@@ -183,7 +199,7 @@ async function queryHourly({ pathLike }) {
         all.push(normalizeHourly(rows));
     }
 
-    return mergeSeriesByT(all);
+    return mergeSeriesByIso(all);
 }
 
 async function queryDaily({ pathLike }) {
@@ -194,7 +210,6 @@ async function queryDaily({ pathLike }) {
           httpRequestsAdaptiveGroups(
             limit: 5000
             filter: $filter
-            orderBy: [date_ASC]
           ) {
             count
             dimensions { date }
@@ -204,21 +219,21 @@ async function queryDaily({ pathLike }) {
     }
   `;
 
-    const end = ymdTodayUtc();
+    // Your zone enforces <= 86400s range even for daily, so we must query 1 day at a time.
+    const end = ymdTodayUtc();          // exclude today (partial)
     const start = ymdDaysAgo(DAILY_DAYS);
 
-    const CHUNK_DAYS = 7;
+    const CHUNK_DAYS = 1; // REQUIRED for your plan/zone
 
     const all = [];
 
     let cur = start;
     while (cur < end) {
-        const next = ymdAddDays(cur, CHUNK_DAYS);
-        const to = next < end ? next : end;
+        const to = ymdAddDays(cur, CHUNK_DAYS);
 
         const filter = {
             date_geq: cur,
-            date_lt: to,
+            date_lt: to, // exclusive => exactly 1 day
             clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
             requestSource: "eyeball",
         };
@@ -232,6 +247,7 @@ async function queryDaily({ pathLike }) {
         cur = to;
     }
 
+    // merge (t=YYYY-MM-DD)
     const map = new Map();
     for (const series of all) {
         for (const p of series || []) {
@@ -275,21 +291,30 @@ async function main() {
 
     const generatedAt = new Date().toISOString();
 
-    // Global
-    const globalHourly = await queryHourly({ pathLike: null });
-    const globalDaily = await queryDaily({ pathLike: null });
-
+    // Load previous global (to decide if we should refresh daily today)
     const globalPath = path.join(OUT_DIR, "global.json");
-    const oldGlobal = readJsonIfExists(globalPath, {});
+    const oldGlobal = readJsonIfExists(globalPath, null);
+
+    const shouldRefreshDaily = isFirstRunTodayUtc(oldGlobal?.generated_at);
+
+    // Global hourly always
+    const globalHourly = await queryHourly({ pathLike: null });
+
+    // Global daily only once per day
+    const globalDaily = shouldRefreshDaily
+        ? await queryDaily({ pathLike: null })
+        : (oldGlobal?.daily || []);
 
     const globalObj = {
         generated_at: generatedAt,
+        generated_hour: nowUtcHourKey(),
         hostname: CDN_CUSTOM_DOMAIN,
         retention: { hourly_hours: HOURLY_HOURS, daily_days: DAILY_DAYS },
         hourly: clipSeriesByIso(globalHourly, isoHoursAgo(HOURLY_HOURS)),
         daily: clipDailyByYmd(globalDaily, ymdDaysAgo(DAILY_DAYS)),
         meta: {
             source: "cloudflare_graphql",
+            daily_refreshed_today: shouldRefreshDaily,
             previous_generated_at: oldGlobal?.generated_at || null,
         },
     };
@@ -298,14 +323,20 @@ async function main() {
 
     // Per package
     for (const pkg of packages) {
-        const hourly = await queryHourly({ pathLike: `/${pkg}/%` });
-        const daily = await queryDaily({ pathLike: `/${pkg}/%` });
-
         const outPath = path.join(OUT_DIR, `${pkg}.json`);
-        const old = readJsonIfExists(outPath, {});
+        const old = readJsonIfExists(outPath, null);
+
+        // hourly always
+        const hourly = await queryHourly({ pathLike: `/${pkg}/%` });
+
+        // daily only once per day (reuse old daily if already generated today)
+        const daily = shouldRefreshDaily
+            ? await queryDaily({ pathLike: `/${pkg}/%` })
+            : (old?.daily || []);
 
         const obj = {
             generated_at: generatedAt,
+            generated_hour: nowUtcHourKey(),
             hostname: CDN_CUSTOM_DOMAIN,
             package: pkg,
             retention: { hourly_hours: HOURLY_HOURS, daily_days: DAILY_DAYS },
@@ -313,6 +344,7 @@ async function main() {
             daily: clipDailyByYmd(daily, ymdDaysAgo(DAILY_DAYS)),
             meta: {
                 source: "cloudflare_graphql",
+                daily_refreshed_today: shouldRefreshDaily,
                 previous_generated_at: old?.generated_at || null,
             },
         };
@@ -320,7 +352,9 @@ async function main() {
         writeJson(outPath, obj);
     }
 
-    console.log(`Wrote analytics: ${path.join("_index", "analytics")} (global + ${packages.length} packages)`);
+    console.log(
+        `Wrote analytics: ${path.join("_index", "analytics")} (global + ${packages.length} packages), daily_refreshed_today=${shouldRefreshDaily}`
+    );
 }
 
 main().catch((e) => {

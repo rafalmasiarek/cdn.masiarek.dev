@@ -26,14 +26,6 @@
       "action": "publish",
       "status": "OK",
       "details": "@stable v1.4.3 files=5"
-    },
-    {
-      "package": "instagram.css",
-      "type": "github-raw-file",
-      "upstream": "master@b08f80f05789",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (same commit SHA)"
     }
   ]
 }

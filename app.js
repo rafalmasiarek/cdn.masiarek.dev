@@ -141,19 +141,6 @@ function showModal() {
   inst.show();
 }
 
-function buildSnippetBlock(title, codeText, copyKey) {
-  const safe = escapeHtml(codeText);
-  return `
-    <div class="mb-3 snippet-block">
-      <div class="d-flex align-items-center justify-content-between">
-        <strong>${escapeHtml(title)}</strong>
-        <button class="btn btn-sm btn-outline-primary copy-btn" data-copy-key="${escapeHtml(copyKey)}">Copy</button>
-      </div>
-      <pre class="mb-0 mt-2"><code>${safe}</code></pre>
-    </div>
-  `;
-}
-
 function wireCopyButtons(container, map) {
   container.querySelectorAll(".copy-btn").forEach(btn => {
     btn.addEventListener("click", async (e) => {
@@ -165,30 +152,6 @@ function wireCopyButtons(container, map) {
   });
 }
 
-function pickMainAsset(files) {
-  const keys = Object.keys(files || {});
-  const js =
-    keys.find(n => n.endsWith(".min.js")) ||
-    keys.find(n => n.endsWith(".js")) ||
-    null;
-
-  const css =
-    keys.find(n => n.endsWith(".min.css")) ||
-    keys.find(n => n.endsWith(".css")) ||
-    null;
-
-  if (js) return { kind: "js", file: js };
-  if (css) return { kind: "css", file: css };
-  return { kind: null, file: null };
-}
-
-function buildIncludeLine(kind, baseAbs, pkg, ver, file, integrity) {
-  if (!kind || !file) return "";
-  if (kind === "js") return buildScriptLine(baseAbs, pkg, ver, file, integrity);
-  if (kind === "css") return buildCssLine(baseAbs, pkg, ver, file, integrity);
-  return "";
-}
-
 function metaIconRow(icon, label, value, href) {
   if (!value) return "";
   const v = escapeHtml(value);
@@ -198,6 +161,59 @@ function metaIconRow(icon, label, value, href) {
     return `<div class="me-4 mb-2"><i class="fa-solid ${icon} me-2 text-muted"></i><span class="text-muted">${l}:</span> <a href="${h}" target="_blank" rel="noopener">${v}</a></div>`;
   }
   return `<div class="me-4 mb-2"><i class="fa-solid ${icon} me-2 text-muted"></i><span class="text-muted">${l}:</span> <span>${v}</span></div>`;
+}
+
+/**
+ * Build a compact "files table" (no headers) where each file row has:
+ * - left: name + bytes + integrity
+ * - right: Copy button + dark code box with the include snippet (1-line + horizontal scroll)
+ */
+function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPrefix) {
+  if (!entries.length) return `<span class="text-muted">-</span>`;
+
+  const rows = entries.map(([name, meta2], idx) => {
+    const bytes = meta2?.bytes ?? "";
+    const integrity = meta2?.integrity ?? "";
+
+    // Build snippet per file type
+    let snippet = "";
+    if (name.endsWith(".css")) snippet = buildCssLine(baseAbs, pkg, ver, name, integrity);
+    else if (name.endsWith(".js")) snippet = buildScriptLine(baseAbs, pkg, ver, name, integrity);
+    else snippet = ""; // non js/css: no include line
+
+    const k = `${copyKeyPrefix}:${idx}`;
+    if (snippet) copyMap.set(k, snippet);
+
+    const copyBtnHtml = snippet
+      ? `<button class="btn btn-sm btn-outline-primary copy-btn" data-copy-key="${escapeHtml(k)}">Copy</button>`
+      : `<span class="text-muted small">—</span>`;
+
+    const codeHtml = snippet
+      ? `<div class="code-box"><code>${escapeHtml(snippet)}</code></div>`
+      : ``;
+
+    return `
+      <tr>
+        <td class="file-left">
+          <div class="file-name"><code>${escapeHtml(name)}</code></div>
+          <div class="file-meta">${escapeHtml(String(bytes))} bytes</div>
+          <div class="file-meta file-sri">${escapeHtml(String(integrity))}</div>
+        </td>
+        <td class="file-right">
+          ${copyBtnHtml}
+          ${codeHtml}
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  return `
+    <table class="files-mini">
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+  `;
 }
 
 // Loaded once on page init
@@ -219,21 +235,15 @@ async function renderDetailsInModal(pkg) {
   const versions = await fetchJson(`./${pkg}/versions.json`);
   const list = versions.versions || [];
 
+  // Best effort meta from pinnedCandidate manifest
   const pinnedCandidate = pkgIndex?.last_latest?.version || list[0]?.version || null;
-
-  let quick = { jsFile: null, cssFile: null, pinnedVer: null, meta: null };
+  let metaFromManifest = null;
   if (pinnedCandidate) {
     const m = await fetchJson(`./${pkg}/${pinnedCandidate}/manifest.json`).catch(() => null);
-    const files = m?.files || {};
-    const keys = Object.keys(files);
-
-    quick.jsFile = keys.find(n => n.endsWith(".min.js")) || keys.find(n => n.endsWith(".js")) || null;
-    quick.cssFile = keys.find(n => n.endsWith(".min.css")) || keys.find(n => n.endsWith(".css")) || null;
-    quick.pinnedVer = pinnedCandidate;
-    quick.meta = m?.meta || null;
+    metaFromManifest = m?.meta || null;
   }
 
-  const meta = quick.meta || pkgMetaFromIndex || null;
+  const meta = metaFromManifest || pkgMetaFromIndex || null;
 
   body.innerHTML = `
     <div class="mb-4" id="pkgAnalyticsWrap" style="display:none;">
@@ -253,7 +263,6 @@ async function renderDetailsInModal(pkg) {
     </div>
 
     <div class="d-flex flex-wrap align-items-center mt-2" id="pkgMetaRow"></div>
-    <div class="mb-4" id="pkgQuickInclude"></div>
 
     <div class="table-responsive">
       <table class="table table-sm align-middle">
@@ -263,7 +272,6 @@ async function renderDetailsInModal(pkg) {
             <th>Channel</th>
             <th>Built</th>
             <th>Files</th>
-            <th>Pinned include</th>
           </tr>
         </thead>
         <tbody id="versionsTbody"></tbody>
@@ -273,6 +281,7 @@ async function renderDetailsInModal(pkg) {
 
   subtitle.textContent = `${list.length} version(s)`;
 
+  // Analytics (best-effort)
   (async () => {
     const wrap = body.querySelector("#pkgAnalyticsWrap");
     const tabs = body.querySelector("#pkgAnalyticsTabs");
@@ -337,6 +346,7 @@ async function renderDetailsInModal(pkg) {
     }
   })();
 
+  // Meta row
   const metaRow = body.querySelector("#pkgMetaRow");
   if (metaRow) {
     const blocks = [];
@@ -346,57 +356,9 @@ async function renderDetailsInModal(pkg) {
     blocks.push(metaIconRow("fa-globe", "Homepage", meta?.homepage || null, meta?.homepage || null));
     blocks.push(metaIconRow("fa-code-branch", "Source", meta?.source_url || null, meta?.source_url || null));
     blocks.push(metaIconRow("fa-book", "README", meta?.readme_url || null, meta?.readme_url || null));
-
     metaRow.innerHTML = blocks.filter(Boolean).join("") || "";
   }
 
-  const quickBox = body.querySelector("#pkgQuickInclude");
-  if (quickBox) {
-    const hasLatest = !!pkgIndex.last_latest;
-    const hasStable = !!pkgIndex.last_stable;
-    const hasBeta = !!pkgIndex.last_beta;
-
-    const copyMap = new Map();
-    const blocks = [];
-
-    const addSet = (label, kind, file) => {
-      if (!file) return;
-
-      const latestLine = buildIncludeLine(kind, baseAbs, pkg, "@latest", file, "");
-      const stableLine = buildIncludeLine(kind, baseAbs, pkg, "@stable", file, "");
-      const betaLine = buildIncludeLine(kind, baseAbs, pkg, "@beta", file, "");
-
-      blocks.push(`<div class="text-muted small mb-2">${escapeHtml(label)}: <code>${escapeHtml(file)}</code></div>`);
-
-      if (hasLatest) {
-        const k = `${pkg}:quick:${label}:latest`;
-        copyMap.set(k, latestLine);
-        blocks.push(buildSnippetBlock("@latest", latestLine, k));
-      }
-      if (hasStable) {
-        const k = `${pkg}:quick:${label}:stable`;
-        copyMap.set(k, stableLine);
-        blocks.push(buildSnippetBlock("@stable", stableLine, k));
-      }
-      if (hasBeta) {
-        const k = `${pkg}:quick:${label}:beta`;
-        copyMap.set(k, betaLine);
-        blocks.push(buildSnippetBlock("@beta", betaLine, k));
-      }
-    };
-
-    addSet("JS", "js", quick.jsFile);
-    addSet("CSS", "css", quick.cssFile);
-
-    if (!blocks.length || (!hasLatest && !hasStable && !hasBeta)) {
-      quickBox.innerHTML = "";
-    } else {
-      quickBox.innerHTML = `<div class="mt-3">${blocks.join("")}</div>`;
-      wireCopyButtons(quickBox, copyMap);
-    }
-  }
-
-  // Versions rows
   const tbody = body.querySelector("#versionsTbody");
   for (const v of list) {
     const ver = v.version;
@@ -404,50 +366,17 @@ async function renderDetailsInModal(pkg) {
     const files = manifest?.files || {};
     const entries = Object.entries(files);
 
-    const filesHtml = manifest
-      ? `<div class="small">
-        ${entries.map(([name, meta2]) => `
-          <div class="mb-2">
-            <div><code>${escapeHtml(name)}</code> <span class="text-muted ms-2">${meta2.bytes ?? ""} bytes</span></div>
-            <div class="text-muted text-break"><small>${escapeHtml(meta2.integrity ?? "")}</small></div>
-          </div>
-        `).join("")}
-      </div>`
-      : `<span class="text-muted">manifest missing</span>`;
+    const cssEntries = entries.filter(([n]) => n.endsWith(".css")).sort((a, b) => a[0].localeCompare(b[0]));
+    const jsEntries = entries.filter(([n]) => n.endsWith(".js")).sort((a, b) => a[0].localeCompare(b[0]));
+    const otherEntries = entries
+      .filter(([n]) => !n.endsWith(".css") && !n.endsWith(".js"))
+      .sort((a, b) => a[0].localeCompare(b[0]));
+    const ordered = [...cssEntries, ...jsEntries, ...otherEntries];
 
-    // Pinned: build up to 2 blocks (CSS + JS) in the same order as "Files"
-    const pinnedParts = [];
     const copyMap = new Map();
-    let cssDone = false;
-    let jsDone = false;
-
-    for (const [name, meta2] of entries) {
-      const integrity = meta2?.integrity || "";
-
-      if (!cssDone && name.endsWith(".css")) {
-        const line = buildCssLine(baseAbs, pkg, ver, name, integrity);
-        const key = `${pkg}:${ver}:pinned:css`;
-        copyMap.set(key, line);
-        pinnedParts.push(buildSnippetBlock("CSS", line, key));
-        cssDone = true;
-        continue;
-      }
-
-      if (!jsDone && name.endsWith(".js")) {
-        const line = buildScriptLine(baseAbs, pkg, ver, name, integrity);
-        const key = `${pkg}:${ver}:pinned:js`;
-        copyMap.set(key, line);
-        pinnedParts.push(buildSnippetBlock("JS", line, key));
-        jsDone = true;
-        continue;
-      }
-
-      if (cssDone && jsDone) break;
-    }
-
-    const pinnedHtml = pinnedParts.length
-      ? `<div class="pinned-grid">${pinnedParts.join("")}</div>`
-      : `<span class="text-muted small">-</span>`;
+    const filesHtml = manifest
+      ? buildFilesMiniTableHtml(baseAbs, pkg, ver, ordered, copyMap, `${pkg}:${ver}:file`)
+      : `<span class="text-muted">manifest missing</span>`;
 
     const badge =
       v.channel === "stable" ? "text-bg-success" :
@@ -456,15 +385,14 @@ async function renderDetailsInModal(pkg) {
 
     const row = document.createElement("tr");
     row.innerHTML = `
-    <td><code>${escapeHtml(ver)}</code></td>
-    <td>${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
-    <td>${fmtDate(v.built_at)}</td>
-    <td style="min-width:320px">${filesHtml}</td>
-    <td style="min-width:360px">${pinnedHtml}</td>
-  `;
+      <td><code>${escapeHtml(ver)}</code></td>
+      <td>${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
+      <td>${fmtDate(v.built_at)}</td>
+      <td style="min-width:560px">${filesHtml}</td>
+    `;
     tbody.appendChild(row);
 
-    if (pinnedParts.length) wireCopyButtons(row, copyMap);
+    wireCopyButtons(row, copyMap);
   }
 }
 

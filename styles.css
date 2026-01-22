@@ -11,7 +11,6 @@ code {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 10px;
-    /* space between “cards” */
 }
 
 .files-mini td {
@@ -54,7 +53,6 @@ code {
     border-radius: 0;
     /* square */
     overflow-x: auto;
-    /* horizontal scroll */
     overflow-y: hidden;
     max-width: 100%;
 }
@@ -68,4 +66,20 @@ code {
 
 .code-box::-webkit-scrollbar {
     height: 10px;
+}
+
+.pinned-include {
+    min-width: 360px;
+}
+
+.pinned-block {
+    margin-bottom: 12px;
+}
+
+.pinned-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #6c757d;
+    margin-bottom: 4px;
+    letter-spacing: 0.04em;
 }

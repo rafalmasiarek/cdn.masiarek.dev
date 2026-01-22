@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "*@*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish (e.g. vinyl-loader@1.0.1)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -21,7 +27,7 @@ jobs:
         id: tag
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME}"         # e.g. vinyl-loader@1.4.3-beta.1
+          TAG="${GITHUB_REF_NAME:-${{ inputs.tag }}}"
           PKG="${TAG%@*}"
           VER="${TAG#*@}"                  # 1.4.3-beta.1
           echo "pkg=$PKG" >> $GITHUB_OUTPUT

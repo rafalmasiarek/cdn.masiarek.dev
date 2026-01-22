@@ -43,6 +43,10 @@ jobs:
       - name: Install root deps
         run: npm install
 
+      - name: Configure authenticated remote for pushes
+        run: |
+          git remote set-url origin "https://x-access-token:${{ secrets.RELEASE_PAT }}@github.com/${{ github.repository }}.git"
+
       - name: Bump version + commit + tag + push
         env:
           PKG: ${{ inputs.package }}

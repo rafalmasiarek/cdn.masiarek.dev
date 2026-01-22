@@ -47,6 +47,12 @@ function ymdDaysAgo(n) {
     return d.toISOString().slice(0, 10);
 }
 
+function ymdAddDays(ymd, days) {
+    const d = new Date(`${ymd}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + days);
+    return d.toISOString().slice(0, 10);
+}
+
 function ymdTodayUtc() {
     return new Date().toISOString().slice(0, 10);
 }
@@ -149,8 +155,6 @@ async function queryHourly({ pathLike }) {
     }
   `;
 
-    // Cloudflare limit: hourly time range cannot exceed 86400s (24h) for some plans.
-    // Chunk HOURLY_HOURS into 24h windows: [72..48), [48..24), [24..now)
     const nowIso = new Date().toISOString();
 
     const ranges = [];
@@ -200,19 +204,46 @@ async function queryDaily({ pathLike }) {
     }
   `;
 
-    // Daily uses date_* filters and dimensions.date (YYYY-MM-DD)
-    const filter = {
-        date_geq: ymdDaysAgo(DAILY_DAYS),
-        date_lt: ymdTodayUtc(), // today is excluded; gives full previous days up to yesterday
-        clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
-        requestSource: "eyeball",
-    };
+    const end = ymdTodayUtc();
+    const start = ymdDaysAgo(DAILY_DAYS);
 
-    if (pathLike) filter.clientRequestPath_like = pathLike;
+    const CHUNK_DAYS = 7;
 
-    const data = await cfGraphql(query, { zoneTag: CF_ZONE_TAG, filter });
-    const rows = data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [];
-    return normalizeDaily(rows);
+    const all = [];
+
+    let cur = start;
+    while (cur < end) {
+        const next = ymdAddDays(cur, CHUNK_DAYS);
+        const to = next < end ? next : end;
+
+        const filter = {
+            date_geq: cur,
+            date_lt: to,
+            clientRequestHTTPHost: CDN_CUSTOM_DOMAIN,
+            requestSource: "eyeball",
+        };
+
+        if (pathLike) filter.clientRequestPath_like = pathLike;
+
+        const data = await cfGraphql(query, { zoneTag: CF_ZONE_TAG, filter });
+        const rows = data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [];
+        all.push(normalizeDaily(rows));
+
+        cur = to;
+    }
+
+    const map = new Map();
+    for (const series of all) {
+        for (const p of series || []) {
+            if (!p?.t) continue;
+            const prev = map.get(p.t) || 0;
+            map.set(p.t, prev + Number(p.count || 0));
+        }
+    }
+
+    return Array.from(map.entries())
+        .map(([t, count]) => ({ t, count }))
+        .sort((a, b) => String(a.t).localeCompare(String(b.t)));
 }
 
 function loadPackagesFromGhPagesIndex() {

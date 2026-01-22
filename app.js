@@ -57,7 +57,7 @@ async function copyToClipboard(text, btn) {
       btn.disabled = true;
       setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 900);
     }
-  } catch (e) {
+  } catch {
     alert("Copy failed (browser permissions).");
   }
 }
@@ -149,19 +149,6 @@ function showModal() {
   inst.show();
 }
 
-function buildSnippetBlock(title, codeText, copyKey) {
-  const safe = escapeHtml(codeText);
-  return `
-    <div class="mb-3 snippet-block">
-      <div class="d-flex align-items-center justify-content-between">
-        <strong>${escapeHtml(title)}</strong>
-        <button class="btn btn-sm btn-outline-primary copy-btn" data-copy-key="${escapeHtml(copyKey)}">Copy</button>
-      </div>
-      <pre class="mb-0 mt-2"><code>${safe}</code></pre>
-    </div>
-  `;
-}
-
 function wireCopyButtons(container, map) {
   container.querySelectorAll(".copy-btn").forEach(btn => {
     btn.addEventListener("click", async (e) => {
@@ -182,6 +169,19 @@ function metaIconRow(icon, label, value, href) {
     return `<div class="me-4 mb-2"><i class="fa-solid ${icon} me-2 text-muted"></i><span class="text-muted">${l}:</span> <a href="${h}" target="_blank" rel="noopener">${v}</a></div>`;
   }
   return `<div class="me-4 mb-2"><i class="fa-solid ${icon} me-2 text-muted"></i><span class="text-muted">${l}:</span> <span>${v}</span></div>`;
+}
+
+function buildSnippetBlock(title, codeText, copyKey) {
+  const safe = escapeHtml(codeText);
+  return `
+    <div class="snippet-block-center">
+      <div class="snippet-title">${escapeHtml(title)}</div>
+      <div class="code-box">
+        <button class="btn btn-sm btn-outline-primary copy-btn code-copy" data-copy-key="${escapeHtml(copyKey)}">Copy</button>
+        <code>${safe}</code>
+      </div>
+    </div>
+  `;
 }
 
 function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPrefix) {
@@ -289,12 +289,6 @@ async function renderDetailsInModal(pkg) {
 
     <div class="table-responsive">
       <table class="table table-sm align-middle pkg-versions-table">
-        <colgroup>
-          <col style="width:25%">
-          <col style="width:25%">
-          <col style="width:25%">
-          <col style="width:25%">
-        </colgroup>
         <thead>
           <tr>
             <th>Version</th>
@@ -457,11 +451,12 @@ async function renderDetailsInModal(pkg) {
           "text-bg-secondary";
 
     const row = document.createElement("tr");
+    row.classList.add("align-middle");
     row.innerHTML = `
-      <td><code>${escapeHtml(ver)}</code></td>
-      <td>${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
-      <td>${fmtDate(v.built_at)}</td>
-      <td>${filesHtml}</td>
+      <td class="align-middle"><code>${escapeHtml(ver)}</code></td>
+      <td class="align-middle">${v.channel ? `<span class="badge ${badge}">${escapeHtml(v.channel)}</span>` : ""}</td>
+      <td class="align-middle">${fmtDate(v.built_at)}</td>
+      <td class="align-middle">${filesHtml}</td>
     `;
     tbody.appendChild(row);
 
@@ -501,12 +496,13 @@ function applyFilterAndRender() {
 
     const tr = document.createElement("tr");
     tr.style.cursor = "pointer";
+    tr.classList.add("align-middle");
     tr.innerHTML = `
-      <td><strong>${escapeHtml(pkg)}</strong></td>
-      <td>${versionCell(stable)}</td>
-      <td>${versionCell(beta)}</td>
-      <td>${versionCell(latest)}</td>
-      <td>${fmtDate(updated)}</td>
+      <td class="align-middle"><strong>${escapeHtml(pkg)}</strong></td>
+      <td class="align-middle">${versionCell(stable)}</td>
+      <td class="align-middle">${versionCell(beta)}</td>
+      <td class="align-middle">${versionCell(latest)}</td>
+      <td class="align-middle">${fmtDate(updated)}</td>
     `;
     tr.addEventListener("click", () => renderDetailsInModal(pkg));
     tbody.appendChild(tr);

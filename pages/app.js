@@ -1,7 +1,13 @@
 // app.js
 async function fetchJson(url) {
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  const u = new URL(url, window.location.href);
+
+  if (u.pathname.endsWith(".json")) {
+    u.searchParams.set("_", String(Date.now()));
+  }
+
+  const res = await fetch(u.toString(), { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${u.toString()}`);
   return res.json();
 }
 

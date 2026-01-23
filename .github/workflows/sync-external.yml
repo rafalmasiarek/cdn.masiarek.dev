@@ -1,9 +1,9 @@
 name: "Pages: Sync External Scripts"
 
 on:
-  schedule:
-    - cron: "17 * * * *"
   workflow_dispatch: {}
+  schedule:
+    - cron: "30 * * * *"
 
 permissions:
     contents: write

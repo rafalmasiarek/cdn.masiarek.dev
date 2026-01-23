@@ -1,9 +1,9 @@
 name: "Pages: Analytics JSON"
 
 on:
+    workflow_dispatch: {}
     schedule:
         - cron: "7 * * * *"
-    workflow_dispatch: {}
 
 permissions:
     contents: write

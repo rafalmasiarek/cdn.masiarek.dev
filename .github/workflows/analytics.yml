@@ -8,10 +8,6 @@ on:
 permissions:
     contents: write
 
-concurrency:
-    group: gh-pages
-    cancel-in-progress: false
-
 jobs:
     analytics:
         runs-on: ubuntu-latest

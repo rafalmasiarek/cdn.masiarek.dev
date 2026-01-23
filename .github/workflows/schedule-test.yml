@@ -1,9 +1,0 @@
-on:
-  schedule:
-    - cron: '*/5 * * * *'   # co 5 minut
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Log time
-        run: date; echo "schedule test"

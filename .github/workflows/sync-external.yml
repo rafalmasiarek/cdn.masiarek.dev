@@ -2,7 +2,7 @@ name: "Pages: Sync External Scripts"
 
 on:
   schedule:
-    - cron: "30 * * * *"
+    - cron: '30 * * * *'
     
 permissions:
   contents: write

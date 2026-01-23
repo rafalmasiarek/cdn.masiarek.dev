@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-01-22T19:24:19.674Z",
-  "changed": true,
+  "generated_at": "2026-01-23T00:54:20.247Z",
+  "changed": false,
   "failures": 0,
   "results": [
     {
@@ -23,9 +23,9 @@
       "package": "instagram.css",
       "type": "github-raw-file",
       "upstream": "master@b08f80f05789",
-      "action": "publish",
-      "status": "OK",
-      "details": "@latest vb08f80f05789 files=2"
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (same commit SHA)"
     }
   ]
 }

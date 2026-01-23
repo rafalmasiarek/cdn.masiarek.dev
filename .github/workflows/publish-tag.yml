@@ -15,10 +15,7 @@ on:
 
 permissions:
   contents: write
-
-concurrency:
-  group: gh-pages
-  cancel-in-progress: false
+  actions: write
 
 jobs:
   publish:

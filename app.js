@@ -19,10 +19,44 @@ async function fetchJson(url) {
   return res.json();
 }
 
+function detectTz() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
+  }
+}
+
+function getSelectedTz() {
+  return localStorage.getItem("cdn_tz") || "auto";
+}
+
+function effectiveTz() {
+  const sel = getSelectedTz();
+  return sel === "auto" ? detectTz() : sel;
+}
+
 function fmtDate(iso) {
   if (!iso) return "-";
+
   const d = new Date(iso);
-  return d.toISOString().replace("T", " ").replace("Z", " UTC");
+  if (Number.isNaN(d.getTime())) return String(iso);
+
+  const tz = effectiveTz();
+
+  // czytelny format: YYYY-MM-DD HH:mm:ss + TZ
+  const dtf = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  });
+
+  return `${dtf.format(d)} ${tz}`;
 }
 
 function versionCell(v) {
@@ -128,19 +162,40 @@ function makeBarChart(canvas, labels, data, title) {
 }
 
 function seriesToChart(series, mode) {
+  const tz = effectiveTz();
+
   const labels = (series || []).map(p => {
     const d = new Date(p.t);
+
     if (mode === "hourly") {
-      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-      const dd = String(d.getUTCDate()).padStart(2, "0");
-      const hh = String(d.getUTCHours()).padStart(2, "0");
+      const parts = new Intl.DateTimeFormat("en-GB", {
+        timeZone: tz,
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        hour12: false
+      }).formatToParts(d);
+
+      const mm = parts.find(x => x.type === "month")?.value || "??";
+      const dd = parts.find(x => x.type === "day")?.value || "??";
+      const hh = parts.find(x => x.type === "hour")?.value || "??";
       return `${mm}-${dd} ${hh}:00`;
     }
-    return d.toISOString().slice(0, 10);
+
+    // daily: YYYY-MM-DD (w wybranej strefie)
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: tz,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(d);
   });
+
   const data = (series || []).map(p => Number(p.count || 0));
   return { labels, data };
 }
+
+let _globalAnalyticsJson = null;
 
 async function tryRenderGlobalAnalytics() {
   const card = document.getElementById("globalAnalyticsCard");
@@ -149,6 +204,8 @@ async function tryRenderGlobalAnalytics() {
   if (!card || !canvas) return;
 
   const json = await fetchJson(`./_index/analytics/global.json`).catch(() => null);
+  _globalAnalyticsJson = json;
+
   if (!json?.hourly?.length) {
     card.style.display = "none";
     return;
@@ -269,8 +326,11 @@ function buildFilesMiniTableHtml(baseAbs, pkg, ver, entries, copyMap, copyKeyPre
 }
 
 let _indexJson = null;
+let _currentModalPkg = null;
 
 async function renderDetailsInModal(pkg) {
+  _currentModalPkg = pkg;
+
   const baseAbs = getCdnBaseUrl();
   const { title, subtitle, body } = modalEls();
 
@@ -482,7 +542,7 @@ async function renderDetailsInModal(pkg) {
     }
   }
 
-  // Versions rows (THIS WAS MISSING)
+  // Versions rows
   const tbody = body.querySelector("#versionsTbody");
   if (tbody) {
     for (const v of list) {
@@ -575,11 +635,51 @@ function applyFilterAndRender() {
   document.getElementById("nextPage").disabled = _page >= pages;
 }
 
+function rerenderAllTimezoneSensitive() {
+  // header
+  if (_indexJson?.generated_at) {
+    const el = document.getElementById("generatedAt");
+    if (el) el.textContent = `Generated: ${fmtDate(_indexJson.generated_at)}`;
+  }
+
+  // main table
+  applyFilterAndRender();
+
+  // global chart (labels depend on tz)
+  if (_globalAnalyticsJson?.hourly?.length) {
+    const canvas = document.getElementById("globalHourlyChart");
+    if (canvas) {
+      destroyChart("globalHourly");
+      const { labels, data } = seriesToChart(_globalAnalyticsJson.hourly, "hourly");
+      const ch = makeLineChart(canvas, labels, data, "Requests (hourly)");
+      if (ch) _charts.set("globalHourly", ch);
+    }
+  }
+
+  // modal (if open)
+  const modalEl = document.getElementById("pkgModal");
+  const isOpen = !!(modalEl && modalEl.classList.contains("show"));
+  if (isOpen && _currentModalPkg) {
+    renderDetailsInModal(_currentModalPkg).catch(() => { });
+  }
+}
+
 (async () => {
   try { await tryRenderGlobalAnalytics(); } catch { }
 
   _indexJson = await fetchJson(`./_index/index.json`);
   document.getElementById("generatedAt").textContent = `Generated: ${fmtDate(_indexJson.generated_at)}`;
+
+  // Timezone select (next to "Generated")
+  const tzSel = document.getElementById("tzSelect");
+  if (tzSel) {
+    tzSel.value = getSelectedTz();
+
+    tzSel.addEventListener("change", () => {
+      localStorage.setItem("cdn_tz", tzSel.value || "auto");
+      rerenderAllTimezoneSensitive();
+    });
+  }
 
   _allPackages = Object.entries(_indexJson.packages || {})
     .map(([pkg, meta]) => ({ pkg, meta }))

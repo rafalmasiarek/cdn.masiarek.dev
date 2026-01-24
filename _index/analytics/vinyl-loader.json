@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-01-24T21:26:00.882Z",
-  "generated_hour": "2026-01-24T21",
+  "generated_at": "2026-01-24T22:28:30.506Z",
+  "generated_hour": "2026-01-24T22",
   "hostname": "cdn.masiarek.pl",
   "package": "vinyl-loader",
   "retention": {
@@ -74,6 +74,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-01-24T20:30:31.772Z"
+    "previous_generated_at": "2026-01-24T21:26:00.882Z"
   }
 }

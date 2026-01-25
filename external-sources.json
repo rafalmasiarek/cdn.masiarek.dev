@@ -82,6 +82,36 @@
         "author": "",
         "readme_url": ""
       }
+    },
+    {
+      "package": "twemoji",
+      "type": "github-release-assets-semver",
+      "repo": "twitter/twemoji",
+      "asset_regex": ".*",
+      "zipball_fallback": true,
+      "build": {
+        "workdir": ".",
+        "install": "npm ci --no-audit --no-fund",
+        "run": "npm run build",
+        "timeout_ms": 600000
+      },
+      "extract": [
+        {
+          "file_regex": "(^|/)dist/twemoji\\.js$",
+          "out_name": "twemoji.js"
+        },
+        {
+          "file_regex": "(^|/)dist/twemoji\\.min\\.js$",
+          "out_name": "twemoji.min.js"
+        }
+      ],
+      "meta": {
+        "name": "Twemoji",
+        "homepage": "https://twemoji.twitter.com/",
+        "license": "MIT",
+        "source_url": "https://github.com/twitter/twemoji",
+        "author": "Twitter"
+      }
     }
   ]
 }

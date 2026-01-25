@@ -86,26 +86,6 @@
         "readme_url": ""
       }
     },
-    "twemoji": {
-      "last_stable": {
-        "version": "v14.0.2",
-        "channel": "stable",
-        "built_at": "2026-01-25T21:46:51.777Z"
-      },
-      "last_beta": null,
-      "last_latest": {
-        "version": "v14.0.2",
-        "channel": "stable",
-        "built_at": "2026-01-25T21:46:51.777Z"
-      },
-      "meta": {
-        "name": "Twemoji",
-        "homepage": "https://twemoji.twitter.com/",
-        "license": "MIT",
-        "source_url": "https://github.com/twitter/twemoji",
-        "author": "Twitter"
-      }
-    },
     "openpgpjs": {
       "last_stable": {
         "version": "v6.3.0",

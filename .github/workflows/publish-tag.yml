@@ -128,6 +128,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          PKG="${PKG:?}"
+          VER="${VER:?}"
+
           if [[ "$VER" == *"-"* ]]; then
             CHANNEL="beta"
           else
@@ -136,22 +139,36 @@ jobs:
 
           BUILT_AT="$(date -u +%FT%TZ)"
           PKG_DIR="public/$PKG"
+
           VERSION_DIR="$PKG_DIR/v$VER"
           LATEST_DIR="$PKG_DIR/@latest"
           STABLE_DIR="$PKG_DIR/@stable"
           BETA_DIR="$PKG_DIR/@beta"
 
-          mkdir -p "$VERSION_DIR" "$LATEST_DIR" "$STABLE_DIR" "$BETA_DIR" "public/_index"
+          # Channel-scoped aliases (avoid stable/beta collisions)
+          STABLE_ALIAS_DIR="$PKG_DIR/stable"
+          BETA_ALIAS_DIR="$PKG_DIR/beta"
 
+          mkdir -p \
+            "$VERSION_DIR" "$LATEST_DIR" "$STABLE_DIR" "$BETA_DIR" \
+            "$STABLE_ALIAS_DIR" "$BETA_ALIAS_DIR" \
+            "public/_index"
+
+          # ------------------------------------------------------------
           # Copy dist -> versioned folder (immutable)
+          # ------------------------------------------------------------
           rm -rf "$VERSION_DIR"/*
           cp -r "packages/$PKG/dist/"* "$VERSION_DIR/"
 
-          # Update @latest always
+          # ------------------------------------------------------------
+          # Update @latest always (same content as this publish)
+          # ------------------------------------------------------------
           rm -rf "$LATEST_DIR"/*
           cp -r "packages/$PKG/dist/"* "$LATEST_DIR/"
 
+          # ------------------------------------------------------------
           # Update channel pointers
+          # ------------------------------------------------------------
           if [[ "$CHANNEL" == "stable" ]]; then
             rm -rf "$STABLE_DIR"/*
             cp -r "packages/$PKG/dist/"* "$STABLE_DIR/"
@@ -160,24 +177,96 @@ jobs:
             cp -r "packages/$PKG/dist/"* "$BETA_DIR/"
           fi
 
-          # Manifest with SRI
-          node -e "import {computeSriMap} from './tools/sri.mjs'; import fs from 'node:fs';
-          const files = computeSriMap('$VERSION_DIR');
-          const manifest = {
-            package: process.env.PKG,
-            version: 'v' + process.env.VER,
-            channel: '$CHANNEL',
-            built_at: '$BUILT_AT',
-            commit: process.env.SHA,
-            files
-          };
-          fs.writeFileSync('$VERSION_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
-          fs.writeFileSync('$LATEST_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
-          if ('$CHANNEL'==='stable') fs.writeFileSync('$STABLE_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
-          if ('$CHANNEL'==='beta') fs.writeFileSync('$BETA_DIR/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');
-          "
+          # ------------------------------------------------------------
+          # Compute major/minor aliases from VER (semver-safe)
+          # ------------------------------------------------------------
+          node - <<'NODE'
+          import semver from "semver";
 
-          # Index updates
+          const ver = process.env.VER;
+          const v = semver.parse(ver);
+          if (!v) {
+            console.error(`Invalid semver: ${ver}`);
+            process.exit(1);
+          }
+
+          process.stdout.write(JSON.stringify({
+            major: String(v.major),
+            minor: String(v.minor),
+            majorMinor: `${v.major}.${v.minor}`,
+          }));
+          NODE
+
+          ALIAS_JSON="$(node - <<'NODE'
+          import semver from "semver";
+          const ver = process.env.VER;
+          const v = semver.parse(ver);
+          if (!v) process.exit(1);
+          process.stdout.write(JSON.stringify({ major: String(v.major), majorMinor: `${v.major}.${v.minor}` }));
+          NODE
+          )"
+
+          MAJOR="$(node -p "JSON.parse(process.env.ALIAS_JSON).major" )"
+          MAJOR_MINOR="$(node -p "JSON.parse(process.env.ALIAS_JSON).majorMinor" )"
+
+          # Helpers: sync alias dir from dist + manifest
+          sync_alias_dir() {
+            local dir="$1"
+            rm -rf "$dir"
+            mkdir -p "$dir"
+            cp -r "packages/$PKG/dist/"* "$dir/"
+          }
+
+          write_manifest() {
+            local dir="$1"
+            node -e "import {computeSriMap} from './tools/sri.mjs'; import fs from 'node:fs';
+            const files = computeSriMap('$dir');
+            const manifest = {
+              package: process.env.PKG,
+              version: 'v' + process.env.VER,
+              channel: '$CHANNEL',
+              built_at: '$BUILT_AT',
+              commit: process.env.SHA,
+              files
+            };
+            fs.writeFileSync('$dir/manifest.json', JSON.stringify(manifest, null, 2)+'\\n');"
+          }
+
+          # ------------------------------------------------------------
+          # Manifests for version + pointers
+          # ------------------------------------------------------------
+          write_manifest "$VERSION_DIR"
+          write_manifest "$LATEST_DIR"
+          if [[ "$CHANNEL" == "stable" ]]; then
+            write_manifest "$STABLE_DIR"
+          else
+            write_manifest "$BETA_DIR"
+          fi
+
+          # ------------------------------------------------------------
+          # Channel aliases: /stable/vMAJOR, /stable/vMAJOR.MINOR OR /beta/...
+          # ------------------------------------------------------------
+          if [[ "$CHANNEL" == "stable" ]]; then
+            sync_alias_dir "$STABLE_ALIAS_DIR/v$MAJOR"
+            sync_alias_dir "$STABLE_ALIAS_DIR/v$MAJOR_MINOR"
+            write_manifest "$STABLE_ALIAS_DIR/v$MAJOR"
+            write_manifest "$STABLE_ALIAS_DIR/v$MAJOR_MINOR"
+
+            # Root aliases for stable only: /vMAJOR and /vMAJOR.MINOR
+            sync_alias_dir "$PKG_DIR/v$MAJOR"
+            sync_alias_dir "$PKG_DIR/v$MAJOR_MINOR"
+            write_manifest "$PKG_DIR/v$MAJOR"
+            write_manifest "$PKG_DIR/v$MAJOR_MINOR"
+          else
+            sync_alias_dir "$BETA_ALIAS_DIR/v$MAJOR"
+            sync_alias_dir "$BETA_ALIAS_DIR/v$MAJOR_MINOR"
+            write_manifest "$BETA_ALIAS_DIR/v$MAJOR"
+            write_manifest "$BETA_ALIAS_DIR/v$MAJOR_MINOR"
+          fi
+
+          # ------------------------------------------------------------
+          # Index updates (only full version goes into versions.json)
+          # ------------------------------------------------------------
           node -e "import {updateIndexes} from './tools/update-index.mjs';
           updateIndexes({ publicDir: 'public', pkg: process.env.PKG, version: 'v' + process.env.VER, channel: '$CHANNEL', builtAt: '$BUILT_AT' });"
 

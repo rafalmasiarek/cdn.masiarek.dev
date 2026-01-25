@@ -1,3 +1,4 @@
+// sync-external.mjs
 // Sync externals into gh-pages working tree
 //
 // Supported source types:
@@ -158,7 +159,7 @@ function listZipEntries(zipPath) {
  *
  * @param {object} opts
  * @param {string} opts.zipPath
- * @param {Array<{file_regex:string,out_name?:string}>} opts.extractRules
+ * @param {Array<{file_regex:string,out_name?:string,preserve_path?:boolean}>} opts.extractRules
  * @param {string} opts.tmpDir
  * @returns {Array<{localPath:string,outName?:string}>}
  */
@@ -173,10 +174,13 @@ function extractFromZip({ zipPath, extractRules, tmpDir }) {
     const matches = entries.filter((p) => fre.test(p));
 
     for (const inside of matches) {
-      const outName = rule.out_name || path.basename(inside);
-      const extractedPath = path.join(tmpDir, `extracted__${outName}`);
+      // IMPORTANT: preserve_path keeps the zip internal path as output name (e.g. assets/svg/xxx.svg)
+      const outName = rule.preserve_path ? inside : (rule.out_name || path.basename(inside));
+      const extractedPath = path.join(tmpDir, "extracted__", inside);
 
+      mkdirp(path.dirname(extractedPath));
       execSync(`unzip -p ${JSON.stringify(zipPath)} ${JSON.stringify(inside)} > ${JSON.stringify(extractedPath)}`);
+
       out.push({ localPath: extractedPath, outName });
     }
   }
@@ -211,7 +215,7 @@ function listFilesRecursive(rootDir) {
  *
  * @param {object} opts
  * @param {string} opts.rootDir
- * @param {Array<{file_regex:string,out_name?:string}>} opts.extractRules
+ * @param {Array<{file_regex:string,out_name?:string,preserve_path?:boolean}>} opts.extractRules
  * @returns {Array<{localPath:string,outName?:string}>}
  */
 function extractFromDir({ rootDir, extractRules }) {
@@ -225,7 +229,7 @@ function extractFromDir({ rootDir, extractRules }) {
     const matches = rels.filter((p) => fre.test(p));
 
     for (const rel of matches) {
-      const outName = rule.out_name || path.basename(rel);
+      const outName = rule.preserve_path ? rel : (rule.out_name || path.basename(rel));
       const abs = path.join(rootDir, rel.split("/").join(path.sep));
       out.push({ localPath: abs, outName });
     }
@@ -253,20 +257,71 @@ function sh(cmd, { cwd, timeoutMs, env } = {}) {
 }
 
 /**
+ * Minimal build config normalization.
+ *
+ * Supported:
+ *  - build: true                   -> enabled with defaults
+ *  - build: { enable: true, ... }   -> enabled with defaults overridden
+ *  - otherwise                      -> disabled
+ *
+ * Defaults (when enabled):
+ *  - workdir: "."
+ *  - timeout_ms: 600000
+ *  - install: auto ("npm ci" if lockfile exists else "npm install")
+ *  - run: "" (no default build command; set explicitly if needed)
+ *  - env: {}
+ *
+ * @param {any} buildCfg
+ * @returns {{enabled:boolean, workdir:string, timeoutMs:number, install:string, run:string, env:object}}
+ */
+function normalizeBuildCfg(buildCfg) {
+  const enabled =
+    buildCfg === true || (buildCfg && typeof buildCfg === "object" && buildCfg.enable === true);
+
+  if (!enabled) {
+    return { enabled: false, workdir: ".", timeoutMs: 600_000, install: "", run: "", env: {} };
+  }
+
+  const workdir =
+    buildCfg && typeof buildCfg === "object" && typeof buildCfg.workdir === "string" && buildCfg.workdir.trim()
+      ? buildCfg.workdir.trim()
+      : ".";
+
+  const timeoutMsRaw =
+    buildCfg && typeof buildCfg === "object" && buildCfg.timeout_ms !== undefined ? Number(buildCfg.timeout_ms) : 600_000;
+  const timeoutMs = Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 600_000;
+
+  const install =
+    buildCfg && typeof buildCfg === "object" && typeof buildCfg.install === "string" ? buildCfg.install.trim() : "";
+
+  const run =
+    buildCfg && typeof buildCfg === "object" && typeof buildCfg.run === "string" ? buildCfg.run.trim() : "";
+
+  const env =
+    buildCfg && typeof buildCfg === "object" && buildCfg.env && typeof buildCfg.env === "object"
+      ? buildCfg.env
+      : {};
+
+  return { enabled: true, workdir, timeoutMs, install, run, env };
+}
+
+/**
  * Download a GitHub zipball, extract it, optionally run npm install + npm run build,
  * then collect artifacts using extract rules (matching by relative path).
  *
  * @param {object} opts
  * @param {string} opts.repo "owner/name"
  * @param {object} opts.release GitHub release JSON (must include zipball_url)
- * @param {Array<{file_regex:string,out_name?:string}>} opts.extractRules
- * @param {object} opts.buildCfg build config from JSON (src.build)
+ * @param {Array<{file_regex:string,out_name?:string,preserve_path?:boolean}>} opts.extractRules
+ * @param {any} opts.buildCfg build config from JSON (src.build)
  * @param {string} opts.tmpDir
  * @returns {Array<{localPath:string,outName?:string}>}
  */
 function downloadZipballBuildAndCollect({ repo, release, extractRules, buildCfg, tmpDir }) {
   if (!release?.zipball_url) return [];
-  if (!buildCfg) return [];
+
+  const cfg = normalizeBuildCfg(buildCfg);
+  if (!cfg.enabled) return [];
 
   rmrf(tmpDir);
   mkdirp(tmpDir);
@@ -288,22 +343,30 @@ function downloadZipballBuildAndCollect({ repo, release, extractRules, buildCfg,
 
   if (!top) return [];
 
-  const workdir = path.join(top, buildCfg.workdir || ".");
+  const workdir = path.join(top, cfg.workdir || ".");
   if (!fs.existsSync(workdir)) return [];
 
-  const timeoutMs = Number(buildCfg.timeout_ms || 600_000); // default 10 minutes
-
   // Install deps
-  const hasLock = fs.existsSync(path.join(workdir, "package-lock.json"));
-  const installCmd =
-    String(buildCfg.install || "").trim() ||
+  const hasLock =
+    fs.existsSync(path.join(workdir, "package-lock.json")) ||
+    fs.existsSync(path.join(workdir, "npm-shrinkwrap.json"));
+
+  let installCmd =
+    String(cfg.install || "").trim() ||
     (hasLock ? "npm ci --no-audit --no-fund" : "npm install --no-audit --no-fund");
 
-  // Build
-  const buildCmd = String(buildCfg.run || "").trim() || "npm run build";
+  // If config forces "npm ci" but the repo has no lockfile, downgrade to "npm install".
+  if (/\bnpm\s+ci\b/.test(installCmd) && !hasLock) {
+    installCmd = "npm install --no-audit --no-fund";
+  }
 
-  sh(installCmd, { cwd: workdir, timeoutMs, env: buildCfg.env || {} });
-  sh(buildCmd, { cwd: workdir, timeoutMs, env: buildCfg.env || {} });
+  // Build (NO default; run only if explicitly set)
+  const buildCmd = String(cfg.run || "").trim();
+
+  sh(installCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: cfg.env || {} });
+  if (buildCmd) {
+    sh(buildCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: cfg.env || {} });
+  }
 
   // Collect artifacts from the built tree (workdir), using extract rules (path-regex)
   const files = extractFromDir({ rootDir: workdir, extractRules });
@@ -345,7 +408,11 @@ function publishExternal({ publicDir, pkg, version, channel, builtAt, upstream, 
   for (const f of files) {
     const name = f.outName || path.basename(f.localPath);
     const buf = fs.readFileSync(f.localPath);
-    fs.writeFileSync(path.join(versionDir, name), buf);
+
+    const dst = path.join(versionDir, name);
+    mkdirp(path.dirname(dst));
+    fs.writeFileSync(dst, buf);
+
     manifestFiles[name] = { integrity: sriSha384(buf), bytes: buf.length };
   }
 
@@ -367,7 +434,10 @@ function publishExternal({ publicDir, pkg, version, channel, builtAt, upstream, 
     rmrf(dir);
     mkdirp(dir);
     for (const name of Object.keys(manifestFiles)) {
-      fs.copyFileSync(path.join(versionDir, name), path.join(dir, name));
+      const src = path.join(versionDir, name);
+      const dst = path.join(dir, name);
+      mkdirp(path.dirname(dst));
+      fs.copyFileSync(src, dst);
     }
     writeJson(path.join(dir, "manifest.json"), manifest);
   }
@@ -401,7 +471,7 @@ function publishExternal({ publicDir, pkg, version, channel, builtAt, upstream, 
  * @param {string} opts.repo "owner/name"
  * @param {object} opts.release GitHub release JSON
  * @param {string} opts.assetRegex regex string
- * @param {Array<{zip_asset_regex?:string, file_regex:string, out_name?:string}>} [opts.extract]
+ * @param {Array<{zip_asset_regex?:string, file_regex:string, out_name?:string,preserve_path?:boolean}>} [opts.extract]
  * @param {string} opts.tmpDir
  * @returns {Array<{localPath:string, outName?:string}>}
  */
@@ -433,8 +503,9 @@ function downloadReleaseAssets({ repo, release, assetRegex, extract, tmpDir }) {
         const list = listZipEntries(assetPath);
         const matches = list.filter((p) => fre.test(p));
         for (const inside of matches) {
-          const outName = rule.out_name || path.basename(inside);
-          const extractedPath = path.join(tmpDir, `extracted__${outName}`);
+          const outName = rule.preserve_path ? inside : (rule.out_name || path.basename(inside));
+          const extractedPath = path.join(tmpDir, "extracted__", inside);
+          mkdirp(path.dirname(extractedPath));
           execSync(
             `unzip -p ${JSON.stringify(assetPath)} ${JSON.stringify(inside)} > ${JSON.stringify(extractedPath)}`
           );
@@ -446,7 +517,7 @@ function downloadReleaseAssets({ repo, release, assetRegex, extract, tmpDir }) {
     }
   }
 
-  const extracted = out.filter((x) => path.basename(x.localPath).startsWith("extracted__"));
+  const extracted = out.filter((x) => x.localPath.includes(`${path.sep}extracted__${path.sep}`));
   if (extract && extract.length && extracted.length) return extracted;
 
   return out;
@@ -500,7 +571,7 @@ function normalizeUpstreamTagToVersion(tag) {
  * @param {object} opts
  * @param {string} opts.repo "owner/name"
  * @param {object} opts.release GitHub release JSON
- * @param {Array<{file_regex:string,out_name?:string}>} opts.extract
+ * @param {Array<{file_regex:string,out_name?:string,preserve_path?:boolean}>} opts.extract
  * @param {string} opts.tmpDir
  * @returns {Array<{localPath:string,outName?:string}>}
  */
@@ -669,8 +740,10 @@ for (const src of cfg.sources || []) {
 
         let files = [];
 
-        // NEW: build-from-zipball if src.build is enabled
-        if (src.build) {
+        const buildEnabled = normalizeBuildCfg(src.build).enabled;
+
+        // build-from-zipball when enabled
+        if (buildEnabled) {
           console.log(`[external:${pkg}] build enabled -> zipball + npm build for ${pointerName} tag=${tag}...`);
           files = downloadZipballBuildAndCollect({
             repo,
@@ -706,7 +779,7 @@ for (const src of cfg.sources || []) {
           return {
             ok: false,
             reason:
-              "No matching outputs. For build: ensure src.extract points at built files (e.g. dist/*.js). For non-build: ensure assets/extract or zipball_fallback are correct.",
+              "No matching outputs. For build: ensure src.extract points at built files (e.g. dist/*.js) and set build.run if required. For non-build: ensure assets/extract or zipball_fallback are correct.",
           };
         }
 
@@ -717,7 +790,7 @@ for (const src of cfg.sources || []) {
           channel,
           builtAt,
           upstream: {
-            type: src.build ? "github-zipball-build" : "github-release",
+            type: buildEnabled ? "github-zipball-build" : "github-release",
             repo,
             tag,
             release_html_url: releaseObj.html_url || null,
@@ -754,7 +827,14 @@ for (const src of cfg.sources || []) {
         } else {
           const r = publishFromRelease(latest, "latest");
           if (!r.ok) {
-            record({ package: pkg, type, upstream: latest.tag_name, action: "publish", status: "FAIL", details: r.reason });
+            record({
+              package: pkg,
+              type,
+              upstream: latest.tag_name,
+              action: "publish",
+              status: "FAIL",
+              details: r.reason,
+            });
             hadFailure = true;
           } else {
             state[pkg] = state[pkg] || {};
@@ -866,7 +946,14 @@ for (const src of cfg.sources || []) {
       });
 
       if (!files.length) {
-        record({ package: pkg, type, upstream: tag, action: "publish", status: "FAIL", details: "No matching assets (assets empty or regex mismatch)" });
+        record({
+          package: pkg,
+          type,
+          upstream: tag,
+          action: "publish",
+          status: "FAIL",
+          details: "No matching assets (assets empty or regex mismatch)",
+        });
         hadFailure = true;
         continue;
       }
@@ -909,10 +996,20 @@ for (const src of cfg.sources || []) {
       const ref = src.ref || getDefaultBranch(repo);
       console.log(`[external:${pkg}] repo=${repo} ref=${ref}`);
 
-      const refInfo = httpGetJson(`https://api.github.com/repos/${repo}/commits/${encodeURIComponent(ref)}`, ghAuthHeaders());
+      const refInfo = httpGetJson(
+        `https://api.github.com/repos/${repo}/commits/${encodeURIComponent(ref)}`,
+        ghAuthHeaders()
+      );
       const sha = refInfo.sha;
       if (!sha) {
-        record({ package: pkg, type, upstream: `${ref}@?`, action: "skip", status: "FAIL", details: "Could not resolve commit SHA for ref" });
+        record({
+          package: pkg,
+          type,
+          upstream: `${ref}@?`,
+          action: "skip",
+          status: "FAIL",
+          details: "Could not resolve commit SHA for ref",
+        });
         hadFailure = true;
         continue;
       }

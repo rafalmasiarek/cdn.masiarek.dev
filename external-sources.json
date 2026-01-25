@@ -33,19 +33,19 @@
       "zipball_fallback": true,
       "extract": [
         {
-          "file_regex": "(^|/)dist/.*\\.min\\.js$",
+          "file_regex": "(^|/)dist/js-fair-consent\\.min\\.js$",
           "out_name": "js-fair-consent.min.js"
         },
         {
-          "file_regex": "(^|/)dist/.*\\.min\\.css$",
+          "file_regex": "(^|/)dist/js-fair-consent\\.min\\.css$",
           "out_name": "js-fair-consent.min.css"
         },
         {
-          "file_regex": "(^|/)dist/.*(?<!\\.min)\\.js$",
+          "file_regex": "(^|/)dist/js-fair-consent\\.js$",
           "out_name": "js-fair-consent.js"
         },
         {
-          "file_regex": "(^|/)dist/.*(?<!\\.min)\\.css$",
+          "file_regex": "(^|/)dist/js-fair-consent\\.css$",
           "out_name": "js-fair-consent.css"
         },
         {
@@ -90,10 +90,7 @@
       "asset_regex": ".*",
       "zipball_fallback": true,
       "build": {
-        "workdir": ".",
-        "install": "npm ci --no-audit --no-fund",
-        "run": "npm run build",
-        "timeout_ms": 600000
+        "enable": true
       },
       "extract": [
         {
@@ -103,6 +100,10 @@
         {
           "file_regex": "(^|/)dist/twemoji\\.min\\.js$",
           "out_name": "twemoji.min.js"
+        },
+        {
+          "file_regex": "(^|/)assets/.*",
+          "preserve_path": true
         }
       ],
       "meta": {
@@ -111,6 +112,41 @@
         "license": "MIT",
         "source_url": "https://github.com/twitter/twemoji",
         "author": "Twitter"
+      }
+    },
+    {
+      "package": "openpgpjs",
+      "type": "github-release-assets-semver",
+      "repo": "openpgpjs/openpgpjs",
+      "asset_regex": "DO_NOT_MATCH_ASSET$",
+      "zipball_fallback": true,
+      "build": {
+        "enable": true
+      },
+      "extract": [
+        {
+          "file_regex": "(^|/)dist/openpgp\\.js$",
+          "out_name": "openpgp.js"
+        },
+        {
+          "file_regex": "(^|/)dist/openpgp\\.min\\.js$",
+          "out_name": "openpgp.min.js"
+        },
+        {
+          "file_regex": "(^|/)dist/openpgp\\.worker\\.js$",
+          "out_name": "openpgp.worker.js"
+        },
+        {
+          "file_regex": "(^|/)dist/openpgp\\.worker\\.min\\.js$",
+          "out_name": "openpgp.worker.min.js"
+        }
+      ],
+      "meta": {
+        "name": "OpenPGP.js",
+        "homepage": "https://openpgpjs.org/",
+        "license": "LGPL-3.0-or-later",
+        "source_url": "https://github.com/openpgpjs/openpgpjs",
+        "author": "OpenPGP.js contributors"
       }
     }
   ]

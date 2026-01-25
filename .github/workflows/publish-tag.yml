@@ -180,24 +180,7 @@ jobs:
           # ------------------------------------------------------------
           # Compute major/minor aliases from VER (semver-safe)
           # ------------------------------------------------------------
-          node - <<'NODE'
-          import semver from "semver";
-
-          const ver = process.env.VER;
-          const v = semver.parse(ver);
-          if (!v) {
-            console.error(`Invalid semver: ${ver}`);
-            process.exit(1);
-          }
-
-          process.stdout.write(JSON.stringify({
-            major: String(v.major),
-            minor: String(v.minor),
-            majorMinor: `${v.major}.${v.minor}`,
-          }));
-          NODE
-
-          ALIAS_JSON="$(node - <<'NODE'
+          export ALIAS_JSON="$(node - <<'NODE'
           import semver from "semver";
           const ver = process.env.VER;
           const v = semver.parse(ver);
@@ -206,8 +189,8 @@ jobs:
           NODE
           )"
 
-          MAJOR="$(node -p "JSON.parse(process.env.ALIAS_JSON).major" )"
-          MAJOR_MINOR="$(node -p "JSON.parse(process.env.ALIAS_JSON).majorMinor" )"
+          MAJOR="$(node -p "JSON.parse(process.env.ALIAS_JSON).major")"
+          MAJOR_MINOR="$(node -p "JSON.parse(process.env.ALIAS_JSON).majorMinor")"
 
           # Helpers: sync alias dir from dist + manifest
           sync_alias_dir() {

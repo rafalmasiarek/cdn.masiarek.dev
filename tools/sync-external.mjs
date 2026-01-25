@@ -15,12 +15,18 @@
 //  public/<pkg>/@stable/...
 //  public/<pkg>/@beta/...
 //
+// Stable aliases:
+//  For stable channel only (non-prerelease semver), also creates:
+//    public/<pkg>/v<major>/...
+//    public/<pkg>/v<major>.<minor>/...
+//  pointing to the same files as v<full>.
+//
 // Also updates:
 //  public/<pkg>/versions.json
 //  public/_index/index.json
 //  public/_index/external-state.json
 //  public/_index/bundle-manifest.json
-//  public/_index/sync-report.json (new)
+//  public/_index/sync-report.json
 //
 // Exit behavior:
 //  - By default: exits 0 even if some sources failed (but prints FAIL rows)
@@ -179,6 +185,133 @@ function extractFromZip({ zipPath, extractRules, tmpDir }) {
 }
 
 /**
+ * Recursively list files in a directory as POSIX-like relative paths.
+ *
+ * @param {string} rootDir
+ * @returns {string[]} relative paths with "/" separators
+ */
+function listFilesRecursive(rootDir) {
+  const out = [];
+  function walk(dir) {
+    for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+      const abs = path.join(dir, ent.name);
+      if (ent.isDirectory()) walk(abs);
+      else if (ent.isFile()) out.push(abs);
+    }
+  }
+  walk(rootDir);
+
+  return out
+    .map((abs) => path.relative(rootDir, abs).split(path.sep).join("/"))
+    .filter(Boolean);
+}
+
+/**
+ * Extract matching files from a directory using extract rules (file_regex matches relative path).
+ *
+ * @param {object} opts
+ * @param {string} opts.rootDir
+ * @param {Array<{file_regex:string,out_name?:string}>} opts.extractRules
+ * @returns {Array<{localPath:string,outName?:string}>}
+ */
+function extractFromDir({ rootDir, extractRules }) {
+  if (!extractRules || !extractRules.length) return [];
+
+  const rels = listFilesRecursive(rootDir);
+  const out = [];
+
+  for (const rule of extractRules) {
+    const fre = new RegExp(rule.file_regex);
+    const matches = rels.filter((p) => fre.test(p));
+
+    for (const rel of matches) {
+      const outName = rule.out_name || path.basename(rel);
+      const abs = path.join(rootDir, rel.split("/").join(path.sep));
+      out.push({ localPath: abs, outName });
+    }
+  }
+
+  return out;
+}
+
+/**
+ * Run a shell command with a timeout (ms).
+ *
+ * @param {string} cmd
+ * @param {object} opts
+ * @param {string} [opts.cwd]
+ * @param {number} [opts.timeoutMs]
+ * @param {object} [opts.env]
+ */
+function sh(cmd, { cwd, timeoutMs, env } = {}) {
+  execSync(cmd, {
+    cwd: cwd || process.cwd(),
+    stdio: "inherit",
+    timeout: timeoutMs || 0,
+    env: { ...process.env, ...(env || {}) },
+  });
+}
+
+/**
+ * Download a GitHub zipball, extract it, optionally run npm install + npm run build,
+ * then collect artifacts using extract rules (matching by relative path).
+ *
+ * @param {object} opts
+ * @param {string} opts.repo "owner/name"
+ * @param {object} opts.release GitHub release JSON (must include zipball_url)
+ * @param {Array<{file_regex:string,out_name?:string}>} opts.extractRules
+ * @param {object} opts.buildCfg build config from JSON (src.build)
+ * @param {string} opts.tmpDir
+ * @returns {Array<{localPath:string,outName?:string}>}
+ */
+function downloadZipballBuildAndCollect({ repo, release, extractRules, buildCfg, tmpDir }) {
+  if (!release?.zipball_url) return [];
+  if (!buildCfg) return [];
+
+  rmrf(tmpDir);
+  mkdirp(tmpDir);
+
+  const zipPath = path.join(tmpDir, `${repo.replace("/", "__")}__zipball.zip`);
+  httpDownload(release.zipball_url, zipPath, ghAuthHeaders());
+
+  const srcDir = path.join(tmpDir, "src");
+  rmrf(srcDir);
+  mkdirp(srcDir);
+
+  // unzip into srcDir (zipball contains a single top-level folder)
+  sh(`unzip -q ${JSON.stringify(zipPath)} -d ${JSON.stringify(srcDir)}`);
+
+  const top = fs
+    .readdirSync(srcDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => path.join(srcDir, d.name))[0];
+
+  if (!top) return [];
+
+  const workdir = path.join(top, buildCfg.workdir || ".");
+  if (!fs.existsSync(workdir)) return [];
+
+  const timeoutMs = Number(buildCfg.timeout_ms || 600_000); // default 10 minutes
+
+  // Install deps
+  const hasLock = fs.existsSync(path.join(workdir, "package-lock.json"));
+  const installCmd =
+    String(buildCfg.install || "").trim() ||
+    (hasLock ? "npm ci --no-audit --no-fund" : "npm install --no-audit --no-fund");
+
+  // Build
+  const buildCmd = String(buildCfg.run || "").trim() || "npm run build";
+
+  sh(installCmd, { cwd: workdir, timeoutMs, env: buildCfg.env || {} });
+  sh(buildCmd, { cwd: workdir, timeoutMs, env: buildCfg.env || {} });
+
+  // Collect artifacts from the built tree (workdir), using extract rules (path-regex)
+  const files = extractFromDir({ rootDir: workdir, extractRules });
+
+  return files;
+}
+
+/**
  * Publish one external version into gh-pages working tree.
  *
  * @param {object} opts
@@ -242,6 +375,22 @@ function publishExternal({ publicDir, pkg, version, channel, builtAt, upstream, 
   if (updatePointer === "latest") syncPointer(latestDir);
   if (updatePointer === "stable") syncPointer(stableDir);
   if (updatePointer === "beta") syncPointer(betaDir);
+
+  // Stable aliases: v<major> and v<major>.<minor> (only for stable channel, non-prerelease semver)
+  if (channel === "stable") {
+    const coerced = semver.coerce(version)?.version || null;
+    if (coerced && semver.valid(coerced) && !semver.prerelease(coerced)) {
+      const maj = String(semver.major(coerced));
+      const min = `${semver.major(coerced)}.${semver.minor(coerced)}`;
+
+      const aliasMajorDir = path.join(pkgDir, `v${maj}`);
+      const aliasMinorDir = path.join(pkgDir, `v${min}`);
+
+      // Always keep aliases pointing at the latest published stable content
+      syncPointer(aliasMajorDir);
+      syncPointer(aliasMinorDir);
+    }
+  }
 }
 
 /**
@@ -419,8 +568,7 @@ function record(row) {
     const msg = `${prefix} ${row.status} action=${row.action} upstream=${safeOneLine(row.upstream)} details=${safeOneLine(
       row.details
     )}`;
-    if (row.status === "FAIL") console.log(msg);
-    else console.log(msg);
+    console.log(msg);
   }
 }
 
@@ -438,14 +586,7 @@ for (const src of cfg.sources || []) {
     if (src.type === "github-release-assets-semver") {
       const repo = src.repo;
       if (!repo) {
-        record({
-          package: pkg,
-          type,
-          upstream: "",
-          action: "skip",
-          status: "FAIL",
-          details: "Missing src.repo",
-        });
+        record({ package: pkg, type, upstream: "", action: "skip", status: "FAIL", details: "Missing src.repo" });
         hadFailure = true;
         continue;
       }
@@ -524,34 +665,48 @@ for (const src of cfg.sources || []) {
         const version = normalizeUpstreamTagToVersion(tag);
         const channel = detectChannelFromVersion(version);
 
-        console.log(`[external:${pkg}] downloading assets for ${pointerName} tag=${tag}...`);
         const tmpDir = path.join(ROOT, ".tmp", "external", pkg, `${pointerName}__${stripV(tag)}`);
 
-        let files = downloadReleaseAssets({
-          repo,
-          release: releaseObj,
-          assetRegex: src.asset_regex,
-          extract: src.extract || [],
-          tmpDir,
-        });
+        let files = [];
 
-        // Zipball fallback when release has no assets (or no matches) and requested.
-        if ((!files || !files.length) && src.zipball_fallback) {
-          console.log(`[external:${pkg}] no assets matched; zipball_fallback=true -> downloading zipball...`);
-          const zipTmpDir = path.join(tmpDir, "zipball");
-          files = downloadZipballAndExtract({
+        // NEW: build-from-zipball if src.build is enabled
+        if (src.build) {
+          console.log(`[external:${pkg}] build enabled -> zipball + npm build for ${pointerName} tag=${tag}...`);
+          files = downloadZipballBuildAndCollect({
             repo,
             release: releaseObj,
-            extract: src.extract || [],
-            tmpDir: zipTmpDir,
+            extractRules: src.extract || [],
+            buildCfg: src.build,
+            tmpDir,
           });
+        } else {
+          console.log(`[external:${pkg}] downloading assets for ${pointerName} tag=${tag}...`);
+          files = downloadReleaseAssets({
+            repo,
+            release: releaseObj,
+            assetRegex: src.asset_regex,
+            extract: src.extract || [],
+            tmpDir,
+          });
+
+          // Zipball fallback when release has no assets (or no matches) and requested.
+          if ((!files || !files.length) && src.zipball_fallback) {
+            console.log(`[external:${pkg}] no assets matched; zipball_fallback=true -> downloading zipball...`);
+            const zipTmpDir = path.join(tmpDir, "zipball");
+            files = downloadZipballAndExtract({
+              repo,
+              release: releaseObj,
+              extract: src.extract || [],
+              tmpDir: zipTmpDir,
+            });
+          }
         }
 
         if (!files.length) {
           return {
             ok: false,
             reason:
-              "No matching release assets (or assets empty). If you rely on zipball, set zipball_fallback=true and provide extract rules.",
+              "No matching outputs. For build: ensure src.extract points at built files (e.g. dist/*.js). For non-build: ensure assets/extract or zipball_fallback are correct.",
           };
         }
 
@@ -562,7 +717,7 @@ for (const src of cfg.sources || []) {
           channel,
           builtAt,
           upstream: {
-            type: "github-release",
+            type: src.build ? "github-zipball-build" : "github-release",
             repo,
             tag,
             release_html_url: releaseObj.html_url || null,
@@ -587,8 +742,6 @@ for (const src of cfg.sources || []) {
       // Publish @latest
       if (needLatest) {
         if (!latest || !latest.tag_name) {
-          // If there is no releases/latest object, we cannot fetch assets or zipball here reliably.
-          // Users should prefer github-raw-file for such repos.
           record({
             package: pkg,
             type,
@@ -601,14 +754,7 @@ for (const src of cfg.sources || []) {
         } else {
           const r = publishFromRelease(latest, "latest");
           if (!r.ok) {
-            record({
-              package: pkg,
-              type,
-              upstream: latest.tag_name,
-              action: "publish",
-              status: "FAIL",
-              details: r.reason,
-            });
+            record({ package: pkg, type, upstream: latest.tag_name, action: "publish", status: "FAIL", details: r.reason });
             hadFailure = true;
           } else {
             state[pkg] = state[pkg] || {};
@@ -632,14 +778,7 @@ for (const src of cfg.sources || []) {
       if (needStable && stable?.r) {
         const r = publishFromRelease(stable.r, "stable");
         if (!r.ok) {
-          record({
-            package: pkg,
-            type,
-            upstream: stableTag || "",
-            action: "publish",
-            status: "FAIL",
-            details: r.reason,
-          });
+          record({ package: pkg, type, upstream: stableTag || "", action: "publish", status: "FAIL", details: r.reason });
           hadFailure = true;
         } else {
           state[pkg] = state[pkg] || {};
@@ -653,7 +792,7 @@ for (const src of cfg.sources || []) {
             upstream: stableTag || "",
             action: "publish",
             status: "OK",
-            details: `@stable v${r.version} files=${r.files.length}`,
+            details: `@stable v${r.version} files=${r.files.length} (+stable aliases)`,
           });
         }
       }
@@ -662,14 +801,7 @@ for (const src of cfg.sources || []) {
       if (needBeta && beta?.r) {
         const r = publishFromRelease(beta.r, "beta");
         if (!r.ok) {
-          record({
-            package: pkg,
-            type,
-            upstream: betaTag || "",
-            action: "publish",
-            status: "FAIL",
-            details: r.reason,
-          });
+          record({ package: pkg, type, upstream: betaTag || "", action: "publish", status: "FAIL", details: r.reason });
           hadFailure = true;
         } else {
           state[pkg] = state[pkg] || {};
@@ -720,14 +852,7 @@ for (const src of cfg.sources || []) {
 
       const prev = state[pkg]?.last_upstream_tag;
       if (prev === tag) {
-        record({
-          package: pkg,
-          type,
-          upstream: tag,
-          action: "skip",
-          status: "SKIP",
-          details: "No changes (same upstream tag)",
-        });
+        record({ package: pkg, type, upstream: tag, action: "skip", status: "SKIP", details: "No changes (same upstream tag)" });
         continue;
       }
 
@@ -741,14 +866,7 @@ for (const src of cfg.sources || []) {
       });
 
       if (!files.length) {
-        record({
-          package: pkg,
-          type,
-          upstream: tag,
-          action: "publish",
-          status: "FAIL",
-          details: "No matching assets (assets empty or regex mismatch)",
-        });
+        record({ package: pkg, type, upstream: tag, action: "publish", status: "FAIL", details: "No matching assets (assets empty or regex mismatch)" });
         hadFailure = true;
         continue;
       }
@@ -762,38 +880,18 @@ for (const src of cfg.sources || []) {
         version,
         channel,
         builtAt,
-        upstream: {
-          type: "github-release",
-          repo,
-          tag,
-          release_html_url: rel.html_url,
-        },
+        upstream: { type: "github-release", repo, tag, release_html_url: rel.html_url },
         meta: src.meta || null,
         files,
         updatePointer: "latest",
       });
 
-      updateIndexes({
-        publicDir,
-        pkg,
-        version: `v${version}`,
-        channel,
-        builtAt,
-        meta: src.meta || null,
-      });
+      updateIndexes({ publicDir, pkg, version: `v${version}`, channel, builtAt, meta: src.meta || null });
 
       state[pkg] = { ...(state[pkg] || {}), last_upstream_tag: tag };
       changed = true;
 
-      record({
-        package: pkg,
-        type,
-        upstream: tag,
-        action: "publish",
-        status: "OK",
-        details: `@latest v${version} files=${files.length}`,
-      });
-
+      record({ package: pkg, type, upstream: tag, action: "publish", status: "OK", details: `@latest v${version} files=${files.length}` });
       continue;
     }
 
@@ -814,14 +912,7 @@ for (const src of cfg.sources || []) {
       const refInfo = httpGetJson(`https://api.github.com/repos/${repo}/commits/${encodeURIComponent(ref)}`, ghAuthHeaders());
       const sha = refInfo.sha;
       if (!sha) {
-        record({
-          package: pkg,
-          type,
-          upstream: `${ref}@?`,
-          action: "skip",
-          status: "FAIL",
-          details: "Could not resolve commit SHA for ref",
-        });
+        record({ package: pkg, type, upstream: `${ref}@?`, action: "skip", status: "FAIL", details: "Could not resolve commit SHA for ref" });
         hadFailure = true;
         continue;
       }
@@ -830,14 +921,7 @@ for (const src of cfg.sources || []) {
 
       const prev = state[pkg]?.last_commit;
       if (prev === sha) {
-        record({
-          package: pkg,
-          type,
-          upstream: upstreamStr,
-          action: "skip",
-          status: "SKIP",
-          details: "No changes (same commit SHA)",
-        });
+        record({ package: pkg, type, upstream: upstreamStr, action: "skip", status: "SKIP", details: "No changes (same commit SHA)" });
         continue;
       }
 
@@ -858,14 +942,7 @@ for (const src of cfg.sources || []) {
       }
 
       if (!toFetch.length) {
-        record({
-          package: pkg,
-          type,
-          upstream: upstreamStr,
-          action: "skip",
-          status: "FAIL",
-          details: "No files configured (use path/paths/files[])",
-        });
+        record({ package: pkg, type, upstream: upstreamStr, action: "skip", status: "FAIL", details: "No files configured (use path/paths/files[])" });
         hadFailure = true;
         continue;
       }
@@ -898,66 +975,30 @@ for (const src of cfg.sources || []) {
         version,
         channel,
         builtAt,
-        upstream: {
-          type: "github-raw",
-          repo,
-          ref,
-          commit: sha,
-          paths: toFetch.map((x) => x.path),
-        },
+        upstream: { type: "github-raw", repo, ref, commit: sha, paths: toFetch.map((x) => x.path) },
         meta: src.meta || null,
         files: downloaded,
         updatePointer: "latest",
       });
 
-      updateIndexes({
-        publicDir,
-        pkg,
-        version: `v${version}`,
-        channel,
-        builtAt,
-        meta: src.meta || null,
-      });
+      updateIndexes({ publicDir, pkg, version: `v${version}`, channel, builtAt, meta: src.meta || null });
 
       state[pkg] = { ...(state[pkg] || {}), last_commit: sha, last_upstream_ref: ref };
       changed = true;
 
-      record({
-        package: pkg,
-        type,
-        upstream: upstreamStr,
-        action: "publish",
-        status: "OK",
-        details: `@latest v${version} files=${downloaded.length}`,
-      });
-
+      record({ package: pkg, type, upstream: upstreamStr, action: "publish", status: "OK", details: `@latest v${version} files=${downloaded.length}` });
       continue;
     }
 
     // Unknown type
-    record({
-      package: pkg,
-      type,
-      upstream: "",
-      action: "skip",
-      status: "FAIL",
-      details: `Unknown source type: ${type}`,
-    });
+    record({ package: pkg, type, upstream: "", action: "skip", status: "FAIL", details: `Unknown source type: ${type}` });
     hadFailure = true;
   } catch (e) {
     hadFailure = true;
     const msg = e?.stack || String(e);
 
     console.log(`[external:${pkg}] ERROR: ${safeOneLine(msg, 500)}`);
-    record({
-      package: pkg,
-      type,
-      upstream: "",
-      action: "publish",
-      status: "FAIL",
-      details: safeOneLine(msg, 240),
-    });
-    // Continue to next source
+    record({ package: pkg, type, upstream: "", action: "publish", status: "FAIL", details: safeOneLine(msg, 240) });
   }
 }
 

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-01-25T19:41:35.410Z",
+  "generated_at": "2026-01-25T20:06:43.044Z",
   "changed": false,
-  "failures": 0,
+  "failures": 1,
   "results": [
     {
       "package": "bootstrap",
@@ -26,6 +26,14 @@
       "action": "skip",
       "status": "SKIP",
       "details": "No changes (same commit SHA)"
+    },
+    {
+      "package": "twemoji",
+      "type": "github-release-assets-semver",
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: npm ci --no-audit --no-fund at genericNodeError (node:internal/errors:984:15) at wrappedFn (node:internal/errors:538:14) at checkExecSyncError (node:child_process:891:11) at execSync (node:child_process:963:15) at ..."
     }
   ]
 }

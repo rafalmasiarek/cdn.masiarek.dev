@@ -14,19 +14,6 @@
         "built_at": "2026-01-22T01:11:09Z"
       }
     },
-    "vinyl-loader": {
-      "last_stable": {
-        "version": "v1.1.2",
-        "channel": "stable",
-        "built_at": "2026-01-22T14:57:39Z"
-      },
-      "last_beta": null,
-      "last_latest": {
-        "version": "v1.1.2",
-        "channel": "stable",
-        "built_at": "2026-01-22T14:57:39Z"
-      }
-    },
     "bootstrap": {
       "last_stable": {
         "version": "v5.3.8",

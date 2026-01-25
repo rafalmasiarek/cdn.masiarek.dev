@@ -668,7 +668,6 @@ function rerenderAllTimezoneSensitive() {
   try { await tryRenderGlobalAnalytics(); } catch { }
 
   _indexJson = await fetchJson(`./_index/index.json`);
-  document.getElementById("generatedAt").textContent = `Generated: ${fmtDate(_indexJson.generated_at)}`;
 
   // Timezone select (next to "Generated")
   const tzSel = document.getElementById("tzSelect");

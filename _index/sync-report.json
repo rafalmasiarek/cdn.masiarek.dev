@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-01-25T21:46:51.777Z",
-  "changed": true,
+  "generated_at": "2026-01-25T22:03:43.192Z",
+  "changed": false,
   "failures": 0,
   "results": [
     {
@@ -31,41 +31,17 @@
       "package": "twemoji",
       "type": "github-release-assets-semver",
       "upstream": "v14.0.2",
-      "action": "publish",
-      "status": "OK",
-      "details": "@latest v14.0.2 files=7378"
-    },
-    {
-      "package": "twemoji",
-      "type": "github-release-assets-semver",
-      "upstream": "v14.0.2",
-      "action": "publish",
-      "status": "OK",
-      "details": "@stable v14.0.2 files=7378 (+stable aliases)"
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "openpgpjs",
       "type": "github-release-assets-semver",
       "upstream": "v6.3.0",
-      "action": "publish",
-      "status": "OK",
-      "details": "@latest v6.3.0 files=2"
-    },
-    {
-      "package": "openpgpjs",
-      "type": "github-release-assets-semver",
-      "upstream": "v6.3.0",
-      "action": "publish",
-      "status": "OK",
-      "details": "@stable v6.3.0 files=2 (+stable aliases)"
-    },
-    {
-      "package": "openpgpjs",
-      "type": "github-release-assets-semver",
-      "upstream": "v6.0.0-beta.3.patch.1",
-      "action": "publish",
-      "status": "OK",
-      "details": "@beta v6.0.0-beta.3.patch.1 files=2"
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     }
   ]
 }

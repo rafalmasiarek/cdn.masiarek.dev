@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-22T19:24:19.674Z",
+  "generated_at": "2026-01-25T21:46:51.777Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -84,6 +84,50 @@
         "source_url": "https://github.com/picturepan2/instagram.css",
         "author": "",
         "readme_url": ""
+      }
+    },
+    "twemoji": {
+      "last_stable": {
+        "version": "v14.0.2",
+        "channel": "stable",
+        "built_at": "2026-01-25T21:46:51.777Z"
+      },
+      "last_beta": null,
+      "last_latest": {
+        "version": "v14.0.2",
+        "channel": "stable",
+        "built_at": "2026-01-25T21:46:51.777Z"
+      },
+      "meta": {
+        "name": "Twemoji",
+        "homepage": "https://twemoji.twitter.com/",
+        "license": "MIT",
+        "source_url": "https://github.com/twitter/twemoji",
+        "author": "Twitter"
+      }
+    },
+    "openpgpjs": {
+      "last_stable": {
+        "version": "v6.3.0",
+        "channel": "stable",
+        "built_at": "2026-01-25T21:46:51.777Z"
+      },
+      "last_beta": {
+        "version": "v6.0.0-beta.3.patch.1",
+        "channel": "beta",
+        "built_at": "2026-01-25T21:46:51.777Z"
+      },
+      "last_latest": {
+        "version": "v6.3.0",
+        "channel": "stable",
+        "built_at": "2026-01-25T21:46:51.777Z"
+      },
+      "meta": {
+        "name": "OpenPGP.js",
+        "homepage": "https://openpgpjs.org/",
+        "license": "LGPL-3.0-or-later",
+        "source_url": "https://github.com/openpgpjs/openpgpjs",
+        "author": "OpenPGP.js contributors"
       }
     }
   }

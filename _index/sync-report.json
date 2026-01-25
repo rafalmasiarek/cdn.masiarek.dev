@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-01-25T21:43:32.836Z",
-  "changed": false,
-  "failures": 1,
+  "generated_at": "2026-01-25T21:46:51.777Z",
+  "changed": true,
+  "failures": 0,
   "results": [
     {
       "package": "bootstrap",
@@ -30,10 +30,42 @@
     {
       "package": "twemoji",
       "type": "github-release-assets-semver",
-      "upstream": "",
+      "upstream": "v14.0.2",
       "action": "publish",
-      "status": "FAIL",
-      "details": "Error: Command failed: npm ci --no-audit --no-fund at genericNodeError (node:internal/errors:984:15) at wrappedFn (node:internal/errors:538:14) at checkExecSyncError (node:child_process:891:11) at execSync (node:child_process:963:15) at ..."
+      "status": "OK",
+      "details": "@latest v14.0.2 files=7378"
+    },
+    {
+      "package": "twemoji",
+      "type": "github-release-assets-semver",
+      "upstream": "v14.0.2",
+      "action": "publish",
+      "status": "OK",
+      "details": "@stable v14.0.2 files=7378 (+stable aliases)"
+    },
+    {
+      "package": "openpgpjs",
+      "type": "github-release-assets-semver",
+      "upstream": "v6.3.0",
+      "action": "publish",
+      "status": "OK",
+      "details": "@latest v6.3.0 files=2"
+    },
+    {
+      "package": "openpgpjs",
+      "type": "github-release-assets-semver",
+      "upstream": "v6.3.0",
+      "action": "publish",
+      "status": "OK",
+      "details": "@stable v6.3.0 files=2 (+stable aliases)"
+    },
+    {
+      "package": "openpgpjs",
+      "type": "github-release-assets-semver",
+      "upstream": "v6.0.0-beta.3.patch.1",
+      "action": "publish",
+      "status": "OK",
+      "details": "@beta v6.0.0-beta.3.patch.1 files=2"
     }
   ]
 }

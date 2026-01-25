@@ -1,0 +1,30 @@
+{
+  "package": "openpgpjs",
+  "version": "v6.3.0",
+  "channel": "stable",
+  "built_at": "2026-01-25T21:46:51.777Z",
+  "commit": null,
+  "upstream": {
+    "type": "github-zipball-build",
+    "repo": "openpgpjs/openpgpjs",
+    "tag": "v6.3.0",
+    "release_html_url": "https://github.com/openpgpjs/openpgpjs/releases/tag/v6.3.0"
+  },
+  "meta": {
+    "name": "OpenPGP.js",
+    "homepage": "https://openpgpjs.org/",
+    "license": "LGPL-3.0-or-later",
+    "source_url": "https://github.com/openpgpjs/openpgpjs",
+    "author": "OpenPGP.js contributors"
+  },
+  "files": {
+    "openpgp.js": {
+      "integrity": "sha384-PHyi81GYKgQMOc0auAlfWNCtsoWaCqJXBXSrsfs6zO9EO45elOl7G2Pi8KsmG/ev",
+      "bytes": 1249121
+    },
+    "openpgp.min.js": {
+      "integrity": "sha384-QJK16RICXnZBjNWfQQIhUPx4+I0Zg1EJGawTNLimDz0AkwWqpJDFTPSMkbmTV+Cn",
+      "bytes": 393474
+    }
+  }
+}

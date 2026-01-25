@@ -1,18 +1,19 @@
 {
-  "generated_at": "2026-01-25T22:08:29.615Z",
+  "generated_at": "2026-01-25T23:46:36Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
-        "version": "v2.0.1",
+        "version": "v3.0.0",
         "channel": "stable",
-        "built_at": "2026-01-22T01:11:09Z"
+        "built_at": "2026-01-25T23:46:36Z"
       },
       "last_beta": null,
       "last_latest": {
-        "version": "v2.0.1",
+        "version": "v3.0.0",
         "channel": "stable",
-        "built_at": "2026-01-22T01:11:09Z"
-      }
+        "built_at": "2026-01-25T23:46:36Z"
+      },
+      "meta": null
     },
     "bootstrap": {
       "last_stable": {

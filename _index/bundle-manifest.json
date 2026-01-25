@@ -1,22 +1,41 @@
 {
-  "generated_at": "2026-01-25T22:08:29.615Z",
+  "generated_at": "2026-01-25T23:46:36Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
       "channels": {
         "last_stable": {
-          "version": "v2.0.1",
+          "version": "v3.0.0",
           "channel": "stable",
-          "built_at": "2026-01-22T01:11:09Z"
+          "built_at": "2026-01-25T23:46:36Z"
         },
         "last_beta": null,
         "last_latest": {
-          "version": "v2.0.1",
+          "version": "v3.0.0",
           "channel": "stable",
-          "built_at": "2026-01-22T01:11:09Z"
-        }
+          "built_at": "2026-01-25T23:46:36Z"
+        },
+        "meta": null
       },
       "versions": {
+        "v3.0.0": {
+          "channel": "stable",
+          "built_at": "2026-01-25T23:46:36Z",
+          "commit": "6e9101960e29db86c449ed17277d9b2a2db3af05",
+          "upstream": null,
+          "files": {
+            "twemoji-windows.min.js": {
+              "url": "/twemoji-windows/v3.0.0/twemoji-windows.min.js",
+              "integrity": "sha384-yW3FbsMYSFN/lU9WMLY7asbxc8IgEQlMA0mydz0R9DZx0V07oq0+nSxcQIT5K4Ls",
+              "bytes": 2628
+            },
+            "twemoji-windows.min.js.map": {
+              "url": "/twemoji-windows/v3.0.0/twemoji-windows.min.js.map",
+              "integrity": "sha384-uelsi2hAg83LNA+/tspwkVMRVK5z117LGaAO/zaAKHX//wLg2zUIbwrFR5pPzQRw",
+              "bytes": 6296
+            }
+          }
+        },
         "v2.0.1": {
           "channel": "stable",
           "built_at": "2026-01-22T01:11:09Z",

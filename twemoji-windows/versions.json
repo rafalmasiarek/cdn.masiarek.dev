@@ -2,6 +2,11 @@
   "package": "twemoji-windows",
   "versions": [
     {
+      "version": "v3.0.0",
+      "channel": "stable",
+      "built_at": "2026-01-25T23:46:36Z"
+    },
+    {
       "version": "v2.0.1",
       "channel": "stable",
       "built_at": "2026-01-22T01:11:09Z"

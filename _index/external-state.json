@@ -24,5 +24,11 @@
     "last_upstream_stable_tag": "v6.3.0",
     "beta_key": "openpgpjs/openpgpjs@beta:v6.0.0-beta.3.patch.1",
     "last_upstream_beta_tag": "v6.0.0-beta.3.patch.1"
+  },
+  "twemoji": {
+    "latest_key": "twitter/twemoji@latest:v14.0.2",
+    "last_upstream_tag": "v14.0.2",
+    "stable_key": "twitter/twemoji@stable:v14.0.2",
+    "last_upstream_stable_tag": "v14.0.2"
   }
 }

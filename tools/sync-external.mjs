@@ -268,18 +268,18 @@ function sh(cmd, { cwd, timeoutMs, env } = {}) {
  *  - workdir: "."
  *  - timeout_ms: 600000
  *  - install: auto ("npm ci" if lockfile exists else "npm install")
+ *  - pre_install: "" (optional hook; runs before install)
  *  - run: "" (no default build command; set explicitly if needed)
  *  - env: {}
  *
  * @param {any} buildCfg
- * @returns {{enabled:boolean, workdir:string, timeoutMs:number, install:string, run:string, env:object}}
+ * @returns {{enabled:boolean, workdir:string, timeoutMs:number, install:string, preInstall:string, run:string, env:object}}
  */
 function normalizeBuildCfg(buildCfg) {
-  const enabled =
-    buildCfg === true || (buildCfg && typeof buildCfg === "object" && buildCfg.enable === true);
+  const enabled = buildCfg === true || (buildCfg && typeof buildCfg === "object" && buildCfg.enable === true);
 
   if (!enabled) {
-    return { enabled: false, workdir: ".", timeoutMs: 600_000, install: "", run: "", env: {} };
+    return { enabled: false, workdir: ".", timeoutMs: 600_000, install: "", preInstall: "", run: "", env: {} };
   }
 
   const workdir =
@@ -288,21 +288,26 @@ function normalizeBuildCfg(buildCfg) {
       : ".";
 
   const timeoutMsRaw =
-    buildCfg && typeof buildCfg === "object" && buildCfg.timeout_ms !== undefined ? Number(buildCfg.timeout_ms) : 600_000;
+    buildCfg && typeof buildCfg === "object" && buildCfg.timeout_ms !== undefined
+      ? Number(buildCfg.timeout_ms)
+      : 600_000;
   const timeoutMs = Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 600_000;
 
   const install =
     buildCfg && typeof buildCfg === "object" && typeof buildCfg.install === "string" ? buildCfg.install.trim() : "";
 
+  const preInstall =
+    buildCfg && typeof buildCfg === "object" && typeof buildCfg.pre_install === "string"
+      ? buildCfg.pre_install.trim()
+      : "";
+
   const run =
     buildCfg && typeof buildCfg === "object" && typeof buildCfg.run === "string" ? buildCfg.run.trim() : "";
 
   const env =
-    buildCfg && typeof buildCfg === "object" && buildCfg.env && typeof buildCfg.env === "object"
-      ? buildCfg.env
-      : {};
+    buildCfg && typeof buildCfg === "object" && buildCfg.env && typeof buildCfg.env === "object" ? buildCfg.env : {};
 
-  return { enabled: true, workdir, timeoutMs, install, run, env };
+  return { enabled: true, workdir, timeoutMs, install, preInstall, run, env };
 }
 
 /**
@@ -348,8 +353,7 @@ function downloadZipballBuildAndCollect({ repo, release, extractRules, buildCfg,
 
   // Install deps
   const hasLock =
-    fs.existsSync(path.join(workdir, "package-lock.json")) ||
-    fs.existsSync(path.join(workdir, "npm-shrinkwrap.json"));
+    fs.existsSync(path.join(workdir, "package-lock.json")) || fs.existsSync(path.join(workdir, "npm-shrinkwrap.json"));
 
   let installCmd =
     String(cfg.install || "").trim() ||
@@ -363,20 +367,22 @@ function downloadZipballBuildAndCollect({ repo, release, extractRules, buildCfg,
   // Build (NO default; run only if explicitly set)
   const buildCmd = String(cfg.run || "").trim();
 
-  // Allow pre-install hook
-  const preInstallCmd =
-    buildCfg && typeof buildCfg === "object" && typeof buildCfg.pre_install === "string"
-      ? buildCfg.pre_install.trim()
-      : "";
+  // IMPORTANT: prevent hanging on git/ssh prompts in CI
+  const nonInteractiveEnv = {
+    ...(cfg.env || {}),
+    GIT_TERMINAL_PROMPT: "0",
+    GIT_ASKPASS: "/bin/true",
+  };
 
-  if (preInstallCmd) {
-    sh(preInstallCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: cfg.env || {} });
+  if (cfg.preInstall) {
+    console.log(`[external] pre_install: ${cfg.preInstall}`);
+    sh(cfg.preInstall, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: nonInteractiveEnv });
   }
 
-  sh(installCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: cfg.env || {} });
+  sh(installCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: nonInteractiveEnv });
 
   if (buildCmd) {
-    sh(buildCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: cfg.env || {} });
+    sh(buildCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: nonInteractiveEnv });
   }
 
   // Collect artifacts from the built tree (workdir), using extract rules (path-regex)
@@ -517,9 +523,7 @@ function downloadReleaseAssets({ repo, release, assetRegex, extract, tmpDir }) {
           const outName = rule.preserve_path ? inside : (rule.out_name || path.basename(inside));
           const extractedPath = path.join(tmpDir, "extracted__", inside);
           mkdirp(path.dirname(extractedPath));
-          execSync(
-            `unzip -p ${JSON.stringify(assetPath)} ${JSON.stringify(inside)} > ${JSON.stringify(extractedPath)}`
-          );
+          execSync(`unzip -p ${JSON.stringify(assetPath)} ${JSON.stringify(inside)} > ${JSON.stringify(extractedPath)}`);
           out.push({ localPath: extractedPath, outName });
         }
       }
@@ -676,7 +680,7 @@ for (const src of cfg.sources || []) {
       console.log(`[external:${pkg}] repo=${repo}`);
       console.log(`[external:${pkg}] fetching releases/latest...`);
 
-      // 1) Determine @latest
+      // 1) Determine @latest (GitHub "latest" semantics) -- may be overridden by pin_major below
       let latest = getLatestRelease(repo);
       let latestTag = latest?.tag_name || latest?.name || null;
 
@@ -699,21 +703,18 @@ for (const src of cfg.sources || []) {
         latestTag = topTag;
       }
 
-      const latestKey = `${repo}@latest:${latestTag}`;
       const prevLatestKey = state[pkg]?.latest_key;
-      const needLatest = prevLatestKey !== latestKey;
 
-      console.log(`[external:${pkg}] latestTag=${latestTag} needLatest=${needLatest}`);
+      console.log(`[external:${pkg}] latestTag=${latestTag}`);
 
       // Determine stable/beta "latest"
       console.log(`[external:${pkg}] listing recent releases to detect stable/beta...`);
       const releases = getReleases(repo, src.releases_per_page || 30);
 
-      // --- BEGIN: pin_major support (minimal change) ---
+      // pin_major support (minimal)
       const pinMajorRaw = src.pin_major;
-      const pinMajor = pinMajorRaw === undefined || pinMajorRaw === null || pinMajorRaw === ""
-        ? null
-        : Number(pinMajorRaw);
+      const pinMajor =
+        pinMajorRaw === undefined || pinMajorRaw === null || pinMajorRaw === "" ? null : Number(pinMajorRaw);
 
       if (pinMajor !== null && !Number.isFinite(pinMajor)) {
         record({
@@ -727,43 +728,36 @@ for (const src of cfg.sources || []) {
         hadFailure = true;
         continue;
       }
-      // --- END: pin_major support (minimal change) ---
 
-      const parsed = releases
+      const parsedAll = releases
         .map((r) => {
           const t = r.tag_name || r.name || "";
           const v = semver.coerce(stripV(t))?.version || null;
-          const prerelease = !!(r.prerelease || (v && semver.prerelease(v)));
-          return { r, tag: t, v, prerelease };
+          return { r, tag: t, v, prerelease: !!(r.prerelease || (v && semver.prerelease(v))) };
         })
-        .filter((x) => x.v && semver.valid(x.v))
-        // --- BEGIN: pin_major filter (minimal change) ---
-        .filter((x) => (pinMajor === null ? true : semver.major(x.v) === pinMajor));
-        // --- END: pin_major filter (minimal change) ---
+        .filter((x) => x.v && semver.valid(x.v));
+
+      const parsed = pinMajor === null ? parsedAll : parsedAll.filter((x) => semver.major(x.v) === pinMajor);
 
       const stable =
         parsed.filter((x) => !x.prerelease).sort((a, b) => semver.rcompare(a.v, b.v))[0] || null;
       const beta =
         parsed.filter((x) => x.prerelease).sort((a, b) => semver.rcompare(a.v, b.v))[0] || null;
 
-      // --- BEGIN: redefine @latest when pin_major is set (minimal change) ---
-      // If pin_major is set, do NOT trust GitHub's /releases/latest (it may be another major).
-      // Instead, pick latest within pinned major: prefer stable, else beta.
-      if (pinMajor !== null) {
-        latest = stable?.r || beta?.r || null;
-        latestTag = latest ? (latest.tag_name || latest.name || null) : null;
-      }
-      // Recompute keys after possible override
-      const latestKey2 = `${repo}@latest:${latestTag}`;
-      const needLatest2 = state[pkg]?.latest_key !== latestKey2;
-      // overwrite variables used below
-      // (keep names to minimize downstream changes)
-      // eslint-disable-next-line no-unused-vars
-      const latestKeyFinal = latestKey2;
-      // --- END: redefine @latest when pin_major is set (minimal change) ---
-
       const stableTag = stable?.tag || null;
       const betaTag = beta?.tag || null;
+
+      // If pin_major is set, override @latest to newest within that major: prefer stable, else beta
+      if (pinMajor !== null) {
+        latest = stable?.r || beta?.r || null;
+        latestTag = latest ? latest.tag_name || latest.name || null : null;
+        console.log(`[external:${pkg}] pin_major=${pinMajor} -> pinned latestTag=${latestTag}`);
+      }
+
+      const latestKey = `${repo}@latest:${latestTag || ""}`;
+      const needLatest = prevLatestKey !== latestKey;
+
+      console.log(`[external:${pkg}] needLatest=${needLatest}`);
 
       const stableKey = stableTag ? `${repo}@stable:${stableTag}` : null;
       const betaKey = betaTag ? `${repo}@beta:${betaTag}` : null;
@@ -771,16 +765,11 @@ for (const src of cfg.sources || []) {
       const needStable = stableKey && state[pkg]?.stable_key !== stableKey;
       const needBeta = betaKey && state[pkg]?.beta_key !== betaKey;
 
-      // --- BEGIN: use recomputed needLatest when pin_major is set (minimal change) ---
-      const needLatestFinal = pinMajor !== null ? needLatest2 : needLatest;
-      const latestKeyToStore = pinMajor !== null ? latestKey2 : latestKey;
-      // --- END: use recomputed needLatest when pin_major is set (minimal change) ---
-
-      if (!needLatestFinal && !needStable && !needBeta) {
+      if (!needLatest && !needStable && !needBeta) {
         record({
           package: pkg,
           type,
-          upstream: latestTag,
+          upstream: latestTag || "",
           action: "skip",
           status: "SKIP",
           details: "No changes (keys match external-state.json)",
@@ -870,12 +859,12 @@ for (const src of cfg.sources || []) {
       }
 
       // Publish @latest
-      if (needLatestFinal) {
+      if (needLatest) {
         if (!latest || !latest.tag_name) {
           record({
             package: pkg,
             type,
-            upstream: latestTag,
+            upstream: latestTag || "",
             action: "publish",
             status: "FAIL",
             details: "No GitHub release object for @latest (use github-raw-file or create a release)",
@@ -895,9 +884,7 @@ for (const src of cfg.sources || []) {
             hadFailure = true;
           } else {
             state[pkg] = state[pkg] || {};
-            // --- BEGIN: store correct key when pin_major is set (minimal change) ---
-            state[pkg].latest_key = latestKeyToStore;
-            // --- END: store correct key when pin_major is set (minimal change) ---
+            state[pkg].latest_key = latestKey;
             state[pkg].last_upstream_tag = latest.tag_name;
             changed = true;
 
@@ -917,7 +904,14 @@ for (const src of cfg.sources || []) {
       if (needStable && stable?.r) {
         const r = publishFromRelease(stable.r, "stable");
         if (!r.ok) {
-          record({ package: pkg, type, upstream: stableTag || "", action: "publish", status: "FAIL", details: r.reason });
+          record({
+            package: pkg,
+            type,
+            upstream: stableTag || "",
+            action: "publish",
+            status: "FAIL",
+            details: r.reason,
+          });
           hadFailure = true;
         } else {
           state[pkg] = state[pkg] || {};
@@ -940,7 +934,14 @@ for (const src of cfg.sources || []) {
       if (needBeta && beta?.r) {
         const r = publishFromRelease(beta.r, "beta");
         if (!r.ok) {
-          record({ package: pkg, type, upstream: betaTag || "", action: "publish", status: "FAIL", details: r.reason });
+          record({
+            package: pkg,
+            type,
+            upstream: betaTag || "",
+            action: "publish",
+            status: "FAIL",
+            details: r.reason,
+          });
           hadFailure = true;
         } else {
           state[pkg] = state[pkg] || {};
@@ -991,7 +992,14 @@ for (const src of cfg.sources || []) {
 
       const prev = state[pkg]?.last_upstream_tag;
       if (prev === tag) {
-        record({ package: pkg, type, upstream: tag, action: "skip", status: "SKIP", details: "No changes (same upstream tag)" });
+        record({
+          package: pkg,
+          type,
+          upstream: tag,
+          action: "skip",
+          status: "SKIP",
+          details: "No changes (same upstream tag)",
+        });
         continue;
       }
 
@@ -1037,7 +1045,14 @@ for (const src of cfg.sources || []) {
       state[pkg] = { ...(state[pkg] || {}), last_upstream_tag: tag };
       changed = true;
 
-      record({ package: pkg, type, upstream: tag, action: "publish", status: "OK", details: `@latest v${version} files=${files.length}` });
+      record({
+        package: pkg,
+        type,
+        upstream: tag,
+        action: "publish",
+        status: "OK",
+        details: `@latest v${version} files=${files.length}`,
+      });
       continue;
     }
 
@@ -1077,7 +1092,14 @@ for (const src of cfg.sources || []) {
 
       const prev = state[pkg]?.last_commit;
       if (prev === sha) {
-        record({ package: pkg, type, upstream: upstreamStr, action: "skip", status: "SKIP", details: "No changes (same commit SHA)" });
+        record({
+          package: pkg,
+          type,
+          upstream: upstreamStr,
+          action: "skip",
+          status: "SKIP",
+          details: "No changes (same commit SHA)",
+        });
         continue;
       }
 
@@ -1098,7 +1120,14 @@ for (const src of cfg.sources || []) {
       }
 
       if (!toFetch.length) {
-        record({ package: pkg, type, upstream: upstreamStr, action: "skip", status: "FAIL", details: "No files configured (use path/paths/files[])" });
+        record({
+          package: pkg,
+          type,
+          upstream: upstreamStr,
+          action: "skip",
+          status: "FAIL",
+          details: "No files configured (use path/paths/files[])",
+        });
         hadFailure = true;
         continue;
       }
@@ -1142,12 +1171,26 @@ for (const src of cfg.sources || []) {
       state[pkg] = { ...(state[pkg] || {}), last_commit: sha, last_upstream_ref: ref };
       changed = true;
 
-      record({ package: pkg, type, upstream: upstreamStr, action: "publish", status: "OK", details: `@latest v${version} files=${downloaded.length}` });
+      record({
+        package: pkg,
+        type,
+        upstream: upstreamStr,
+        action: "publish",
+        status: "OK",
+        details: `@latest v${version} files=${downloaded.length}`,
+      });
       continue;
     }
 
     // Unknown type
-    record({ package: pkg, type, upstream: "", action: "skip", status: "FAIL", details: `Unknown source type: ${type}` });
+    record({
+      package: pkg,
+      type,
+      upstream: "",
+      action: "skip",
+      status: "FAIL",
+      details: `Unknown source type: ${type}`,
+    });
     hadFailure = true;
   } catch (e) {
     hadFailure = true;

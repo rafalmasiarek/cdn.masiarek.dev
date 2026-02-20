@@ -155,16 +155,60 @@
       "type": "github-release-assets-semver",
       "repo": "mozilla/pdf.js",
       "pin_major": 3,
-      "asset_regex": "DO_NOT_MATCH_ASSET$",
-      "zipball_fallback": true,
-      "build": {
-        "enable": true,
-        "pre_install": "git config --global url.\"https://github.com/\".insteadOf \"ssh://git@github.com/\" && git config --global url.\"https://github.com/\".insteadOf \"git@github.com:\"",
-        "run": "npx gulp minified-legacy && npx gulp generic-legacy && rm -rf dist && mkdir -p dist/build dist/web && cp build/minified-legacy/build/pdf.min.js dist/build/pdf.min.js && cp build/minified-legacy/build/pdf.worker.min.js dist/build/pdf.worker.min.js && cp build/minified-legacy/build/pdf.sandbox.min.js dist/build/pdf.sandbox.min.js && cp build/generic-legacy/web/viewer.html dist/web/viewer.html && cp build/generic-legacy/web/viewer.css dist/web/viewer.css && cp build/generic-legacy/web/viewer.js dist/web/viewer.js && cp -R build/generic-legacy/web/images dist/web/ && cp -R build/generic-legacy/web/locale dist/web/ && cp -R build/generic-legacy/web/cmaps dist/web/ && cp -R build/generic-legacy/web/standard_fonts dist/web/"
-      },
+      "asset_regex": "pdfjs-.*-dist\\.zip$",
       "extract": [
         {
-          "file_regex": "(^|/)dist/.+[^/]$",
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)build/pdf\\.js$",
+          "out_name": "build/pdf.min.js",
+          "minify": "terser"
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)build/pdf\\.worker\\.js$",
+          "out_name": "build/pdf.worker.min.js",
+          "minify": "terser"
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)build/pdf\\.sandbox\\.js$",
+          "out_name": "build/pdf.sandbox.min.js",
+          "minify": "terser"
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/viewer\\.html$",
+          "out_name": "web/viewer.html"
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/viewer\\.css$",
+          "out_name": "web/viewer.css"
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/viewer\\.js$",
+          "out_name": "web/viewer.min.js",
+          "minify": "terser"
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/images/.+[^/]$",
+          "preserve_path": true
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/locale/.+[^/]$",
+          "preserve_path": true
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/cmaps/.+[^/]$",
+          "preserve_path": true
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/standard_fonts/.+[^/]$",
           "preserve_path": true
         }
       ],

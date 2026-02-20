@@ -65,14 +65,8 @@
       "repo": "picturepan2/instagram.css",
       "ref": "master",
       "files": [
-        {
-          "path": "dist/instagram.css",
-          "out_name": "instagram.css"
-        },
-        {
-          "path": "dist/instagram.min.css",
-          "out_name": "instagram.min.css"
-        }
+        { "path": "dist/instagram.css", "out_name": "instagram.css" },
+        { "path": "dist/instagram.min.css", "out_name": "instagram.min.css" }
       ],
       "meta": {
         "name": "instagram.css",
@@ -89,23 +83,11 @@
       "repo": "twitter/twemoji",
       "asset_regex": ".*",
       "zipball_fallback": true,
-      "build": {
-        "enable": true,
-        "run": "npm run build"
-      },
+      "build": { "enable": true, "run": "npm run build" },
       "extract": [
-        {
-          "file_regex": "(^|/)dist/twemoji\\.js$",
-          "out_name": "twemoji.js"
-        },
-        {
-          "file_regex": "(^|/)dist/twemoji\\.min\\.js$",
-          "out_name": "twemoji.min.js"
-        },
-        {
-          "file_regex": "(^|/)assets/.*",
-          "preserve_path": true
-        }
+        { "file_regex": "(^|/)dist/twemoji\\.js$", "out_name": "twemoji.js" },
+        { "file_regex": "(^|/)dist/twemoji\\.min\\.js$", "out_name": "twemoji.min.js" },
+        { "file_regex": "(^|/)assets/.*", "preserve_path": true }
       ],
       "meta": {
         "name": "Twemoji",
@@ -121,26 +103,12 @@
       "repo": "openpgpjs/openpgpjs",
       "asset_regex": "DO_NOT_MATCH_ASSET$",
       "zipball_fallback": true,
-      "build": {
-        "enable": true
-      },
+      "build": { "enable": true },
       "extract": [
-        {
-          "file_regex": "(^|/)dist/openpgp\\.js$",
-          "out_name": "openpgp.js"
-        },
-        {
-          "file_regex": "(^|/)dist/openpgp\\.min\\.js$",
-          "out_name": "openpgp.min.js"
-        },
-        {
-          "file_regex": "(^|/)dist/openpgp\\.worker\\.js$",
-          "out_name": "openpgp.worker.js"
-        },
-        {
-          "file_regex": "(^|/)dist/openpgp\\.worker\\.min\\.js$",
-          "out_name": "openpgp.worker.min.js"
-        }
+        { "file_regex": "(^|/)dist/openpgp\\.js$", "out_name": "openpgp.js" },
+        { "file_regex": "(^|/)dist/openpgp\\.min\\.js$", "out_name": "openpgp.min.js" },
+        { "file_regex": "(^|/)dist/openpgp\\.worker\\.js$", "out_name": "openpgp.worker.js" },
+        { "file_regex": "(^|/)dist/openpgp\\.worker\\.min\\.js$", "out_name": "openpgp.worker.min.js" }
       ],
       "meta": {
         "name": "OpenPGP.js",
@@ -155,55 +123,14 @@
       "type": "github-release-assets-semver",
       "repo": "mozilla/pdf.js",
       "pin_major": 3,
-      "asset_regex": "pdfjs-.*-dist\\.zip$",
+      "asset_regex": "DO_NOT_MATCH_ASSET$",
+      "zipball_fallback": true,
+      "build": {
+        "enable": true,
+        "run": "npx gulp minified-legacy && npx gulp generic-legacy && rm -rf dist && mkdir -p dist/build dist/web && cp build/minified-legacy/build/pdf.min.js dist/build/pdf.min.js && cp build/minified-legacy/build/pdf.worker.min.js dist/build/pdf.worker.min.js && cp build/minified-legacy/build/pdf.sandbox.min.js dist/build/pdf.sandbox.min.js && cp build/generic-legacy/web/viewer.html dist/web/viewer.html && cp build/generic-legacy/web/viewer.css dist/web/viewer.css && cp build/generic-legacy/web/viewer.js dist/web/viewer.js && cp -R build/generic-legacy/web/images dist/web/ && cp -R build/generic-legacy/web/locale dist/web/ && cp -R build/generic-legacy/web/cmaps dist/web/ && cp -R build/generic-legacy/web/standard_fonts dist/web/"
+      },
       "extract": [
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)build/pdf\\.min\\.js$",
-          "out_name": "build/pdf.min.js"
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)build/pdf\\.worker\\.min\\.js$",
-          "out_name": "build/pdf.worker.min.js"
-        },
-    
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/viewer\\.html$",
-          "out_name": "web/viewer.html"
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/viewer\\.css$",
-          "out_name": "web/viewer.css"
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/viewer\\.js$",
-          "out_name": "web/viewer.js"
-        },
-    
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/images/.+[^/]$",
-          "preserve_path": true
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/locale/.+[^/]$",
-          "preserve_path": true
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)cmaps/.+[^/]$",
-          "preserve_path": true
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)standard_fonts/.+[^/]$",
-          "preserve_path": true
-        }
+        { "file_regex": "(^|/)dist/.+[^/]$", "preserve_path": true }
       ],
       "meta": {
         "name": "PDF.js",

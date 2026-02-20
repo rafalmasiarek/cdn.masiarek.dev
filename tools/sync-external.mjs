@@ -363,7 +363,18 @@ function downloadZipballBuildAndCollect({ repo, release, extractRules, buildCfg,
   // Build (NO default; run only if explicitly set)
   const buildCmd = String(cfg.run || "").trim();
 
+  // Allow pre-install hook
+  const preInstallCmd =
+    buildCfg && typeof buildCfg === "object" && typeof buildCfg.pre_install === "string"
+      ? buildCfg.pre_install.trim()
+      : "";
+
+  if (preInstallCmd) {
+    sh(preInstallCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: cfg.env || {} });
+  }
+
   sh(installCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: cfg.env || {} });
+
   if (buildCmd) {
     sh(buildCmd, { cwd: workdir, timeoutMs: cfg.timeoutMs, env: cfg.env || {} });
   }

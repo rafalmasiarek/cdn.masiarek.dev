@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-02-20T17:09:22.092Z",
+  "generated_at": "2026-02-20T17:17:30.937Z",
   "changed": false,
-  "failures": 0,
+  "failures": 1,
   "results": [
     {
       "package": "bootstrap",
@@ -46,10 +46,10 @@
     {
       "package": "pdfjs",
       "type": "github-release-assets-semver",
-      "upstream": "v5.4.624",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: unzip -p \"/home/runner/work/cdn.masiarek.dev/cdn.masiarek.dev/.tmp/external/pdfjs/latest__3.11.174/pdfjs-3.11.174-dist.zip\" \"web/images/\" > \"/home/runner/work/cdn.masiarek.dev/cdn.masiarek.dev/.tmp/external/pdfjs/l..."
     }
   ]
 }

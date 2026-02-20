@@ -158,16 +158,16 @@
       "zipball_fallback": true,
       "build": {
         "enable": true,
-        "run": "npm ci --no-audit --no-fund && npx gulp minified-legacy"
+        "run": "npm ci --no-audit --no-fund && npx gulp minified-legacy && npx esbuild build/minified-legacy/build/pdf.min.mjs --bundle --format=iife --global-name=pdfjsLib --outfile=build/minified-legacy/build/pdf.min.js && npx esbuild build/minified-legacy/build/pdf.worker.min.mjs --bundle --format=iife --outfile=build/minified-legacy/build/pdf.worker.min.js"
       },
       "extract": [
         {
-          "file_regex": "(^|/)build/minified-legacy/build/pdf\\.min\\.mjs$",
-          "out_name": "pdf.min.mjs"
+          "file_regex": "(^|/)build/minified-legacy/build/pdf\\.min\\.js$",
+          "out_name": "pdf.min.js"
         },
         {
-          "file_regex": "(^|/)build/minified-legacy/build/pdf\\.worker\\.min\\.mjs$",
-          "out_name": "pdf.worker.min.mjs"
+          "file_regex": "(^|/)build/minified-legacy/build/pdf\\.worker\\.min\\.js$",
+          "out_name": "pdf.worker.min.js"
         }
       ],
       "meta": {

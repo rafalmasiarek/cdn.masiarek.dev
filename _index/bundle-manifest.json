@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-20T17:44:50.189Z",
+  "generated_at": "2026-02-20T19:09:41.494Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37254,13 +37254,13 @@
         "last_stable": {
           "version": "v3.11.174",
           "channel": "stable",
-          "built_at": "2026-02-20T17:44:50.189Z"
+          "built_at": "2026-02-20T19:09:41.494Z"
         },
         "last_beta": null,
         "last_latest": {
           "version": "v3.11.174",
           "channel": "stable",
-          "built_at": "2026-02-20T17:44:50.189Z"
+          "built_at": "2026-02-20T19:09:41.494Z"
         },
         "meta": {
           "name": "PDF.js",
@@ -37273,7 +37273,7 @@
       "versions": {
         "v3.11.174": {
           "channel": "stable",
-          "built_at": "2026-02-20T17:44:50.189Z",
+          "built_at": "2026-02-20T19:09:41.494Z",
           "commit": null,
           "upstream": {
             "type": "github-release",
@@ -37282,6 +37282,21 @@
             "release_html_url": "https://github.com/mozilla/pdf.js/releases/tag/v3.11.174"
           },
           "files": {
+            "build/pdf.min.js": {
+              "url": "/pdfjs/v3.11.174/build/pdf.min.js",
+              "integrity": "sha384-6aQOfZ4gSOicuuJPNs7VlM3TpoXIalG+ZfNr1hTq0q3Hkyql46tvTubxu1pwOBZR",
+              "bytes": 362825
+            },
+            "build/pdf.worker.min.js": {
+              "url": "/pdfjs/v3.11.174/build/pdf.worker.min.js",
+              "integrity": "sha384-ZfkEREWU/szIftxq/2D9BcyhV/8OjAqPLjxWu9Xs1D4IYn+vAlRLgI8C6KnDh/J5",
+              "bytes": 1097395
+            },
+            "build/pdf.sandbox.min.js": {
+              "url": "/pdfjs/v3.11.174/build/pdf.sandbox.min.js",
+              "integrity": "sha384-Yite4tbx2Qcmnere98FR/s8j+l7XiOLaNKaYnj34LTzeUVTsvPKwmdK/oOEyCwqC",
+              "bytes": 730009
+            },
             "web/viewer.html": {
               "url": "/pdfjs/v3.11.174/web/viewer.html",
               "integrity": "sha384-xWJiOWquoR+zeieAvIbocRppjTDiv5Naz9HrJPDB+RIiMTVf66946sF3c/+kpQBV",
@@ -37292,10 +37307,10 @@
               "integrity": "sha384-DxmkQjmxUUmsIHPQhDIfImVfdb0GTFgQt9LrP7OxJodaITWV0w6ET/u9D/yth0wa",
               "bytes": 96934
             },
-            "web/viewer.js": {
-              "url": "/pdfjs/v3.11.174/web/viewer.js",
-              "integrity": "sha384-ARuU4GhuZV6hVEYnQpqoQWuSiZqK7ekfHrkBK5bwRGY0pVe7hPg79bnVbRJ4rPzb",
-              "bytes": 519842
+            "web/viewer.min.js": {
+              "url": "/pdfjs/v3.11.174/web/viewer.min.js",
+              "integrity": "sha384-Q+TjFGSLXkUOi0mSb4Orr/5tb2b6m/An9nzoF2hRMOmd4qmrESrVqhEXmerXfKZe",
+              "bytes": 266776
             },
             "web/images/altText_add.svg": {
               "url": "/pdfjs/v3.11.174/web/images/altText_add.svg",

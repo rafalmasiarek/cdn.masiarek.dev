@@ -30,5 +30,11 @@
     "last_upstream_tag": "v14.0.2",
     "stable_key": "twitter/twemoji@stable:v14.0.2",
     "last_upstream_stable_tag": "v14.0.2"
+  },
+  "pdfjs": {
+    "latest_key": "mozilla/pdf.js@latest:v3.11.174",
+    "last_upstream_tag": "v3.11.174",
+    "stable_key": "mozilla/pdf.js@stable:v3.11.174",
+    "last_upstream_stable_tag": "v3.11.174"
   }
 }

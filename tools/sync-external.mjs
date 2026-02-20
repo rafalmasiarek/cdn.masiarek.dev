@@ -250,45 +250,108 @@ function sh(cmd, { cwd, timeoutMs, env } = {}) {
 }
 
 /**
- * NEW: Minify selected extracted files using terser.
- * We minify the *content* but keep the configured outName (e.g. build/pdf.min.js).
+ * Minify selected extracted files using terser (JS) or csso (CSS).
+ *
+ * - Uses f.outName (if present) to derive the temp output name, so we don't end up with *.min.min.*
+ * - Keeps f.outName unchanged (publish step uses outName), only swaps localPath to the minified temp file.
+ * - Supports nested outName paths like "build/pdf.min.js".
+ *
+ * Supported modes:
+ *  - "terser" for .js
+ *  - "csso"   for .css
  *
  * @param {Array<{localPath:string,outName?:string,minify?:string}>} files
  * @param {string} tmpDir
+ * @returns {Array<{localPath:string,outName?:string,minify?:string}>}
  */
 function applyMinify(files, tmpDir) {
   if (!files || !files.length) return files;
+
   const out = [];
+  const minDir = path.join(tmpDir, "minified__");
+  mkdirp(minDir);
 
   for (const f of files) {
     const mode = String(f.minify || "").trim();
-    if (mode !== "terser") {
+    if (!mode) {
       out.push(f);
       continue;
     }
 
     const srcPath = f.localPath;
-    const ext = path.extname(srcPath).toLowerCase();
-    if (ext !== ".js") {
-      out.push(f);
+    const srcExt = path.extname(srcPath).toLowerCase();
+
+    // Use outName (preferred) to decide target naming, fallback to source basename.
+    const desiredRel = (f.outName && String(f.outName).trim()) ? String(f.outName).trim() : path.basename(srcPath);
+    const desiredBaseName = path.basename(desiredRel); // e.g. "pdf.min.js" or "styles.css"
+    const desiredExt = path.extname(desiredBaseName).toLowerCase();
+
+    // Decide which extension to treat as "the type"
+    // We minify only when the file itself is correct type OR outName implies it.
+    const effectiveExt = (desiredExt === ".js" || desiredExt === ".css") ? desiredExt : srcExt;
+
+    // Helper: remove double ".min" if already present
+    function ensureMinName(filename, ext) {
+      // filename includes ext (like "pdf.min.js")
+      const base = filename.slice(0, -ext.length); // remove ext
+      const baseNoMin = base.replace(/\.min$/i, ""); // if already ends with .min, strip it
+      return `${baseNoMin}.min${ext}`; // add exactly one .min
+    }
+
+    // Build temp output path, preserving outName folder structure under minified__/
+    const desiredDirRel = path.posix.dirname(desiredRel.split(path.sep).join("/")); // normalize to posix-like
+    const outSubDir = (desiredDirRel && desiredDirRel !== ".") ? path.join(minDir, desiredDirRel) : minDir;
+    mkdirp(outSubDir);
+
+    if (mode === "terser") {
+      if (effectiveExt !== ".js") {
+        out.push(f);
+        continue;
+      }
+
+      const outFileName = ensureMinName(
+        desiredExt === ".js" ? desiredBaseName : path.basename(srcPath),
+        ".js"
+      );
+      const dstPath = path.join(outSubDir, outFileName);
+
+      console.log(`[external] minify(terser): ${path.basename(srcPath)} -> ${path.relative(tmpDir, dstPath)}`);
+
+      // Uses npx (works) OR you can swap to local bin as described below
+      sh(
+        `npx --yes terser@5 ${JSON.stringify(srcPath)} -c -m --ecma 2018 -o ${JSON.stringify(dstPath)}`,
+        { cwd: tmpDir }
+      );
+
+      out.push({ ...f, localPath: dstPath });
       continue;
     }
 
-    const base = path.basename(srcPath, ".js");
-    const minDir = path.join(tmpDir, "minified__");
-    mkdirp(minDir);
+    if (mode === "csso") {
+      if (effectiveExt !== ".css") {
+        out.push(f);
+        continue;
+      }
 
-    const dstPath = path.join(minDir, `${base}.min.js`);
+      const outFileName = ensureMinName(
+        desiredExt === ".css" ? desiredBaseName : path.basename(srcPath),
+        ".css"
+      );
+      const dstPath = path.join(outSubDir, outFileName);
 
-    // Keep output deterministic and non-interactive
-    // --yes avoids prompt, pin terser major for stability
-    console.log(`[external] minify(terser): ${path.basename(srcPath)} -> ${path.basename(dstPath)}`);
-    sh(
-      `npx --yes terser@5 ${JSON.stringify(srcPath)} -c -m --ecma 2018 -o ${JSON.stringify(dstPath)}`,
-      { cwd: tmpDir }
-    );
+      console.log(`[external] minify(csso): ${path.basename(srcPath)} -> ${path.relative(tmpDir, dstPath)}`);
 
-    out.push({ ...f, localPath: dstPath });
+      sh(
+        `npx --yes csso-cli@4 ${JSON.stringify(srcPath)} --output ${JSON.stringify(dstPath)}`,
+        { cwd: tmpDir }
+      );
+
+      out.push({ ...f, localPath: dstPath });
+      continue;
+    }
+
+    // Unknown minify mode => pass-through
+    out.push(f);
   }
 
   return out;

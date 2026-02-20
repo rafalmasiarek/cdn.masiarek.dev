@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-20T17:17:30.937Z",
+  "generated_at": "2026-02-20T17:22:43.485Z",
   "changed": false,
   "failures": 1,
   "results": [
@@ -49,7 +49,7 @@
       "upstream": "",
       "action": "publish",
       "status": "FAIL",
-      "details": "Error: Command failed: unzip -p \"/home/runner/work/cdn.masiarek.dev/cdn.masiarek.dev/.tmp/external/pdfjs/latest__3.11.174/pdfjs-3.11.174-dist.zip\" \"web/images/\" > \"/home/runner/work/cdn.masiarek.dev/cdn.masiarek.dev/.tmp/external/pdfjs/l..."
+      "details": "Error: Command failed: unzip -p \"/home/runner/work/cdn.masiarek.dev/cdn.masiarek.dev/.tmp/external/pdfjs/latest__3.11.174/pdfjs-3.11.174-dist.zip\" \"web/locale/ach/\" > \"/home/runner/work/cdn.masiarek.dev/cdn.masiarek.dev/.tmp/external/pdf..."
     }
   ]
 }

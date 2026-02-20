@@ -697,18 +697,59 @@ for (const src of cfg.sources || []) {
       // Determine stable/beta "latest"
       console.log(`[external:${pkg}] listing recent releases to detect stable/beta...`);
       const releases = getReleases(repo, src.releases_per_page || 30);
+
+      // --- BEGIN: pin_major support (minimal change) ---
+      const pinMajorRaw = src.pin_major;
+      const pinMajor = pinMajorRaw === undefined || pinMajorRaw === null || pinMajorRaw === ""
+        ? null
+        : Number(pinMajorRaw);
+
+      if (pinMajor !== null && !Number.isFinite(pinMajor)) {
+        record({
+          package: pkg,
+          type,
+          upstream: latestTag || "",
+          action: "skip",
+          status: "FAIL",
+          details: `Invalid pin_major=${safeOneLine(pinMajorRaw)}`,
+        });
+        hadFailure = true;
+        continue;
+      }
+      // --- END: pin_major support (minimal change) ---
+
       const parsed = releases
         .map((r) => {
           const t = r.tag_name || r.name || "";
           const v = semver.coerce(stripV(t))?.version || null;
-          return { r, tag: t, v, prerelease: !!(r.prerelease || (v && semver.prerelease(v))) };
+          const prerelease = !!(r.prerelease || (v && semver.prerelease(v)));
+          return { r, tag: t, v, prerelease };
         })
-        .filter((x) => x.v && semver.valid(x.v));
+        .filter((x) => x.v && semver.valid(x.v))
+        // --- BEGIN: pin_major filter (minimal change) ---
+        .filter((x) => (pinMajor === null ? true : semver.major(x.v) === pinMajor));
+        // --- END: pin_major filter (minimal change) ---
 
       const stable =
         parsed.filter((x) => !x.prerelease).sort((a, b) => semver.rcompare(a.v, b.v))[0] || null;
       const beta =
         parsed.filter((x) => x.prerelease).sort((a, b) => semver.rcompare(a.v, b.v))[0] || null;
+
+      // --- BEGIN: redefine @latest when pin_major is set (minimal change) ---
+      // If pin_major is set, do NOT trust GitHub's /releases/latest (it may be another major).
+      // Instead, pick latest within pinned major: prefer stable, else beta.
+      if (pinMajor !== null) {
+        latest = stable?.r || beta?.r || null;
+        latestTag = latest ? (latest.tag_name || latest.name || null) : null;
+      }
+      // Recompute keys after possible override
+      const latestKey2 = `${repo}@latest:${latestTag}`;
+      const needLatest2 = state[pkg]?.latest_key !== latestKey2;
+      // overwrite variables used below
+      // (keep names to minimize downstream changes)
+      // eslint-disable-next-line no-unused-vars
+      const latestKeyFinal = latestKey2;
+      // --- END: redefine @latest when pin_major is set (minimal change) ---
 
       const stableTag = stable?.tag || null;
       const betaTag = beta?.tag || null;
@@ -719,7 +760,12 @@ for (const src of cfg.sources || []) {
       const needStable = stableKey && state[pkg]?.stable_key !== stableKey;
       const needBeta = betaKey && state[pkg]?.beta_key !== betaKey;
 
-      if (!needLatest && !needStable && !needBeta) {
+      // --- BEGIN: use recomputed needLatest when pin_major is set (minimal change) ---
+      const needLatestFinal = pinMajor !== null ? needLatest2 : needLatest;
+      const latestKeyToStore = pinMajor !== null ? latestKey2 : latestKey;
+      // --- END: use recomputed needLatest when pin_major is set (minimal change) ---
+
+      if (!needLatestFinal && !needStable && !needBeta) {
         record({
           package: pkg,
           type,
@@ -813,7 +859,7 @@ for (const src of cfg.sources || []) {
       }
 
       // Publish @latest
-      if (needLatest) {
+      if (needLatestFinal) {
         if (!latest || !latest.tag_name) {
           record({
             package: pkg,
@@ -838,7 +884,9 @@ for (const src of cfg.sources || []) {
             hadFailure = true;
           } else {
             state[pkg] = state[pkg] || {};
-            state[pkg].latest_key = latestKey;
+            // --- BEGIN: store correct key when pin_major is set (minimal change) ---
+            state[pkg].latest_key = latestKeyToStore;
+            // --- END: store correct key when pin_major is set (minimal change) ---
             state[pkg].last_upstream_tag = latest.tag_name;
             changed = true;
 

@@ -1,0 +1,46 @@
+{
+  "package": "pdfjs",
+  "version": "v3.11.174",
+  "channel": "stable",
+  "built_at": "2026-02-20T20:12:11.166Z",
+  "commit": null,
+  "upstream": {
+    "type": "github-release",
+    "repo": "mozilla/pdf.js",
+    "tag": "v3.11.174",
+    "release_html_url": "https://github.com/mozilla/pdf.js/releases/tag/v3.11.174"
+  },
+  "meta": {
+    "name": "PDF.js",
+    "homepage": "https://mozilla.github.io/pdf.js/",
+    "license": "Apache-2.0",
+    "source_url": "https://github.com/mozilla/pdf.js",
+    "author": "Mozilla and PDF.js contributors"
+  },
+  "files": {
+    "pdf.min.js": {
+      "integrity": "sha384-6aQOfZ4gSOicuuJPNs7VlM3TpoXIalG+ZfNr1hTq0q3Hkyql46tvTubxu1pwOBZR",
+      "bytes": 362825
+    },
+    "pdf.worker.min.js": {
+      "integrity": "sha384-ZfkEREWU/szIftxq/2D9BcyhV/8OjAqPLjxWu9Xs1D4IYn+vAlRLgI8C6KnDh/J5",
+      "bytes": 1097395
+    },
+    "pdf.sandbox.min.js": {
+      "integrity": "sha384-Yite4tbx2Qcmnere98FR/s8j+l7XiOLaNKaYnj34LTzeUVTsvPKwmdK/oOEyCwqC",
+      "bytes": 730009
+    },
+    "pdf.js.map": {
+      "integrity": "sha384-4ZN7M3xq9URonQTTwqfH6KCJ+Nj20X4qhleCwoRSxKNw0iWQJ4Lu1v0R+b9mdyf9",
+      "bytes": 1784785
+    },
+    "pdf.worker.js.map": {
+      "integrity": "sha384-/vDQElt6V6Z5Y3cGDKi/3zPkKu5m/ocJHGnXQQFrnHO2PeCjfoY0CHPcBTKicrBn",
+      "bytes": 5230593
+    },
+    "pdf.sandbox.js.map": {
+      "integrity": "sha384-X1ZFRXpeutSWWTUiEyjc17EBGGVrSh9fKMPIwOmJlAS9j8nyQaPG5v2jabpS9dIF",
+      "bytes": 774802
+    }
+  }
+}

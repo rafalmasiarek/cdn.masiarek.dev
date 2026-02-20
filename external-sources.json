@@ -155,19 +155,19 @@
       "type": "github-release-assets-semver",
       "repo": "mozilla/pdf.js",
       "pin_major": 3,
-      "asset_regex": "pdfjs-.*-(legacy-)?dist\\.zip$",
+      "asset_regex": "pdfjs-.*-dist\\.zip$",
       "extract": [
         {
-          "zip_asset_regex": "pdfjs-.*-legacy-dist\\.zip$",
-          "file_regex": "(^|/)legacy/build/pdf\\.min\\.js$",
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)build/pdf\\.min\\.js$",
           "out_name": "build/pdf.min.js"
         },
         {
-          "zip_asset_regex": "pdfjs-.*-legacy-dist\\.zip$",
-          "file_regex": "(^|/)legacy/build/pdf\\.worker\\.min\\.js$",
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)build/pdf\\.worker\\.min\\.js$",
           "out_name": "build/pdf.worker.min.js"
         },
-      
+    
         {
           "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
           "file_regex": "(^|/)web/viewer\\.html$",
@@ -183,6 +183,7 @@
           "file_regex": "(^|/)web/viewer\\.js$",
           "out_name": "web/viewer.js"
         },
+    
         {
           "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
           "file_regex": "(^|/)web/images/.+[^/]$",

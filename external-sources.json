@@ -154,20 +154,55 @@
       "package": "pdfjs",
       "type": "github-release-assets-semver",
       "repo": "mozilla/pdf.js",
-      "asset_regex": "DO_NOT_MATCH_ASSET$",
-      "zipball_fallback": true,
-      "build": {
-        "enable": true,
-        "run": "npm ci --no-audit --no-fund && npx gulp minified-legacy && npx esbuild build/minified-legacy/build/pdf.min.mjs --bundle --format=iife --global-name=pdfjsLib --outfile=build/minified-legacy/build/pdf.min.js && npx esbuild build/minified-legacy/build/pdf.worker.min.mjs --bundle --format=iife --outfile=build/minified-legacy/build/pdf.worker.min.js"
-      },
+      "pin_major": 3,
+      "asset_regex": "pdfjs-.*-(legacy-)?dist\\.zip$",
       "extract": [
         {
-          "file_regex": "(^|/)build/minified-legacy/build/pdf\\.min\\.js$",
-          "out_name": "pdf.min.js"
+          "zip_asset_regex": "pdfjs-.*-legacy-dist\\.zip$",
+          "file_regex": "(^|/)legacy/build/pdf\\.min\\.js$",
+          "out_name": "build/pdf.min.js"
         },
         {
-          "file_regex": "(^|/)build/minified-legacy/build/pdf\\.worker\\.min\\.js$",
-          "out_name": "pdf.worker.min.js"
+          "zip_asset_regex": "pdfjs-.*-legacy-dist\\.zip$",
+          "file_regex": "(^|/)legacy/build/pdf\\.worker\\.min\\.js$",
+          "out_name": "build/pdf.worker.min.js"
+        },
+    
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/viewer\\.html$",
+          "out_name": "web/viewer.html"
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/viewer\\.css$",
+          "out_name": "web/viewer.css"
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/viewer\\.js$",
+          "out_name": "web/viewer.js"
+        },
+    
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/images/.*",
+          "preserve_path": true
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)web/locale/.*",
+          "preserve_path": true
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)cmaps/.*",
+          "preserve_path": true
+        },
+        {
+          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
+          "file_regex": "(^|/)standard_fonts/.*",
+          "preserve_path": true
         }
       ],
       "meta": {

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-20T16:23:49.729Z",
+  "generated_at": "2026-02-20T17:29:13.967Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -120,15 +120,15 @@
     },
     "pdfjs": {
       "last_stable": {
-        "version": "v5.4.624",
+        "version": "v3.11.174",
         "channel": "stable",
-        "built_at": "2026-02-20T16:23:49.729Z"
+        "built_at": "2026-02-20T17:29:13.967Z"
       },
       "last_beta": null,
       "last_latest": {
-        "version": "v5.4.624",
+        "version": "v3.11.174",
         "channel": "stable",
-        "built_at": "2026-02-20T16:23:49.729Z"
+        "built_at": "2026-02-20T17:29:13.967Z"
       },
       "meta": {
         "name": "PDF.js",

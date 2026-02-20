@@ -2,6 +2,11 @@
   "package": "pdfjs",
   "versions": [
     {
+      "version": "v3.11.174",
+      "channel": "stable",
+      "built_at": "2026-02-20T17:29:13.967Z"
+    },
+    {
       "version": "v5.4.624",
       "channel": "stable",
       "built_at": "2026-02-20T16:23:49.729Z"

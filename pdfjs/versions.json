@@ -1,0 +1,10 @@
+{
+  "package": "pdfjs",
+  "versions": [
+    {
+      "version": "v3.11.174",
+      "channel": "stable",
+      "built_at": "2026-02-20T17:44:50.189Z"
+    }
+  ]
+}

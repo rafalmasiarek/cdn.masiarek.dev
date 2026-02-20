@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-02-20T17:44:50.189Z",
-  "changed": true,
-  "failures": 0,
+  "generated_at": "2026-02-20T18:02:57.988Z",
+  "changed": false,
+  "failures": 1,
   "results": [
     {
       "package": "bootstrap",
@@ -46,18 +46,10 @@
     {
       "package": "pdfjs",
       "type": "github-release-assets-semver",
-      "upstream": "v3.11.174",
+      "upstream": "",
       "action": "publish",
-      "status": "OK",
-      "details": "@latest v3.11.174 files=718"
-    },
-    {
-      "package": "pdfjs",
-      "type": "github-release-assets-semver",
-      "upstream": "v3.11.174",
-      "action": "publish",
-      "status": "OK",
-      "details": "@stable v3.11.174 files=718 (+stable aliases)"
+      "status": "FAIL",
+      "details": "Error: Command failed: npm ci --no-audit --no-fund at genericNodeError (node:internal/errors:984:15) at wrappedFn (node:internal/errors:538:14) at checkExecSyncError (node:child_process:891:11) at execSync (node:child_process:963:15) at ..."
     }
   ]
 }

@@ -149,6 +149,34 @@
         "source_url": "https://github.com/openpgpjs/openpgpjs",
         "author": "OpenPGP.js contributors"
       }
+    },
+    {
+      "package": "pdfjs",
+      "type": "github-release-assets-semver",
+      "repo": "mozilla/pdf.js",
+      "asset_regex": "DO_NOT_MATCH_ASSET$",
+      "zipball_fallback": true,
+      "build": {
+        "enable": true,
+        "run": "npm ci --no-audit --no-fund && npx gulp minified-legacy"
+      },
+      "extract": [
+        {
+          "file_regex": "(^|/)build/minified-legacy/build/pdf\\.min\\.mjs$",
+          "out_name": "pdf.min.mjs"
+        },
+        {
+          "file_regex": "(^|/)build/minified-legacy/build/pdf\\.worker\\.min\\.mjs$",
+          "out_name": "pdf.worker.min.mjs"
+        }
+      ],
+      "meta": {
+        "name": "PDF.js",
+        "homepage": "https://mozilla.github.io/pdf.js/",
+        "license": "Apache-2.0",
+        "source_url": "https://github.com/mozilla/pdf.js",
+        "author": "Mozilla and PDF.js contributors"
+      }
     }
   ]
 }

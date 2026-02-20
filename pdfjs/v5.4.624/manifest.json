@@ -2,7 +2,7 @@
   "package": "pdfjs",
   "version": "v5.4.624",
   "channel": "stable",
-  "built_at": "2026-02-20T15:09:52.893Z",
+  "built_at": "2026-02-20T16:23:49.729Z",
   "commit": null,
   "upstream": {
     "type": "github-zipball-build",
@@ -18,13 +18,13 @@
     "author": "Mozilla and PDF.js contributors"
   },
   "files": {
-    "pdf.min.mjs": {
-      "integrity": "sha384-lcq32lIICni5va4yeY/bwyRTdVY7uiBuP862HBWJLbBhNADoPm+Sj8txX0/vG3HS",
-      "bytes": 481415
+    "pdf.min.js": {
+      "integrity": "sha384-oXIICX8cSWoqIbwPgq2KeXhYlbVh5q9ZLMr7z3sVs5mtCW7LNdGegZMQ7IN8mLZw",
+      "bytes": 723424
     },
-    "pdf.worker.min.mjs": {
-      "integrity": "sha384-SHRfTfYIBP/WpwxvMriFuMYntMfmh+f/ButKxR5hdQyNPirNCrUKkPOp43f/30rI",
-      "bytes": 1128585
+    "pdf.worker.min.js": {
+      "integrity": "sha384-/5Q3Y5Q938uZkf8x4nNqhlMpDbm4bxJOokOfu1T+LL1ESCQ4HVcy8gnrCTFX1NyN",
+      "bytes": 1727294
     }
   }
 }

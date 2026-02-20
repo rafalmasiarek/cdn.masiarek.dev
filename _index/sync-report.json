@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-20T18:20:06.724Z",
+  "generated_at": "2026-02-20T18:29:08.586Z",
   "changed": false,
   "failures": 1,
   "results": [
@@ -49,7 +49,7 @@
       "upstream": "",
       "action": "publish",
       "status": "FAIL",
-      "details": "Error: Command failed: npm ci --no-audit --no-fund at genericNodeError (node:internal/errors:984:15) at wrappedFn (node:internal/errors:538:14) at checkExecSyncError (node:child_process:891:11) at execSync (node:child_process:963:15) at ..."
+      "details": "Error: spawnSync /bin/sh ETIMEDOUT at Object.spawnSync (node:internal/child_process:1123:20) at spawnSync (node:child_process:877:24) at execSync (node:child_process:958:15) at sh (file:///home/runner/work/cdn.masiarek.dev/cdn.masiarek.d..."
     }
   ]
 }

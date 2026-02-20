@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-25T23:46:36Z",
+  "generated_at": "2026-02-20T15:09:52.893Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -116,6 +116,26 @@
         "license": "MIT",
         "source_url": "https://github.com/twitter/twemoji",
         "author": "Twitter"
+      }
+    },
+    "pdfjs": {
+      "last_stable": {
+        "version": "v5.4.624",
+        "channel": "stable",
+        "built_at": "2026-02-20T15:09:52.893Z"
+      },
+      "last_beta": null,
+      "last_latest": {
+        "version": "v5.4.624",
+        "channel": "stable",
+        "built_at": "2026-02-20T15:09:52.893Z"
+      },
+      "meta": {
+        "name": "PDF.js",
+        "homepage": "https://mozilla.github.io/pdf.js/",
+        "license": "Apache-2.0",
+        "source_url": "https://github.com/mozilla/pdf.js",
+        "author": "Mozilla and PDF.js contributors"
       }
     }
   }

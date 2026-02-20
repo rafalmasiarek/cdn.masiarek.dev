@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-20T13:41:25.374Z",
-  "changed": false,
+  "generated_at": "2026-02-20T15:09:52.893Z",
+  "changed": true,
   "failures": 0,
   "results": [
     {
@@ -42,6 +42,22 @@
       "action": "skip",
       "status": "SKIP",
       "details": "No changes (keys match external-state.json)"
+    },
+    {
+      "package": "pdfjs",
+      "type": "github-release-assets-semver",
+      "upstream": "v5.4.624",
+      "action": "publish",
+      "status": "OK",
+      "details": "@latest v5.4.624 files=2"
+    },
+    {
+      "package": "pdfjs",
+      "type": "github-release-assets-semver",
+      "upstream": "v5.4.624",
+      "action": "publish",
+      "status": "OK",
+      "details": "@stable v5.4.624 files=2 (+stable aliases)"
     }
   ]
 }

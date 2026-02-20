@@ -1,0 +1,30 @@
+{
+  "package": "pdfjs",
+  "version": "v5.4.624",
+  "channel": "stable",
+  "built_at": "2026-02-20T15:09:52.893Z",
+  "commit": null,
+  "upstream": {
+    "type": "github-zipball-build",
+    "repo": "mozilla/pdf.js",
+    "tag": "v5.4.624",
+    "release_html_url": "https://github.com/mozilla/pdf.js/releases/tag/v5.4.624"
+  },
+  "meta": {
+    "name": "PDF.js",
+    "homepage": "https://mozilla.github.io/pdf.js/",
+    "license": "Apache-2.0",
+    "source_url": "https://github.com/mozilla/pdf.js",
+    "author": "Mozilla and PDF.js contributors"
+  },
+  "files": {
+    "pdf.min.mjs": {
+      "integrity": "sha384-lcq32lIICni5va4yeY/bwyRTdVY7uiBuP862HBWJLbBhNADoPm+Sj8txX0/vG3HS",
+      "bytes": 481415
+    },
+    "pdf.worker.min.mjs": {
+      "integrity": "sha384-SHRfTfYIBP/WpwxvMriFuMYntMfmh+f/ButKxR5hdQyNPirNCrUKkPOp43f/30rI",
+      "bytes": 1128585
+    }
+  }
+}

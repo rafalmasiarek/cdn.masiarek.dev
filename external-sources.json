@@ -160,56 +160,35 @@
         {
           "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
           "file_regex": "(^|/)build/pdf\\.js$",
-          "out_name": "build/pdf.min.js",
+          "out_name": "pdf.min.js",
           "minify": "terser"
         },
         {
           "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
           "file_regex": "(^|/)build/pdf\\.worker\\.js$",
-          "out_name": "build/pdf.worker.min.js",
+          "out_name": "pdf.worker.min.js",
           "minify": "terser"
         },
         {
           "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
           "file_regex": "(^|/)build/pdf\\.sandbox\\.js$",
-          "out_name": "build/pdf.sandbox.min.js",
+          "out_name": "pdf.sandbox.min.js",
           "minify": "terser"
         },
         {
           "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/viewer\\.html$",
-          "out_name": "web/viewer.html"
+          "file_regex": "(^|/)build/pdf\\.js\\.map$",
+          "out_name": "pdf.js.map"
         },
         {
           "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/viewer\\.css$",
-          "out_name": "web/viewer.css"
+          "file_regex": "(^|/)build/pdf\\.worker\\.js\\.map$",
+          "out_name": "pdf.worker.js.map"
         },
         {
           "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/viewer\\.js$",
-          "out_name": "web/viewer.min.js",
-          "minify": "terser"
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/images/.+[^/]$",
-          "preserve_path": true
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/locale/.+[^/]$",
-          "preserve_path": true
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/cmaps/.+[^/]$",
-          "preserve_path": true
-        },
-        {
-          "zip_asset_regex": "pdfjs-.*-dist\\.zip$",
-          "file_regex": "(^|/)web/standard_fonts/.+[^/]$",
-          "preserve_path": true
+          "file_regex": "(^|/)build/pdf\\.sandbox\\.js\\.map$",
+          "out_name": "pdf.sandbox.js.map"
         }
       ],
       "meta": {

@@ -187,7 +187,7 @@ async function queryHourly({ pathLike }) {
         const toH = Math.max(0, fromH - 24);
         ranges.push({
             from: isoAtHoursAgo(fromH, { skewSeconds: NOW_SKEW_SECONDS }),
-            to: toH === 0 ? nowIso : isoAtHoursAgo(toH),
+            to: toH === 0 ? nowIso : isoAtHoursAgo(toH, { skewSeconds: NOW_SKEW_SECONDS }),
         });
     }
 

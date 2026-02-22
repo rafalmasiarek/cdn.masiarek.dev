@@ -19,6 +19,8 @@ const OUT_DIR = path.join(PUBLIC_DIR, "_index", "analytics");
 const HOURLY_HOURS = 72;
 const DAILY_DAYS = 7;
 
+const NOW_SKEW_SECONDS = Number(process.env.CF_TIME_SKEW_SECONDS || 1);
+
 function mustEnv(name) {
     const v = process.env[name];
     if (!v) throw new Error(`Missing required env: ${name}`);
@@ -28,6 +30,15 @@ function mustEnv(name) {
 const CF_API_TOKEN = mustEnv("CF_API_TOKEN");
 const CF_ZONE_TAG = mustEnv("CF_ZONE_TAG");
 const CDN_CUSTOM_DOMAIN = mustEnv("CDN_CUSTOM_DOMAIN");
+
+function isoNoMs(d) {
+    return d.toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+
+function isoNowUtc({ skewSeconds = 0 } = {}) {
+    const s = Math.max(0, Number(skewSeconds) || 0);
+    return isoNoMs(new Date(Date.now() - s * 1000));
+}
 
 function isoHoursAgo(n) {
     return new Date(Date.now() - n * 60 * 60 * 1000).toISOString();
@@ -167,7 +178,7 @@ async function queryHourly({ pathLike }) {
     }
   `;
 
-    const nowIso = new Date().toISOString();
+    const nowIso = isoNowUtc({ skewSeconds: NOW_SKEW_SECONDS });
 
     // Chunk into 24h windows (required by your zone)
     const ranges = [];

@@ -44,8 +44,9 @@ function isoHoursAgo(n) {
     return new Date(Date.now() - n * 60 * 60 * 1000).toISOString();
 }
 
-function isoAtHoursAgo(n) {
-    return new Date(Date.now() - n * 60 * 60 * 1000).toISOString();
+function isoAtHoursAgo(n, { skewSeconds = 0 } = {}) {
+    const s = Math.max(0, Number(skewSeconds) || 0);
+    return isoNoMs(new Date(Date.now() - n * 60 * 60 * 1000 - s * 1000));
 }
 
 function ymdDaysAgo(n) {
@@ -185,7 +186,7 @@ async function queryHourly({ pathLike }) {
     for (let fromH = HOURLY_HOURS; fromH > 0; fromH -= 24) {
         const toH = Math.max(0, fromH - 24);
         ranges.push({
-            from: isoAtHoursAgo(fromH),
+            from: isoAtHoursAgo(fromH, { skewSeconds: NOW_SKEW_SECONDS }),
             to: toH === 0 ? nowIso : isoAtHoursAgo(toH),
         });
     }

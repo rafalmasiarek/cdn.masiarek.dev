@@ -51,12 +51,48 @@
         {
           "file_regex": "(^|/)README\\.md$",
           "out_name": "README.md"
+        },
+        {
+          "file_regex": "(^|/)LICENSE$",
+          "out_name": "LICENSE"
         }
       ],
       "meta": {
         "name": "js-fair-consent",
         "source_url": "https://github.com/rafalmasiarek/js-fair-consent",
-        "author": "Rafał Masiarek"
+        "author": "Rafał Masiarek",
+        "license": "MIT"
+      }
+    },
+    {
+      "package": "js-form-prefill",
+      "type": "github-release-assets-semver",
+      "repo": "rafalmasiarek/js-form-prefill",
+      "asset_regex": ".*",
+      "zipball_fallback": true,
+      "extract": [
+        {
+          "file_regex": "(^|/)dist/form-prefill\\.min\\.js$",
+          "out_name": "form-prefill.min.js"
+        },
+        {
+          "file_regex": "(^|/)dist/form-prefill\\.js$",
+          "out_name": "form-prefill.js"
+        },
+        {
+          "file_regex": "(^|/)README\\.md$",
+          "out_name": "README.md"
+        },
+        {
+          "file_regex": "(^|/)LICENSE$",
+          "out_name": "LICENSE"
+        }
+      ],
+      "meta": {
+        "package": "js-form-prefill",
+        "source_url": "https://github.com/rafalmasiarek/js-form-prefill",
+        "author": "Rafał Masiarek",
+        "license": "MIT"
       }
     },
     {

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-27T03:15:31.899Z",
-  "changed": true,
+  "generated_at": "2026-02-27T05:03:11.187Z",
+  "changed": false,
   "failures": 0,
   "results": [
     {
@@ -23,17 +23,9 @@
       "package": "js-form-prefill",
       "type": "github-release-assets-semver",
       "upstream": "v1.2.0",
-      "action": "publish",
-      "status": "OK",
-      "details": "@latest v1.2.0 files=4"
-    },
-    {
-      "package": "js-form-prefill",
-      "type": "github-release-assets-semver",
-      "upstream": "v1.2.0",
-      "action": "publish",
-      "status": "OK",
-      "details": "@stable v1.2.0 files=4 (+stable aliases)"
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "instagram.css",

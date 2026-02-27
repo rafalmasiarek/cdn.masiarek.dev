@@ -36,5 +36,11 @@
     "last_upstream_tag": "v3.11.174",
     "stable_key": "mozilla/pdf.js@stable:v3.11.174",
     "last_upstream_stable_tag": "v3.11.174"
+  },
+  "js-form-prefill": {
+    "latest_key": "rafalmasiarek/js-form-prefill@latest:v1.2.0",
+    "last_upstream_tag": "v1.2.0",
+    "stable_key": "rafalmasiarek/js-form-prefill@stable:v1.2.0",
+    "last_upstream_stable_tag": "v1.2.0"
   }
 }

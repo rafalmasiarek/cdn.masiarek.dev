@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-20T20:12:11.166Z",
+  "generated_at": "2026-02-27T03:15:31.899Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -136,6 +136,25 @@
         "license": "Apache-2.0",
         "source_url": "https://github.com/mozilla/pdf.js",
         "author": "Mozilla and PDF.js contributors"
+      }
+    },
+    "js-form-prefill": {
+      "last_stable": {
+        "version": "v1.2.0",
+        "channel": "stable",
+        "built_at": "2026-02-27T03:15:31.899Z"
+      },
+      "last_beta": null,
+      "last_latest": {
+        "version": "v1.2.0",
+        "channel": "stable",
+        "built_at": "2026-02-27T03:15:31.899Z"
+      },
+      "meta": {
+        "package": "js-form-prefill",
+        "source_url": "https://github.com/rafalmasiarek/js-form-prefill",
+        "author": "Rafał Masiarek",
+        "license": "MIT"
       }
     }
   }

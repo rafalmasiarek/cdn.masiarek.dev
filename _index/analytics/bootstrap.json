@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-20T19:01:47.299Z",
+  "generated_at": "2026-03-20T19:40:14.148Z",
   "generated_hour": "2026-03-20T19",
   "hostname": "cdn.masiarek.pl",
   "package": "bootstrap",
@@ -30,7 +30,7 @@
     },
     {
       "t": "2026-03-19T19:00:00Z",
-      "count": 4
+      "count": 2
     },
     {
       "t": "2026-03-20T12:00:00Z",
@@ -66,6 +66,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-03-20T17:41:57.560Z"
+    "previous_generated_at": "2026-03-20T19:01:47.299Z"
   }
 }

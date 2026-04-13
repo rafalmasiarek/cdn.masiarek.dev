@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-13T12:07:42.066Z",
-  "generated_hour": "2026-04-13T12",
+  "generated_at": "2026-04-13T14:53:56.920Z",
+  "generated_hour": "2026-04-13T14",
   "hostname": "cdn.masiarek.pl",
   "package": "js-fair-consent",
   "retention": {
@@ -12,6 +12,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-04-13T10:54:03.873Z"
+    "previous_generated_at": "2026-04-13T12:07:42.066Z"
   }
 }

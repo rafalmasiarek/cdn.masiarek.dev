@@ -3,7 +3,7 @@
   "private": true,
   "devDependencies": {
     "semver": "^7.6.3",
-    "terser": "^5.0.0",
+    "terser": "^5.46.2",
     "csso-cli": "^4.0.0"
   }
 }

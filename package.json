@@ -2,7 +2,7 @@
   "name": "cdn-assets",
   "private": true,
   "devDependencies": {
-    "semver": "^7.6.3",
+    "semver": "^7.7.4",
     "terser": "^5.46.2",
     "csso-cli": "^4.0.0"
   }

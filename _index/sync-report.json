@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-27T14:35:06.198Z",
+  "generated_at": "2026-04-27T17:08:37.059Z",
   "changed": false,
-  "failures": 0,
+  "failures": 1,
   "results": [
     {
       "package": "bootstrap",
@@ -54,10 +54,10 @@
     {
       "package": "pdfjs",
       "type": "github-release-assets-semver",
-      "upstream": "v3.11.174",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "No GitHub release object for @latest (use github-raw-file or create a release)"
     }
   ]
 }

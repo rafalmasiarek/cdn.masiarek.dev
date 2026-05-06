@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-06T18:25:19.896Z",
-  "generated_hour": "2026-05-06T18",
+  "generated_at": "2026-05-06T20:41:08.859Z",
+  "generated_hour": "2026-05-06T20",
   "hostname": "cdn.masiarek.pl",
   "package": "instagram.css",
   "retention": {
@@ -39,6 +39,10 @@
     {
       "t": "2026-05-06T09:00:00Z",
       "count": 2
+    },
+    {
+      "t": "2026-05-06T19:00:00Z",
+      "count": 1
     }
   ],
   "daily": [
@@ -70,6 +74,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-05-06T16:49:38.004Z"
+    "previous_generated_at": "2026-05-06T18:25:19.896Z"
   }
 }

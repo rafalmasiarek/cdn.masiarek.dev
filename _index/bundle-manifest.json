@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-27T03:15:31.899Z",
+  "generated_at": "2026-05-23T12:19:26.461Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37319,15 +37319,15 @@
     "js-form-prefill": {
       "channels": {
         "last_stable": {
-          "version": "v1.2.0",
+          "version": "v1.3.0",
           "channel": "stable",
-          "built_at": "2026-02-27T03:15:31.899Z"
+          "built_at": "2026-05-23T12:19:26.461Z"
         },
         "last_beta": null,
         "last_latest": {
-          "version": "v1.2.0",
+          "version": "v1.3.0",
           "channel": "stable",
-          "built_at": "2026-02-27T03:15:31.899Z"
+          "built_at": "2026-05-23T12:19:26.461Z"
         },
         "meta": {
           "package": "js-form-prefill",
@@ -37337,6 +37337,39 @@
         }
       },
       "versions": {
+        "v1.3.0": {
+          "channel": "stable",
+          "built_at": "2026-05-23T12:19:26.461Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-release",
+            "repo": "rafalmasiarek/js-form-prefill",
+            "tag": "v1.3.0",
+            "release_html_url": "https://github.com/rafalmasiarek/js-form-prefill/releases/tag/v1.3.0"
+          },
+          "files": {
+            "form-prefill.min.js": {
+              "url": "/js-form-prefill/v1.3.0/form-prefill.min.js",
+              "integrity": "sha384-VBMFuadwQFy/0qHl1r7+hCwDLNp7ZFbT0wUUBfgEVIYB8MflsXQxHbNzfc2z+6O1",
+              "bytes": 3946
+            },
+            "form-prefill.js": {
+              "url": "/js-form-prefill/v1.3.0/form-prefill.js",
+              "integrity": "sha384-7aZUkOp/g3lGXalQaZ0TTtJjZGRheVjXg3WptmjUq6+xHRh/kmct6BHq7Y9M+L2j",
+              "bytes": 8806
+            },
+            "README.md": {
+              "url": "/js-form-prefill/v1.3.0/README.md",
+              "integrity": "sha384-7y0SbIoyab4N2NRJG0GZ+f/5HF2DVY5xKcTFqwsmICM6WzTxbnScUHAvzGRr6NRL",
+              "bytes": 2691
+            },
+            "LICENSE": {
+              "url": "/js-form-prefill/v1.3.0/LICENSE",
+              "integrity": "sha384-V3zskZVX0FJG+cBtYm2ax9OFkyicJ+diWdmDdsU0pBTNiKhqOJrpb/3VLvWEnz7v",
+              "bytes": 1069
+            }
+          }
+        },
         "v1.2.0": {
           "channel": "stable",
           "built_at": "2026-02-27T03:15:31.899Z",

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-27T03:15:31.899Z",
+  "generated_at": "2026-05-23T12:19:26.461Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -140,15 +140,15 @@
     },
     "js-form-prefill": {
       "last_stable": {
-        "version": "v1.2.0",
+        "version": "v1.3.0",
         "channel": "stable",
-        "built_at": "2026-02-27T03:15:31.899Z"
+        "built_at": "2026-05-23T12:19:26.461Z"
       },
       "last_beta": null,
       "last_latest": {
-        "version": "v1.2.0",
+        "version": "v1.3.0",
         "channel": "stable",
-        "built_at": "2026-02-27T03:15:31.899Z"
+        "built_at": "2026-05-23T12:19:26.461Z"
       },
       "meta": {
         "package": "js-form-prefill",

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-04T14:13:44.554Z",
-  "changed": false,
+  "generated_at": "2026-06-04T17:31:30.594Z",
+  "changed": true,
   "failures": 1,
   "results": [
     {
@@ -46,10 +46,18 @@
     {
       "package": "openpgpjs",
       "type": "github-release-assets-semver",
-      "upstream": "v6.3.0",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "v6.3.1",
+      "action": "publish",
+      "status": "OK",
+      "details": "@latest v6.3.1 files=2"
+    },
+    {
+      "package": "openpgpjs",
+      "type": "github-release-assets-semver",
+      "upstream": "v6.3.1",
+      "action": "publish",
+      "status": "OK",
+      "details": "@stable v6.3.1 files=2 (+stable aliases)"
     },
     {
       "package": "pdfjs",

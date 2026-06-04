@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-23T12:19:26.461Z",
+  "generated_at": "2026-06-04T17:31:30.594Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -76,9 +76,9 @@
     },
     "openpgpjs": {
       "last_stable": {
-        "version": "v6.3.0",
+        "version": "v6.3.1",
         "channel": "stable",
-        "built_at": "2026-01-25T21:46:51.777Z"
+        "built_at": "2026-06-04T17:31:30.594Z"
       },
       "last_beta": {
         "version": "v6.0.0-beta.3.patch.1",
@@ -86,9 +86,9 @@
         "built_at": "2026-01-25T21:46:51.777Z"
       },
       "last_latest": {
-        "version": "v6.3.0",
+        "version": "v6.3.1",
         "channel": "stable",
-        "built_at": "2026-01-25T21:46:51.777Z"
+        "built_at": "2026-06-04T17:31:30.594Z"
       },
       "meta": {
         "name": "OpenPGP.js",

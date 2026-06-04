@@ -2,6 +2,11 @@
   "package": "openpgpjs",
   "versions": [
     {
+      "version": "v6.3.1",
+      "channel": "stable",
+      "built_at": "2026-06-04T17:31:30.594Z"
+    },
+    {
       "version": "v6.3.0",
       "channel": "stable",
       "built_at": "2026-01-25T21:46:51.777Z"

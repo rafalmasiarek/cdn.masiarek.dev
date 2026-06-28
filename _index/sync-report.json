@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-06-27T22:37:58.005Z",
+  "generated_at": "2026-06-28T01:35:04.867Z",
   "changed": false,
-  "failures": 1,
+  "failures": 2,
   "results": [
     {
       "package": "bootstrap",
@@ -30,10 +30,10 @@
     {
       "package": "instagram.css",
       "type": "github-raw-file",
-      "upstream": "master@b08f80f05789",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (same commit SHA)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhaWQiOjE1MzY4LCJhdWQiOiIvdHdpcnAvZ2l0aHViLmF1dGhlbnRpY2F0aW9uLnYwLkNyZWRlbnRpY..."
     },
     {
       "package": "twemoji",

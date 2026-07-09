@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-09T08:34:39.294Z",
-  "generated_hour": "2026-07-09T08",
+  "generated_at": "2026-07-09T12:12:16.731Z",
+  "generated_hour": "2026-07-09T12",
   "hostname": "cdn.masiarek.pl",
   "package": "openpgpjs",
   "retention": {
@@ -21,6 +21,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-07-09T05:00:18.911Z"
+    "previous_generated_at": "2026-07-09T08:34:39.294Z"
   }
 }

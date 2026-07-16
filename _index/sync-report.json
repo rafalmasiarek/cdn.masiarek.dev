@@ -1,55 +1,55 @@
 {
-  "generated_at": "2026-07-16T21:38:14.485Z",
+  "generated_at": "2026-07-16T23:27:17.229Z",
   "changed": false,
-  "failures": 1,
+  "failures": 7,
   "results": [
     {
       "package": "bootstrap",
       "type": "github-release-assets-semver",
-      "upstream": "v5.3.8",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
     },
     {
       "package": "js-fair-consent",
       "type": "github-release-assets-semver",
-      "upstream": "v1.4.3",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
     },
     {
       "package": "js-form-prefill",
       "type": "github-release-assets-semver",
-      "upstream": "v1.3.0",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
     },
     {
       "package": "instagram.css",
       "type": "github-raw-file",
-      "upstream": "master@b08f80f05789",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (same commit SHA)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
     },
     {
       "package": "twemoji",
       "type": "github-release-assets-semver",
-      "upstream": "v14.0.2",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
     },
     {
       "package": "openpgpjs",
       "type": "github-release-assets-semver",
-      "upstream": "v6.3.1",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
     },
     {
       "package": "pdfjs",
@@ -57,7 +57,7 @@
       "upstream": "",
       "action": "publish",
       "status": "FAIL",
-      "details": "No GitHub release object for @latest (use github-raw-file or create a release)"
+      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
     }
   ]
 }

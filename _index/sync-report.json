@@ -1,55 +1,55 @@
 {
-  "generated_at": "2026-07-16T23:27:17.229Z",
+  "generated_at": "2026-07-17T01:05:35.171Z",
   "changed": false,
-  "failures": 7,
+  "failures": 1,
   "results": [
     {
       "package": "bootstrap",
       "type": "github-release-assets-semver",
-      "upstream": "",
-      "action": "publish",
-      "status": "FAIL",
-      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
+      "upstream": "v5.3.8",
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "js-fair-consent",
       "type": "github-release-assets-semver",
-      "upstream": "",
-      "action": "publish",
-      "status": "FAIL",
-      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
+      "upstream": "v1.4.3",
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "js-form-prefill",
       "type": "github-release-assets-semver",
-      "upstream": "",
-      "action": "publish",
-      "status": "FAIL",
-      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
+      "upstream": "v1.3.0",
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "instagram.css",
       "type": "github-raw-file",
-      "upstream": "",
-      "action": "publish",
-      "status": "FAIL",
-      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
+      "upstream": "master@b08f80f05789",
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (same commit SHA)"
     },
     {
       "package": "twemoji",
       "type": "github-release-assets-semver",
-      "upstream": "",
-      "action": "publish",
-      "status": "FAIL",
-      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
+      "upstream": "v14.0.2",
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "openpgpjs",
       "type": "github-release-assets-semver",
-      "upstream": "",
-      "action": "publish",
-      "status": "FAIL",
-      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
+      "upstream": "v6.3.1",
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "pdfjs",
@@ -57,7 +57,7 @@
       "upstream": "",
       "action": "publish",
       "status": "FAIL",
-      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJJQUkzS1g1NHJzMWpFRUxUeFZtOXJ1YUNYV013SmVGRFFpVkZIc..."
+      "details": "No GitHub release object for @latest (use github-raw-file or create a release)"
     }
   ]
 }

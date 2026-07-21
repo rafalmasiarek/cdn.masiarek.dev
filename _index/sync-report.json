@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-21T12:09:02.612Z",
+  "generated_at": "2026-07-21T14:35:30.029Z",
   "changed": false,
-  "failures": 1,
+  "failures": 2,
   "results": [
     {
       "package": "bootstrap",
@@ -38,10 +38,10 @@
     {
       "package": "twemoji",
       "type": "github-release-assets-semver",
-      "upstream": "v14.0.2",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "v14.0.3",
+      "action": "publish",
+      "status": "FAIL",
+      "details": "No GitHub release object for @latest (use github-raw-file or create a release)"
     },
     {
       "package": "openpgpjs",

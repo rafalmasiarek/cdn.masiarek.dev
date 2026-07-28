@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout source (the release commit)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           # When triggered by workflow_run, publish exactly the commit that produced the tag

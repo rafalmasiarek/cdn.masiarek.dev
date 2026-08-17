@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-17T14:02:03.818Z",
+  "generated_at": "2026-08-17T14:54:51.639Z",
   "changed": false,
-  "failures": 2,
+  "failures": 1,
   "results": [
     {
       "package": "bootstrap",
@@ -46,10 +46,10 @@
     {
       "package": "openpgpjs",
       "type": "github-release-assets-semver",
-      "upstream": "",
-      "action": "publish",
-      "status": "FAIL",
-      "details": "Error: Command failed: \"curl\" \"-fsSL\" \"-H\" \"Accept: application/vnd.github+json\" \"-H\" \"Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJPN2d1MnFvdWoxTlM2Unc5MjkycUlQbFJ4MThwOFpaZmktbHgxe..."
+      "upstream": "v6.3.1",
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "pdfjs",

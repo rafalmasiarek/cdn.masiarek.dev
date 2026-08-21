@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-21T21:31:41.326Z",
-  "generated_hour": "2026-08-21T21",
+  "generated_at": "2026-08-21T22:32:35.525Z",
+  "generated_hour": "2026-08-21T22",
   "hostname": "cdn.masiarek.pl",
   "package": "instagram.css",
   "retention": {
@@ -70,6 +70,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-08-21T20:33:17.529Z"
+    "previous_generated_at": "2026-08-21T21:31:41.326Z"
   }
 }

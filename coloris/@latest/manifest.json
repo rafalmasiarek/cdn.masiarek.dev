@@ -1,0 +1,30 @@
+{
+  "package": "coloris",
+  "version": "v0.25.0",
+  "channel": "stable",
+  "built_at": "2026-08-23T15:38:57.246Z",
+  "commit": null,
+  "upstream": {
+    "type": "github-release",
+    "repo": "mdbassit/Coloris",
+    "tag": "v0.25.0",
+    "release_html_url": "https://github.com/mdbassit/Coloris/releases/tag/v0.25.0"
+  },
+  "meta": {
+    "name": "Coloris",
+    "homepage": "https://coloris.js.org/",
+    "license": "MIT",
+    "source_url": "https://github.com/mdbassit/Coloris",
+    "author": "Momo Bassit"
+  },
+  "files": {
+    "coloris.min.css": {
+      "integrity": "sha384-DY3umZptOgjUNshBFbvu1+3RVFPoD1/CgGcc1yyJ77/aFOJ7jtN4BORnz/D/xF0n",
+      "bytes": 8506
+    },
+    "coloris.min.js": {
+      "integrity": "sha384-olpkBKjEFqOOAAUzqL1y4xnKDCVmmXNaoRDWmHnRTutomMnUySX9hqDgVQVcvMdc",
+      "bytes": 14295
+    }
+  }
+}

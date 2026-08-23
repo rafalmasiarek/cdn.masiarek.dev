@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-23T14:51:27.966Z",
-  "changed": false,
+  "generated_at": "2026-08-23T15:38:57.246Z",
+  "changed": true,
   "failures": 1,
   "results": [
     {
@@ -50,6 +50,38 @@
       "action": "skip",
       "status": "SKIP",
       "details": "No changes (keys match external-state.json)"
+    },
+    {
+      "package": "swagger-ui",
+      "type": "github-release-assets-semver",
+      "upstream": "v5.32.14",
+      "action": "publish",
+      "status": "OK",
+      "details": "@latest v5.32.14 files=2"
+    },
+    {
+      "package": "swagger-ui",
+      "type": "github-release-assets-semver",
+      "upstream": "v5.32.14",
+      "action": "publish",
+      "status": "OK",
+      "details": "@stable v5.32.14 files=2 (+stable aliases)"
+    },
+    {
+      "package": "coloris",
+      "type": "github-release-assets-semver",
+      "upstream": "v0.25.0",
+      "action": "publish",
+      "status": "OK",
+      "details": "@latest v0.25.0 files=2"
+    },
+    {
+      "package": "coloris",
+      "type": "github-release-assets-semver",
+      "upstream": "v0.25.0",
+      "action": "publish",
+      "status": "OK",
+      "details": "@stable v0.25.0 files=2 (+stable aliases)"
     },
     {
       "package": "pdfjs",

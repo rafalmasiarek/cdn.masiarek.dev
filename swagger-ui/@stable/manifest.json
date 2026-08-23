@@ -1,0 +1,30 @@
+{
+  "package": "swagger-ui",
+  "version": "v5.32.14",
+  "channel": "stable",
+  "built_at": "2026-08-23T15:38:57.246Z",
+  "commit": null,
+  "upstream": {
+    "type": "github-release",
+    "repo": "swagger-api/swagger-ui",
+    "tag": "v5.32.14",
+    "release_html_url": "https://github.com/swagger-api/swagger-ui/releases/tag/v5.32.14"
+  },
+  "meta": {
+    "name": "Swagger UI",
+    "homepage": "https://swagger.io/tools/swagger-ui/",
+    "license": "Apache-2.0",
+    "source_url": "https://github.com/swagger-api/swagger-ui",
+    "author": "SmartBear Software"
+  },
+  "files": {
+    "swagger-ui.css": {
+      "integrity": "sha384-fgyWYkUAamzuI8mJFu/xpRP0JWCJRwkwUwsYDoOYVHUJ8NQE5cENn8ib3ppwFFSX",
+      "bytes": 185784
+    },
+    "swagger-ui-bundle.js": {
+      "integrity": "sha384-Dt83RhU85ZmX7werw9uTFCzmauXUoSyx3pdzTQMABtsnFmooJy4Vz9/ACh7n5m1A",
+      "bytes": 1553809
+    }
+  }
+}

@@ -42,5 +42,17 @@
     "last_upstream_tag": "v1.3.0",
     "stable_key": "rafalmasiarek/js-form-prefill@stable:v1.3.0",
     "last_upstream_stable_tag": "v1.3.0"
+  },
+  "swagger-ui": {
+    "latest_key": "swagger-api/swagger-ui@latest:v5.32.14",
+    "last_upstream_tag": "v5.32.14",
+    "stable_key": "swagger-api/swagger-ui@stable:v5.32.14",
+    "last_upstream_stable_tag": "v5.32.14"
+  },
+  "coloris": {
+    "latest_key": "mdbassit/Coloris@latest:v0.25.0",
+    "last_upstream_tag": "v0.25.0",
+    "stable_key": "mdbassit/Coloris@stable:v0.25.0",
+    "last_upstream_stable_tag": "v0.25.0"
   }
 }

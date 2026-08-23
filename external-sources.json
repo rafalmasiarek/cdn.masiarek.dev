@@ -187,6 +187,54 @@
       }
     },
     {
+      "package": "swagger-ui",
+      "type": "github-release-assets-semver",
+      "repo": "swagger-api/swagger-ui",
+      "asset_regex": "DO_NOT_MATCH_ASSET$",
+      "zipball_fallback": true,
+      "extract": [
+        {
+          "file_regex": "(^|/)dist/swagger-ui\\.css$",
+          "out_name": "swagger-ui.css"
+        },
+        {
+          "file_regex": "(^|/)dist/swagger-ui-bundle\\.js$",
+          "out_name": "swagger-ui-bundle.js"
+        }
+      ],
+      "meta": {
+        "name": "Swagger UI",
+        "homepage": "https://swagger.io/tools/swagger-ui/",
+        "license": "Apache-2.0",
+        "source_url": "https://github.com/swagger-api/swagger-ui",
+        "author": "SmartBear Software"
+      }
+    },
+    {
+      "package": "coloris",
+      "type": "github-release-assets-semver",
+      "repo": "mdbassit/Coloris",
+      "asset_regex": "DO_NOT_MATCH_ASSET$",
+      "zipball_fallback": true,
+      "extract": [
+        {
+          "file_regex": "(^|/)dist/coloris\\.min\\.css$",
+          "out_name": "coloris.min.css"
+        },
+        {
+          "file_regex": "(^|/)dist/coloris\\.min\\.js$",
+          "out_name": "coloris.min.js"
+        }
+      ],
+      "meta": {
+        "name": "Coloris",
+        "homepage": "https://coloris.js.org/",
+        "license": "MIT",
+        "source_url": "https://github.com/mdbassit/Coloris",
+        "author": "Momo Bassit"
+      }
+    },
+    {
       "package": "pdfjs",
       "type": "github-release-assets-semver",
       "repo": "mozilla/pdf.js",

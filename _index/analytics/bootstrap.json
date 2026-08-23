@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-23T13:38:16.536Z",
-  "generated_hour": "2026-08-23T13",
+  "generated_at": "2026-08-23T14:31:08.389Z",
+  "generated_hour": "2026-08-23T14",
   "hostname": "cdn.masiarek.pl",
   "package": "bootstrap",
   "retention": {
@@ -83,6 +83,10 @@
     {
       "t": "2026-08-22T23:00:00Z",
       "count": 2
+    },
+    {
+      "t": "2026-08-23T13:00:00Z",
+      "count": 4
     }
   ],
   "daily": [
@@ -118,6 +122,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-08-23T12:54:58.847Z"
+    "previous_generated_at": "2026-08-23T13:38:16.536Z"
   }
 }

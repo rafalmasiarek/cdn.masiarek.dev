@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-05T04:13:29.239Z",
-  "generated_hour": "2026-09-05T04",
+  "generated_at": "2026-09-05T08:56:53.682Z",
+  "generated_hour": "2026-09-05T08",
   "hostname": "cdn.masiarek.pl",
   "package": "twemoji",
   "retention": {
@@ -11,7 +11,7 @@
   "daily": [],
   "meta": {
     "source": "cloudflare_graphql",
-    "daily_refreshed_today": true,
-    "previous_generated_at": "2026-09-04T23:55:17.036Z"
+    "daily_refreshed_today": false,
+    "previous_generated_at": "2026-09-05T04:13:29.239Z"
   }
 }

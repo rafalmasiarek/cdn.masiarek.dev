@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-05T12:34:59.103Z",
-  "generated_hour": "2026-09-05T12",
+  "generated_at": "2026-09-05T15:55:45.559Z",
+  "generated_hour": "2026-09-05T15",
   "hostname": "cdn.masiarek.pl",
   "package": "coloris",
   "retention": {
@@ -25,6 +25,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-09-05T08:56:53.682Z"
+    "previous_generated_at": "2026-09-05T12:34:59.103Z"
   }
 }

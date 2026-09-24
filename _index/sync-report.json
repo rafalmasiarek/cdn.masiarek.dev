@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-24T06:38:18.730Z",
-  "changed": false,
+  "generated_at": "2026-09-24T12:50:45.921Z",
+  "changed": true,
   "failures": 1,
   "results": [
     {
@@ -46,10 +46,18 @@
     {
       "package": "openpgpjs",
       "type": "github-release-assets-semver",
-      "upstream": "v6.3.1",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "v6.3.2",
+      "action": "publish",
+      "status": "OK",
+      "details": "@latest v6.3.2 files=2"
+    },
+    {
+      "package": "openpgpjs",
+      "type": "github-release-assets-semver",
+      "upstream": "v6.3.2",
+      "action": "publish",
+      "status": "OK",
+      "details": "@stable v6.3.2 files=2 (+stable aliases)"
     },
     {
       "package": "swagger-ui",

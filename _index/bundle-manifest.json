@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T12:46:15.657Z",
+  "generated_at": "2026-09-24T12:50:45.921Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -241,9 +241,9 @@
     "openpgpjs": {
       "channels": {
         "last_stable": {
-          "version": "v6.3.1",
+          "version": "v6.3.2",
           "channel": "stable",
-          "built_at": "2026-06-04T17:31:30.594Z"
+          "built_at": "2026-09-24T12:50:45.921Z"
         },
         "last_beta": {
           "version": "v6.0.0-beta.3.patch.1",
@@ -251,9 +251,9 @@
           "built_at": "2026-01-25T21:46:51.777Z"
         },
         "last_latest": {
-          "version": "v6.3.1",
+          "version": "v6.3.2",
           "channel": "stable",
-          "built_at": "2026-06-04T17:31:30.594Z"
+          "built_at": "2026-09-24T12:50:45.921Z"
         },
         "meta": {
           "name": "OpenPGP.js",
@@ -264,6 +264,29 @@
         }
       },
       "versions": {
+        "v6.3.2": {
+          "channel": "stable",
+          "built_at": "2026-09-24T12:50:45.921Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-zipball-build",
+            "repo": "openpgpjs/openpgpjs",
+            "tag": "v6.3.2",
+            "release_html_url": "https://github.com/openpgpjs/openpgpjs/releases/tag/v6.3.2"
+          },
+          "files": {
+            "openpgp.js": {
+              "url": "/openpgpjs/v6.3.2/openpgp.js",
+              "integrity": "sha384-LhCOkn8ORcjHJ1eVSOipfwFYS3VcxwK+SGIB0FYmnv9YccO38u/BhmQGGsZKlyOl",
+              "bytes": 1256480
+            },
+            "openpgp.min.js": {
+              "url": "/openpgpjs/v6.3.2/openpgp.min.js",
+              "integrity": "sha384-Q6tBjZrAPJTIxj5F9KxCni/T9dTGDsXfi4U7aBZOl+3zPHpzU6gKcyKzAhs8Xeoa",
+              "bytes": 395214
+            }
+          }
+        },
         "v6.3.1": {
           "channel": "stable",
           "built_at": "2026-06-04T17:31:30.594Z",

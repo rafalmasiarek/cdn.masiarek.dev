@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-01T06:25:14.945Z",
-  "changed": false,
+  "generated_at": "2026-10-01T13:47:10.235Z",
+  "changed": true,
   "failures": 1,
   "results": [
     {
@@ -54,10 +54,18 @@
     {
       "package": "swagger-ui",
       "type": "github-release-assets-semver",
-      "upstream": "v5.33.0",
-      "action": "skip",
-      "status": "SKIP",
-      "details": "No changes (keys match external-state.json)"
+      "upstream": "v5.33.1",
+      "action": "publish",
+      "status": "OK",
+      "details": "@latest v5.33.1 files=2"
+    },
+    {
+      "package": "swagger-ui",
+      "type": "github-release-assets-semver",
+      "upstream": "v5.33.1",
+      "action": "publish",
+      "status": "OK",
+      "details": "@stable v5.33.1 files=2 (+stable aliases)"
     },
     {
       "package": "coloris",

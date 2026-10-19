@@ -44,10 +44,10 @@
     "last_upstream_stable_tag": "v1.3.0"
   },
   "swagger-ui": {
-    "latest_key": "swagger-api/swagger-ui@latest:v5.33.3",
-    "last_upstream_tag": "v5.33.3",
-    "stable_key": "swagger-api/swagger-ui@stable:v5.33.3",
-    "last_upstream_stable_tag": "v5.33.3"
+    "latest_key": "swagger-api/swagger-ui@latest:v5.34.0",
+    "last_upstream_tag": "v5.34.0",
+    "stable_key": "swagger-api/swagger-ui@stable:v5.34.0",
+    "last_upstream_stable_tag": "v5.34.0"
   },
   "coloris": {
     "latest_key": "mdbassit/Coloris@latest:v0.25.0",

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T13:37:50.241Z",
+  "generated_at": "2026-10-19T17:41:18.661Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37454,15 +37454,15 @@
     "swagger-ui": {
       "channels": {
         "last_stable": {
-          "version": "v5.33.3",
+          "version": "v5.34.0",
           "channel": "stable",
-          "built_at": "2026-10-15T13:37:50.241Z"
+          "built_at": "2026-10-19T17:41:18.661Z"
         },
         "last_beta": null,
         "last_latest": {
-          "version": "v5.33.3",
+          "version": "v5.34.0",
           "channel": "stable",
-          "built_at": "2026-10-15T13:37:50.241Z"
+          "built_at": "2026-10-19T17:41:18.661Z"
         },
         "meta": {
           "name": "Swagger UI",
@@ -37473,6 +37473,29 @@
         }
       },
       "versions": {
+        "v5.34.0": {
+          "channel": "stable",
+          "built_at": "2026-10-19T17:41:18.661Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-release",
+            "repo": "swagger-api/swagger-ui",
+            "tag": "v5.34.0",
+            "release_html_url": "https://github.com/swagger-api/swagger-ui/releases/tag/v5.34.0"
+          },
+          "files": {
+            "swagger-ui.css": {
+              "url": "/swagger-ui/v5.34.0/swagger-ui.css",
+              "integrity": "sha384-4c3vsE5f+trhFyHrFrLM1fFGUn531NIaC7dcqEWIJdoRQJ5CkJbSuSCwXLpaS1KF",
+              "bytes": 187576
+            },
+            "swagger-ui-bundle.js": {
+              "url": "/swagger-ui/v5.34.0/swagger-ui-bundle.js",
+              "integrity": "sha384-9Td7MKiIr2S83E1kZyyVi8KdJw/S8CpAvu0llLyMeg0xq/hDGiZJfVn0fV4llCmK",
+              "bytes": 1684244
+            }
+          }
+        },
         "v5.33.3": {
           "channel": "stable",
           "built_at": "2026-10-15T13:37:50.241Z",

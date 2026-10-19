@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T13:37:50.241Z",
+  "generated_at": "2026-10-19T17:41:18.661Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -159,15 +159,15 @@
     },
     "swagger-ui": {
       "last_stable": {
-        "version": "v5.33.3",
+        "version": "v5.34.0",
         "channel": "stable",
-        "built_at": "2026-10-15T13:37:50.241Z"
+        "built_at": "2026-10-19T17:41:18.661Z"
       },
       "last_beta": null,
       "last_latest": {
-        "version": "v5.33.3",
+        "version": "v5.34.0",
         "channel": "stable",
-        "built_at": "2026-10-15T13:37:50.241Z"
+        "built_at": "2026-10-19T17:41:18.661Z"
       },
       "meta": {
         "name": "Swagger UI",

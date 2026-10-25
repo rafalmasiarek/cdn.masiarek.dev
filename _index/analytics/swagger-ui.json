@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-25T18:53:00.300Z",
-  "generated_hour": "2026-10-25T18",
+  "generated_at": "2026-10-25T21:38:14.721Z",
+  "generated_hour": "2026-10-25T21",
   "hostname": "cdn.masiarek.pl",
   "package": "swagger-ui",
   "retention": {
@@ -34,6 +34,6 @@
   "meta": {
     "source": "cloudflare_graphql",
     "daily_refreshed_today": false,
-    "previous_generated_at": "2026-10-25T15:58:54.535Z"
+    "previous_generated_at": "2026-10-25T18:53:00.300Z"
   }
 }

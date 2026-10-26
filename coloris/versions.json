@@ -2,6 +2,11 @@
   "package": "coloris",
   "versions": [
     {
+      "version": "v0.25.1",
+      "channel": "stable",
+      "built_at": "2026-10-26T15:23:59.974Z"
+    },
+    {
       "version": "v0.25.0",
       "channel": "stable",
       "built_at": "2026-08-23T15:38:57.246Z"

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-26T15:23:59.974Z",
-  "changed": true,
+  "generated_at": "2026-10-26T20:41:28.759Z",
+  "changed": false,
   "failures": 1,
   "results": [
     {
@@ -63,17 +63,9 @@
       "package": "coloris",
       "type": "github-release-assets-semver",
       "upstream": "v0.25.1",
-      "action": "publish",
-      "status": "OK",
-      "details": "@latest v0.25.1 files=2"
-    },
-    {
-      "package": "coloris",
-      "type": "github-release-assets-semver",
-      "upstream": "v0.25.1",
-      "action": "publish",
-      "status": "OK",
-      "details": "@stable v0.25.1 files=2 (+stable aliases)"
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "pdfjs",

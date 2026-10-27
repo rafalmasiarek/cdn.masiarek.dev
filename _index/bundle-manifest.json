@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T15:23:59.974Z",
+  "generated_at": "2026-10-27T15:51:48Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37701,6 +37701,52 @@
               "url": "/coloris/v0.25.0/coloris.min.js",
               "integrity": "sha384-olpkBKjEFqOOAAUzqL1y4xnKDCVmmXNaoRDWmHnRTutomMnUySX9hqDgVQVcvMdc",
               "bytes": 14295
+            }
+          }
+        }
+      }
+    },
+    "rm-icons": {
+      "channels": {
+        "last_stable": {
+          "version": "v1.0.0",
+          "channel": "stable",
+          "built_at": "2026-10-27T15:51:48Z"
+        },
+        "last_beta": null,
+        "last_latest": {
+          "version": "v1.0.0",
+          "channel": "stable",
+          "built_at": "2026-10-27T15:51:48Z"
+        },
+        "meta": null
+      },
+      "versions": {
+        "v1.0.0": {
+          "channel": "stable",
+          "built_at": "2026-10-27T15:51:48Z",
+          "commit": "adec2a54732b9e0c4d775da6a8178643759a9487",
+          "upstream": null,
+          "files": {
+            "rm-icons.min.css": {
+              "url": "/rm-icons/v1.0.0/rm-icons.min.css",
+              "integrity": "sha384-mi3xF1qaxeUCwpLo42nm7LEJ/2FPvwWYg3oGs6rN/N/gaAYHUIbfyeQNQWx7aMEr",
+              "bytes": 3322
+            },
+            "rm-icons.min.css.map": {
+              "url": "/rm-icons/v1.0.0/rm-icons.min.css.map",
+              "integrity": "sha384-UQikXzSKHoZl026lx6PzprS37zHqR1mUjN3YXThLYUthfgd5OWyRXC2P1WtnXB4S",
+              "bytes": 7574
+            },
+            "rm-icons.min.js": {
+              "url": "/rm-icons/v1.0.0/rm-icons.min.js",
+              "integrity": "sha384-zUnOdt31Wn8IBJh4s2pFMwIddkk19Ci7vFdjy3JO0pjwhGytDaC2XXp8O27WqEG8",
+              "bytes": 2240
+            },
+            "rm-icons.min.js.map": {
+              "url": "/rm-icons/v1.0.0/rm-icons.min.js.map",
+              "integrity": "sha384-5HPZGDcAS1thUxBcKKQmIV20ShQA/hwyxCsTP92IBS2ITSqfQwIAzjuR03fJ9fTu",
+              "bytes": 6968
             }
           }
         }

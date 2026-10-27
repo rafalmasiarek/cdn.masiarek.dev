@@ -1,0 +1,25 @@
+{
+  "package": "rm-icons",
+  "version": "v1.0.0",
+  "channel": "stable",
+  "built_at": "2026-10-27T15:51:48Z",
+  "commit": "adec2a54732b9e0c4d775da6a8178643759a9487",
+  "files": {
+    "rm-icons.min.css": {
+      "integrity": "sha384-mi3xF1qaxeUCwpLo42nm7LEJ/2FPvwWYg3oGs6rN/N/gaAYHUIbfyeQNQWx7aMEr",
+      "bytes": 3322
+    },
+    "rm-icons.min.css.map": {
+      "integrity": "sha384-UQikXzSKHoZl026lx6PzprS37zHqR1mUjN3YXThLYUthfgd5OWyRXC2P1WtnXB4S",
+      "bytes": 7574
+    },
+    "rm-icons.min.js": {
+      "integrity": "sha384-zUnOdt31Wn8IBJh4s2pFMwIddkk19Ci7vFdjy3JO0pjwhGytDaC2XXp8O27WqEG8",
+      "bytes": 2240
+    },
+    "rm-icons.min.js.map": {
+      "integrity": "sha384-5HPZGDcAS1thUxBcKKQmIV20ShQA/hwyxCsTP92IBS2ITSqfQwIAzjuR03fJ9fTu",
+      "bytes": 6968
+    }
+  }
+}

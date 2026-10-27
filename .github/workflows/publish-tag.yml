@@ -28,8 +28,14 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          # When triggered by workflow_run, publish exactly the commit that produced the tag
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          # github.sha, NOT github.event.workflow_run.head_sha: for a
+          # workflow_run event, head_sha is the commit that existed when
+          # the *triggering* workflow (Release: Bump & Tag) started - i.e.
+          # BEFORE release.mjs committed the version bump and pushed the
+          # release tag. github.sha here correctly resolves to the
+          # default branch's current HEAD, which by the time this
+          # `completed` event fires already includes that push.
+          ref: ${{ github.sha }}
 
       - name: Fetch tags
         run: |
@@ -46,18 +52,22 @@ jobs:
           if [[ -n "$TAG" ]]; then
             echo "Using manually provided tag: $TAG"
           else
-            # 2) workflow_run => pick tag that points at this exact commit
-            SHA="${{ github.event.workflow_run.head_sha || github.sha }}"
+            # 2) workflow_run => pick the tag that points at this exact
+            #    commit (the checkout step above resolves this correctly
+            #    to github.sha - see its comment for why head_sha must
+            #    not be used here).
+            #
+            #    No "pick whatever tag sorts last" fallback: in a multi-
+            #    package repo that silently picks an unrelated package's
+            #    tag instead of failing - exactly the bug that published
+            #    vinyl-loader's dist when rm-icons was actually released.
+            #    Failing loudly here is strictly safer than guessing.
+            SHA="${{ github.sha }}"
             TAG="$(git tag --points-at "$SHA" | grep -E '.+@.+' | sort -V | tail -n 1 || true)"
-
-            if [[ -z "$TAG" ]]; then
-              # 3) Fallback: pick latest tag in repo matching *@*
-              TAG="$(git tag --list '*@*' | sort -V | tail -n 1 || true)"
-            fi
           fi
 
           if [[ -z "$TAG" ]]; then
-            echo "Could not resolve a tag to publish."
+            echo "Could not resolve a tag to publish for commit ${{ github.sha }}."
             exit 1
           fi
 
@@ -122,7 +132,7 @@ jobs:
         env:
           PKG: ${{ steps.tag.outputs.pkg }}
           VER: ${{ steps.tag.outputs.ver }}
-          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          SHA: ${{ github.sha }}
           CDN_BASE_URL: ${{ vars.CDN_BASE_URL }}
           CDN_CUSTOM_DOMAIN: ${{ vars.CDN_CUSTOM_DOMAIN }}
         run: |

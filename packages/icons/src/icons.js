@@ -1,7 +1,7 @@
 /*!
- * rm-icons - lightweight, framework-free SVG icon loader.
+ * icons - lightweight, framework-free SVG icon loader.
  * Lazily fetches and inlines a named SVG icon from a configurable URL.
- * Pair with rm-icons.css for sizing/canvas/list/rotate/animate utilities.
+ * Pair with icons.css for sizing/canvas/list/rotate/animate utilities.
  */
 (function () {
   'use strict';
@@ -18,7 +18,7 @@
   ];
 
   var config = {
-    prefix: (currentScript && currentScript.dataset.prefix) || 'rm-icon',
+    prefix: (currentScript && currentScript.dataset.prefix) || 'icon',
     baseUrl: (currentScript && currentScript.dataset.baseUrl) || 'https://masiarek.pl/assets/img/icons'
   };
 
@@ -52,7 +52,7 @@
     var url = config.baseUrl.replace(/\/$/, '') + '/' + name + '.svg';
     var promise = fetch(url)
       .then(function (res) {
-        if (!res.ok) throw new Error('rm-icons: HTTP ' + res.status + ' for ' + url);
+        if (!res.ok) throw new Error('icons: HTTP ' + res.status + ' for ' + url);
         return res.text();
       })
       .then(function (svg) {
@@ -61,7 +61,7 @@
         return svg;
       })
       .catch(function (err) {
-        console.error('[rm-icons]', err);
+        console.error('[icons]', err);
         cache.set(name, '');
         pending.delete(name);
         return '';
@@ -73,12 +73,12 @@
 
   function renderIcon(el) {
     var name = iconNameFromElement(el);
-    if (!name || el.dataset.rmIconLoaded === '1') return;
-    el.dataset.rmIconLoaded = '1';
-    el.classList.add('rm-icon-loading');
+    if (!name || el.dataset.iconLoaded === '1') return;
+    el.dataset.iconLoaded = '1';
+    el.classList.add('icon-loading');
 
     fetchIcon(name).then(function (svg) {
-      el.classList.remove('rm-icon-loading');
+      el.classList.remove('icon-loading');
       if (svg) el.innerHTML = svg;
     });
   }
@@ -105,7 +105,7 @@
 
     var obs = getObserver();
     elements.forEach(function (el) {
-      if (el.dataset.rmIconLoaded === '1') return;
+      if (el.dataset.iconLoaded === '1') return;
       if (!iconNameFromElement(el)) return;
       if (obs) {
         obs.observe(el);
@@ -121,7 +121,7 @@
     if (typeof opts.baseUrl === 'string' && opts.baseUrl) config.baseUrl = opts.baseUrl;
   }
 
-  window.RMIcons = {
+  window.Icons = {
     configure: configure,
     scan: scan
   };

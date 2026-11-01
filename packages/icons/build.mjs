@@ -5,7 +5,7 @@ fs.rmSync("dist", { recursive: true, force: true });
 fs.mkdirSync("dist", { recursive: true });
 
 await build({
-  entryPoints: { "rm-icons.min": "src/rm-icons.js" },
+  entryPoints: { "icons.min": "src/icons.js" },
   outdir: "dist",
   bundle: true,
   minify: true,
@@ -15,7 +15,7 @@ await build({
 });
 
 await build({
-  entryPoints: { "rm-icons.min": "src/rm-icons.css" },
+  entryPoints: { "icons.min": "src/icons.css" },
   outdir: "dist",
   bundle: true,
   minify: true,

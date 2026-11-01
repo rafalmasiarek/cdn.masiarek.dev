@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-30T15:14:25.674Z",
+  "generated_at": "2026-11-01T23:43:45Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37770,6 +37770,52 @@
               "url": "/rm-icons/v1.0.0/rm-icons.min.js.map",
               "integrity": "sha384-5HPZGDcAS1thUxBcKKQmIV20ShQA/hwyxCsTP92IBS2ITSqfQwIAzjuR03fJ9fTu",
               "bytes": 6968
+            }
+          }
+        }
+      }
+    },
+    "icons": {
+      "channels": {
+        "last_stable": {
+          "version": "v2.0.0",
+          "channel": "stable",
+          "built_at": "2026-11-01T23:43:45Z"
+        },
+        "last_beta": null,
+        "last_latest": {
+          "version": "v2.0.0",
+          "channel": "stable",
+          "built_at": "2026-11-01T23:43:45Z"
+        },
+        "meta": null
+      },
+      "versions": {
+        "v2.0.0": {
+          "channel": "stable",
+          "built_at": "2026-11-01T23:43:45Z",
+          "commit": "75e671c971696e4ada1366ff4e99ec03c10a685b",
+          "upstream": null,
+          "files": {
+            "icons.min.css": {
+              "url": "/icons/v2.0.0/icons.min.css",
+              "integrity": "sha384-P+6/T1Q864tZRINsc+zNwu0FUrz7LAM+tZKo7clvWrw1eXntWr7IhelvmwHUGa8V",
+              "bytes": 3064
+            },
+            "icons.min.css.map": {
+              "url": "/icons/v2.0.0/icons.min.css.map",
+              "integrity": "sha384-jheeZMJJZl22qFNGefd2hlsN08DdOMwitEWOhpTQYU4/4XuktWULIZR9iwAtMRVI",
+              "bytes": 7308
+            },
+            "icons.min.js": {
+              "url": "/icons/v2.0.0/icons.min.js",
+              "integrity": "sha384-1lIWAKcqJKgHJNfoR1Ljh+gNRaOXs27VzULMwvMo0W51TZGLouJ0I2+PAO5uROLP",
+              "bytes": 2208
+            },
+            "icons.min.js.map": {
+              "url": "/icons/v2.0.0/icons.min.js.map",
+              "integrity": "sha384-2sT2RV/YR8cYMHZaEPNgolHCWLnzHCObiH90pvemtQN60FcpUN/TkjpV1EuxL41a",
+              "bytes": 6929
             }
           }
         }

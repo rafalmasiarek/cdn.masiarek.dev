@@ -1,17 +1,17 @@
 {
   "package": "csrf",
-  "version": "v1.0.0",
+  "version": "v1.1.0",
   "channel": "stable",
-  "built_at": "2026-11-01T23:45:16Z",
-  "commit": "e5e0d414d542842b6b33fbe3cc6c2c5bef161a98",
+  "built_at": "2026-11-01T23:53:43Z",
+  "commit": "f4cfd6f57b3b88a8a77a8785046849d6c50820f1",
   "files": {
     "csrf.min.js": {
-      "integrity": "sha384-mx7wlnh4P2nhWbvdoikG7zUlriKlehkurPCM3zAI6uL1XdUWqFUO/6YwWI1Mzpuj",
-      "bytes": 2986
+      "integrity": "sha384-5eoUXC6dGEk2Gz/wA2JF0wUFMTmVa6YiFfmnKZhgLF8a52g46iGoN20OvJpnqmL3",
+      "bytes": 2556
     },
     "csrf.min.js.map": {
-      "integrity": "sha384-TVLBZju2H60yXK3ovlNEHTSF54MvVoP18NUXNUutx19PkvxTeg+8NZtfhz6TJrVz",
-      "bytes": 9327
+      "integrity": "sha384-pXiytuAd4mu3tE+T5/D8phmE/myjvp+4W2qaEpaAAiToFQz7tqkJoxNxVtQEefHr",
+      "bytes": 8365
     }
   }
 }

@@ -1,0 +1,10 @@
+{
+  "package": "csrf",
+  "versions": [
+    {
+      "version": "v1.0.0",
+      "channel": "stable",
+      "built_at": "2026-11-01T23:45:16Z"
+    }
+  ]
+}

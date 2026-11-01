@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-01T23:43:45Z",
+  "generated_at": "2026-11-01T23:45:16Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37816,6 +37816,42 @@
               "url": "/icons/v2.0.0/icons.min.js.map",
               "integrity": "sha384-2sT2RV/YR8cYMHZaEPNgolHCWLnzHCObiH90pvemtQN60FcpUN/TkjpV1EuxL41a",
               "bytes": 6929
+            }
+          }
+        }
+      }
+    },
+    "csrf": {
+      "channels": {
+        "last_stable": {
+          "version": "v1.0.0",
+          "channel": "stable",
+          "built_at": "2026-11-01T23:45:16Z"
+        },
+        "last_beta": null,
+        "last_latest": {
+          "version": "v1.0.0",
+          "channel": "stable",
+          "built_at": "2026-11-01T23:45:16Z"
+        },
+        "meta": null
+      },
+      "versions": {
+        "v1.0.0": {
+          "channel": "stable",
+          "built_at": "2026-11-01T23:45:16Z",
+          "commit": "e5e0d414d542842b6b33fbe3cc6c2c5bef161a98",
+          "upstream": null,
+          "files": {
+            "csrf.min.js": {
+              "url": "/csrf/v1.0.0/csrf.min.js",
+              "integrity": "sha384-mx7wlnh4P2nhWbvdoikG7zUlriKlehkurPCM3zAI6uL1XdUWqFUO/6YwWI1Mzpuj",
+              "bytes": 2986
+            },
+            "csrf.min.js.map": {
+              "url": "/csrf/v1.0.0/csrf.min.js.map",
+              "integrity": "sha384-TVLBZju2H60yXK3ovlNEHTSF54MvVoP18NUXNUutx19PkvxTeg+8NZtfhz6TJrVz",
+              "bytes": 9327
             }
           }
         }

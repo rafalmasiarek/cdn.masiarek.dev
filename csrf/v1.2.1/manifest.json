@@ -1,0 +1,17 @@
+{
+  "package": "csrf",
+  "version": "v1.2.1",
+  "channel": "stable",
+  "built_at": "2026-11-02T00:13:58Z",
+  "commit": "d7d3fe7993f48cc2dbec5279cdf2f4d1b52aaea7",
+  "files": {
+    "csrf.min.js": {
+      "integrity": "sha384-zAFVuiRcSREj7Eh9M0piGeNgP3f2MeEVwu7ZilfuKkJl1AEHqoEH5pU3VFfVx+jb",
+      "bytes": 2748
+    },
+    "csrf.min.js.map": {
+      "integrity": "sha384-LPxeKc0ELQ+uZwr9yBiqPu/6rqptTiUs0Cl03UXJyD9QFpYhNtUTXS6odpbOOXef",
+      "bytes": 8466
+    }
+  }
+}

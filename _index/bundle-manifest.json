@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-02T00:10:52Z",
+  "generated_at": "2026-11-02T00:13:58Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37824,19 +37824,37 @@
     "csrf": {
       "channels": {
         "last_stable": {
-          "version": "v1.2.0",
+          "version": "v1.2.1",
           "channel": "stable",
-          "built_at": "2026-11-02T00:10:52Z"
+          "built_at": "2026-11-02T00:13:58Z"
         },
         "last_beta": null,
         "last_latest": {
-          "version": "v1.2.0",
+          "version": "v1.2.1",
           "channel": "stable",
-          "built_at": "2026-11-02T00:10:52Z"
+          "built_at": "2026-11-02T00:13:58Z"
         },
         "meta": null
       },
       "versions": {
+        "v1.2.1": {
+          "channel": "stable",
+          "built_at": "2026-11-02T00:13:58Z",
+          "commit": "d7d3fe7993f48cc2dbec5279cdf2f4d1b52aaea7",
+          "upstream": null,
+          "files": {
+            "csrf.min.js": {
+              "url": "/csrf/v1.2.1/csrf.min.js",
+              "integrity": "sha384-zAFVuiRcSREj7Eh9M0piGeNgP3f2MeEVwu7ZilfuKkJl1AEHqoEH5pU3VFfVx+jb",
+              "bytes": 2748
+            },
+            "csrf.min.js.map": {
+              "url": "/csrf/v1.2.1/csrf.min.js.map",
+              "integrity": "sha384-LPxeKc0ELQ+uZwr9yBiqPu/6rqptTiUs0Cl03UXJyD9QFpYhNtUTXS6odpbOOXef",
+              "bytes": 8466
+            }
+          }
+        },
         "v1.2.0": {
           "channel": "stable",
           "built_at": "2026-11-02T00:10:52Z",

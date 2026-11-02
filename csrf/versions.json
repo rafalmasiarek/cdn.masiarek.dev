@@ -2,6 +2,11 @@
   "package": "csrf",
   "versions": [
     {
+      "version": "v1.2.1",
+      "channel": "stable",
+      "built_at": "2026-11-02T00:13:58Z"
+    },
+    {
       "version": "v1.2.0",
       "channel": "stable",
       "built_at": "2026-11-02T00:10:52Z"

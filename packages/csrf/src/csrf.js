@@ -1,3 +1,23 @@
+/*!
+ * Masiarek Hosted-Use License
+ *
+ * Copyright (c) 2026 Rafał Masiarek. All rights reserved.
+ *
+ * Permission is granted to use this software, unmodified, exactly as
+ * served from its original source on cdn.masiarek.pl, free of charge,
+ * for personal, non-commercial, and educational projects.
+ *
+ * Want to use it commercially? Contact rafal@masiarek.pl first.
+ *
+ * You may NOT copy, modify, merge, adapt, redistribute, sublicense,
+ * rehost, mirror, or create derivative works from this software, in
+ * source or compiled form. All use must load the software directly from
+ * the original source above.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM,
+ * DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+ */
 (function () {
   'use strict';
 

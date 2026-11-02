@@ -2,6 +2,7 @@
   "name": "@cdn/icons",
   "version": "2.0.2",
   "private": true,
+  "license": "Masiarek Hosted-Use License",
   "devDependencies": {
     "esbuild": "^0.24.0"
   },

@@ -1,9 +1,9 @@
 {
   "package": "icons",
-  "version": "v2.0.0",
+  "version": "v2.0.1",
   "channel": "stable",
-  "built_at": "2026-11-01T23:43:45Z",
-  "commit": "75e671c971696e4ada1366ff4e99ec03c10a685b",
+  "built_at": "2026-11-02T00:49:50Z",
+  "commit": "b58b4d01548eecfd99229e4e21b5388a4aa28e3e",
   "files": {
     "icons.min.css": {
       "integrity": "sha384-P+6/T1Q864tZRINsc+zNwu0FUrz7LAM+tZKo7clvWrw1eXntWr7IhelvmwHUGa8V",
@@ -14,12 +14,12 @@
       "bytes": 7308
     },
     "icons.min.js": {
-      "integrity": "sha384-1lIWAKcqJKgHJNfoR1Ljh+gNRaOXs27VzULMwvMo0W51TZGLouJ0I2+PAO5uROLP",
-      "bytes": 2208
+      "integrity": "sha384-pO7azlXucp7C0Mf+jd2MVN7g4x3Ikm47egjI5FsrYSg618jU0ma8/wJ5eay2zk2I",
+      "bytes": 2231
     },
     "icons.min.js.map": {
-      "integrity": "sha384-2sT2RV/YR8cYMHZaEPNgolHCWLnzHCObiH90pvemtQN60FcpUN/TkjpV1EuxL41a",
-      "bytes": 6929
+      "integrity": "sha384-//zoR+gKV2k4r2sYKGOzYYLMO6+Sl9lz0hrrX4EdaPK8QFxIBRxzUAZ8OaufQTy2",
+      "bytes": 6972
     }
   }
 }

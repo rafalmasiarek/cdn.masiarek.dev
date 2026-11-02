@@ -2,6 +2,11 @@
   "package": "icons",
   "versions": [
     {
+      "version": "v2.0.2",
+      "channel": "stable",
+      "built_at": "2026-11-02T01:12:47Z"
+    },
+    {
       "version": "v2.0.1",
       "channel": "stable",
       "built_at": "2026-11-02T00:49:50Z"

@@ -13,16 +13,22 @@
     console.error('[csrf] ' + info.operation, err);
   }
 
+  function resolveCredentials(apiBase) {
+    try {
+      return new URL(apiBase, window.location.href).origin === window.location.origin
+        ? 'same-origin'
+        : 'include';
+    } catch (e) {
+      return 'same-origin';
+    }
+  }
+
   /**
    * @param {object} [options]
    * @param {string} [options.apiBase='https://masiarek.pl/api'] Prefix before "/v1/csrf/...".
    * @param {string} [options.container='default'] Sent as the X-CSRF-Container header.
-   * @param {(err: Error, info: {operation: string}) => void} [options.onError] Called for
-   *        a genuine failure (bad JSON, a thrown error while handling it, or the module
-   *        reporting a non-success status). A fetch() that never got a response at all
-   *        (offline, a dropped connection) throws a plain TypeError before any response
-   *        exists to read — that case is never reported here: the next poll/attempt
-   *        recovers on its own, and at any real traffic volume it's non-actionable noise.
+   * @param {(err: Error, info: {operation: string}) => void} [options.onError] Called on a
+   *        genuine failure. A dropped-connection TypeError is never reported here.
    * @param {number} [options.ttlThresholdSeconds=30] startAutoRefresh() regenerates once
    *        the token's remaining TTL drops below this.
    * @param {number} [options.pollIntervalMs=10000] How often startAutoRefresh() checks
@@ -30,7 +36,9 @@
    */
   function Csrf(options) {
     options = options || {};
-    this.endpoints = endpoints(options.apiBase || 'https://masiarek.pl/api');
+    var apiBase = options.apiBase || 'https://masiarek.pl/api';
+    this.endpoints = endpoints(apiBase);
+    this.credentials = resolveCredentials(apiBase);
     this.container = options.container || 'default';
     this.onError = options.onError || defaultOnError;
     this.ttlThresholdSeconds = typeof options.ttlThresholdSeconds === 'number' ? options.ttlThresholdSeconds : 30;
@@ -43,14 +51,10 @@
   }
 
   Csrf.prototype._get = function (url) {
-    // 'include' (not 'same-origin'): the default apiBase is cross-origin for
-    // most consumers, and the session cookie carrying the CSRF state must
-    // travel with it either way. Behaves exactly like 'same-origin' for the
-    // same-origin case.
     return fetch(url, {
       method: 'GET',
       headers: { 'X-CSRF-Container': this.container },
-      credentials: 'include'
+      credentials: this.credentials
     });
   };
 
@@ -103,7 +107,7 @@
       .catch(function (err) { self._report(err, 'csrf-expiry-check'); return null; });
   };
 
-  /** Begins polling checkExpiry(); auto-calls regenerate() once the TTL drops below the configured threshold. */
+  /** Polls checkExpiry(); regenerates once the TTL drops below the configured threshold. */
   Csrf.prototype.startAutoRefresh = function () {
     if (this._pollTimer) return;
     var self = this;
@@ -127,9 +131,7 @@
   Csrf.prototype.getProof = function () { return this._proof; };
 
   /**
-   * Convenience: keep a token input (and optional proof input) in sync with every
-   * subsequent generate()/regenerate() call. Applies immediately if a token is
-   * already held.
+   * Keeps a token input (and optional proof input) in sync with generate()/regenerate().
    * @param {{value: string}} tokenEl
    * @param {{value: string}|null} [proofEl]
    */

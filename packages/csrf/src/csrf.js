@@ -15,7 +15,7 @@
 
   /**
    * @param {object} [options]
-   * @param {string} [options.apiBase='/api'] Prefix before "/v1/csrf/...".
+   * @param {string} [options.apiBase='https://masiarek.pl/api'] Prefix before "/v1/csrf/...".
    * @param {string} [options.container='default'] Sent as the X-CSRF-Container header.
    * @param {(err: Error, info: {operation: string}) => void} [options.onError] Called for
    *        a genuine failure (bad JSON, a thrown error while handling it, or the module
@@ -30,7 +30,7 @@
    */
   function Csrf(options) {
     options = options || {};
-    this.endpoints = endpoints(options.apiBase || '/api');
+    this.endpoints = endpoints(options.apiBase || 'https://masiarek.pl/api');
     this.container = options.container || 'default';
     this.onError = options.onError || defaultOnError;
     this.ttlThresholdSeconds = typeof options.ttlThresholdSeconds === 'number' ? options.ttlThresholdSeconds : 30;
@@ -43,10 +43,14 @@
   }
 
   Csrf.prototype._get = function (url) {
+    // 'include' (not 'same-origin'): the default apiBase is cross-origin for
+    // most consumers, and the session cookie carrying the CSRF state must
+    // travel with it either way. Behaves exactly like 'same-origin' for the
+    // same-origin case.
     return fetch(url, {
       method: 'GET',
       headers: { 'X-CSRF-Container': this.container },
-      credentials: 'same-origin'
+      credentials: 'include'
     });
   };
 

@@ -19,12 +19,17 @@
 
   var config = {
     prefix: (currentScript && currentScript.dataset.prefix) || 'icon',
-    baseUrl: (currentScript && currentScript.dataset.baseUrl) || 'https://masiarek.pl/assets/img/icons'
+    baseUrl: (currentScript && currentScript.dataset.baseUrl) || 'https://masiarek.pl/assets/img/icons',
+    onError: null
   };
 
   var cache = new Map();
   var pending = new Map();
   var observer = null;
+
+  function defaultOnError(err) {
+    console.error('[icons]', err);
+  }
 
   function isModifier(token, prefix) {
     for (var i = 0; i < MODIFIER_SUFFIXES.length; i++) {
@@ -34,12 +39,12 @@
   }
 
   function iconNameFromElement(el) {
-    var classes = el.className.split(/\s+/);
-    if (classes.indexOf(config.prefix) === -1) return null;
+    var classList = el.classList;
+    if (!classList || !classList.contains(config.prefix)) return null;
 
     var marker = config.prefix + '-';
-    for (var i = 0; i < classes.length; i++) {
-      var cls = classes[i];
+    for (var i = 0; i < classList.length; i++) {
+      var cls = classList[i];
       if (cls.indexOf(marker) !== 0) continue;
       if (isModifier(cls, config.prefix)) continue;
       return cls.slice(marker.length);
@@ -63,7 +68,7 @@
         return svg;
       })
       .catch(function (err) {
-        console.error('[icons]', err);
+        (config.onError || defaultOnError)(err, { name: name, url: url });
         cache.set(name, '');
         pending.delete(name);
         return '';
@@ -120,6 +125,7 @@
     if (!opts) return;
     if (typeof opts.prefix === 'string' && opts.prefix) config.prefix = opts.prefix;
     if (typeof opts.baseUrl === 'string' && opts.baseUrl) config.baseUrl = opts.baseUrl;
+    if (typeof opts.onError === 'function') config.onError = opts.onError;
   }
 
   window.Icons = {

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-02T01:12:47Z",
+  "generated_at": "2026-11-02T05:48:30Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37778,19 +37778,47 @@
     "icons": {
       "channels": {
         "last_stable": {
-          "version": "v2.0.2",
+          "version": "v2.0.3",
           "channel": "stable",
-          "built_at": "2026-11-02T01:12:47Z"
+          "built_at": "2026-11-02T05:48:30Z"
         },
         "last_beta": null,
         "last_latest": {
-          "version": "v2.0.2",
+          "version": "v2.0.3",
           "channel": "stable",
-          "built_at": "2026-11-02T01:12:47Z"
+          "built_at": "2026-11-02T05:48:30Z"
         },
         "meta": null
       },
       "versions": {
+        "v2.0.3": {
+          "channel": "stable",
+          "built_at": "2026-11-02T05:48:30Z",
+          "commit": "4e39d6e856bd093869755cd24e06f226f18c5e48",
+          "upstream": null,
+          "files": {
+            "icons.min.css": {
+              "url": "/icons/v2.0.3/icons.min.css",
+              "integrity": "sha384-W8T18p0bWIM7U0tL+9xbMTwCTewmnoYB1Doffqy1hViTlPd7mOORNKZbmc8nCJAB",
+              "bytes": 3892
+            },
+            "icons.min.css.map": {
+              "url": "/icons/v2.0.3/icons.min.css.map",
+              "integrity": "sha384-Eh977BSMTqjJ7w3MxFFInaNrSr/+xAgdRDQBvPNn8pZdgaDylc5U5dLBGPfJDMeI",
+              "bytes": 8162
+            },
+            "icons.min.js": {
+              "url": "/icons/v2.0.3/icons.min.js",
+              "integrity": "sha384-rizcL7TJwyOYdNH4KRcXwFNfYsyaEl9bv7ufXjWMq7o8ixAhdZVGbp7cIYysj+7R",
+              "bytes": 3158
+            },
+            "icons.min.js.map": {
+              "url": "/icons/v2.0.3/icons.min.js.map",
+              "integrity": "sha384-rmKCYe9Qdd/AcjMjMSl1oQqMgbA8UKpvloHw6RwZylkS9tEUGS3mgEuHf1siK0MF",
+              "bytes": 8207
+            }
+          }
+        },
         "v2.0.2": {
           "channel": "stable",
           "built_at": "2026-11-02T01:12:47Z",

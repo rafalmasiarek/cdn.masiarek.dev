@@ -34,8 +34,10 @@
   }
 
   function iconNameFromElement(el) {
-    var marker = config.prefix + '-';
     var classes = el.className.split(/\s+/);
+    if (classes.indexOf(config.prefix) === -1) return null;
+
+    var marker = config.prefix + '-';
     for (var i = 0; i < classes.length; i++) {
       var cls = classes[i];
       if (cls.indexOf(marker) !== 0) continue;
@@ -99,8 +101,7 @@
 
   function scan(root) {
     var scope = root || document;
-    var marker = config.prefix + '-';
-    var selector = '[class*="' + marker + '"]';
+    var selector = '.' + config.prefix;
     var elements = scope.querySelectorAll ? scope.querySelectorAll(selector) : [];
 
     var obs = getObserver();

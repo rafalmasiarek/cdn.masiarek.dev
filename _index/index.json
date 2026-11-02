@@ -13,7 +13,13 @@
         "channel": "stable",
         "built_at": "2026-01-25T23:46:36Z"
       },
-      "meta": null
+      "meta": {
+        "name": "Twemoji Windows",
+        "license": "MIT",
+        "author": "Rafa\u0142 Masiarek",
+        "homepage": "https://github.com/rafalmasiarek/cdn.masiarek.dev",
+        "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
+      }
     },
     "bootstrap": {
       "last_stable": {
@@ -54,7 +60,7 @@
       "meta": {
         "name": "js-fair-consent",
         "source_url": "https://github.com/rafalmasiarek/js-fair-consent",
-        "author": "Rafał Masiarek"
+        "author": "Rafa\u0142 Masiarek"
       }
     },
     "instagram.css": {
@@ -153,7 +159,7 @@
       "meta": {
         "package": "js-form-prefill",
         "source_url": "https://github.com/rafalmasiarek/js-form-prefill",
-        "author": "Rafał Masiarek",
+        "author": "Rafa\u0142 Masiarek",
         "license": "MIT"
       }
     },
@@ -197,20 +203,6 @@
         "author": "Momo Bassit"
       }
     },
-    "rm-icons": {
-      "last_stable": {
-        "version": "v1.0.0",
-        "channel": "stable",
-        "built_at": "2026-10-27T15:51:48Z"
-      },
-      "last_beta": null,
-      "last_latest": {
-        "version": "v1.0.0",
-        "channel": "stable",
-        "built_at": "2026-10-27T15:51:48Z"
-      },
-      "meta": null
-    },
     "icons": {
       "last_stable": {
         "version": "v2.0.3",
@@ -223,7 +215,13 @@
         "channel": "stable",
         "built_at": "2026-11-02T05:48:30Z"
       },
-      "meta": null
+      "meta": {
+        "name": "Icons",
+        "license": "Masiarek Hosted-Use License",
+        "author": "Rafa\u0142 Masiarek",
+        "homepage": "https://masiarek.pl/icons-c/",
+        "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
+      }
     },
     "csrf": {
       "last_stable": {
@@ -237,7 +235,13 @@
         "channel": "stable",
         "built_at": "2026-11-02T05:54:44Z"
       },
-      "meta": null
+      "meta": {
+        "name": "CSRF Client",
+        "license": "Masiarek Hosted-Use License",
+        "author": "Rafa\u0142 Masiarek",
+        "homepage": "https://github.com/rafalmasiarek/cdn.masiarek.dev",
+        "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
+      }
     }
   }
 }

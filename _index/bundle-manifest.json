@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-02T05:54:44Z",
-  "base_url": "",
+  "generated_at": "2026-11-02T08:07:25.918Z",
+  "base_url": "https://cdn.masiarek.pl",
   "packages": {
     "twemoji-windows": {
       "channels": {
@@ -15,7 +15,13 @@
           "channel": "stable",
           "built_at": "2026-01-25T23:46:36Z"
         },
-        "meta": null
+        "meta": {
+          "name": "Twemoji Windows",
+          "license": "MIT",
+          "author": "Rafał Masiarek",
+          "homepage": "https://github.com/rafalmasiarek/cdn.masiarek.dev",
+          "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
+        }
       },
       "versions": {
         "v3.0.0": {
@@ -37729,52 +37735,6 @@
         }
       }
     },
-    "rm-icons": {
-      "channels": {
-        "last_stable": {
-          "version": "v1.0.0",
-          "channel": "stable",
-          "built_at": "2026-10-27T15:51:48Z"
-        },
-        "last_beta": null,
-        "last_latest": {
-          "version": "v1.0.0",
-          "channel": "stable",
-          "built_at": "2026-10-27T15:51:48Z"
-        },
-        "meta": null
-      },
-      "versions": {
-        "v1.0.0": {
-          "channel": "stable",
-          "built_at": "2026-10-27T15:51:48Z",
-          "commit": "adec2a54732b9e0c4d775da6a8178643759a9487",
-          "upstream": null,
-          "files": {
-            "rm-icons.min.css": {
-              "url": "/rm-icons/v1.0.0/rm-icons.min.css",
-              "integrity": "sha384-mi3xF1qaxeUCwpLo42nm7LEJ/2FPvwWYg3oGs6rN/N/gaAYHUIbfyeQNQWx7aMEr",
-              "bytes": 3322
-            },
-            "rm-icons.min.css.map": {
-              "url": "/rm-icons/v1.0.0/rm-icons.min.css.map",
-              "integrity": "sha384-UQikXzSKHoZl026lx6PzprS37zHqR1mUjN3YXThLYUthfgd5OWyRXC2P1WtnXB4S",
-              "bytes": 7574
-            },
-            "rm-icons.min.js": {
-              "url": "/rm-icons/v1.0.0/rm-icons.min.js",
-              "integrity": "sha384-zUnOdt31Wn8IBJh4s2pFMwIddkk19Ci7vFdjy3JO0pjwhGytDaC2XXp8O27WqEG8",
-              "bytes": 2240
-            },
-            "rm-icons.min.js.map": {
-              "url": "/rm-icons/v1.0.0/rm-icons.min.js.map",
-              "integrity": "sha384-5HPZGDcAS1thUxBcKKQmIV20ShQA/hwyxCsTP92IBS2ITSqfQwIAzjuR03fJ9fTu",
-              "bytes": 6968
-            }
-          }
-        }
-      }
-    },
     "icons": {
       "channels": {
         "last_stable": {
@@ -37788,7 +37748,13 @@
           "channel": "stable",
           "built_at": "2026-11-02T05:48:30Z"
         },
-        "meta": null
+        "meta": {
+          "name": "Icons",
+          "license": "Masiarek Hosted-Use License",
+          "author": "Rafał Masiarek",
+          "homepage": "https://masiarek.pl/icons-c/",
+          "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
+        }
       },
       "versions": {
         "v2.0.3": {
@@ -37918,7 +37884,13 @@
           "channel": "stable",
           "built_at": "2026-11-02T05:54:44Z"
         },
-        "meta": null
+        "meta": {
+          "name": "CSRF Client",
+          "license": "Masiarek Hosted-Use License",
+          "author": "Rafał Masiarek",
+          "homepage": "https://github.com/rafalmasiarek/cdn.masiarek.dev",
+          "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
+        }
       },
       "versions": {
         "v1.2.2": {

@@ -2,6 +2,7 @@
   "name": "@cdn/csrf",
   "version": "1.2.1",
   "private": true,
+  "license": "Masiarek Hosted-Use License",
   "devDependencies": {
     "esbuild": "^0.24.0"
   },

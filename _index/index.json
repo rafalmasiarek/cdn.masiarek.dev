@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-02T05:54:44Z",
+  "generated_at": "2026-11-13T17:58:40.743Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -16,7 +16,7 @@
       "meta": {
         "name": "Twemoji Windows",
         "license": "MIT",
-        "author": "Rafa\u0142 Masiarek",
+        "author": "Rafał Masiarek",
         "homepage": "https://github.com/rafalmasiarek/cdn.masiarek.dev",
         "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
       }
@@ -60,7 +60,7 @@
       "meta": {
         "name": "js-fair-consent",
         "source_url": "https://github.com/rafalmasiarek/js-fair-consent",
-        "author": "Rafa\u0142 Masiarek"
+        "author": "Rafał Masiarek"
       }
     },
     "instagram.css": {
@@ -159,21 +159,21 @@
       "meta": {
         "package": "js-form-prefill",
         "source_url": "https://github.com/rafalmasiarek/js-form-prefill",
-        "author": "Rafa\u0142 Masiarek",
+        "author": "Rafał Masiarek",
         "license": "MIT"
       }
     },
     "swagger-ui": {
       "last_stable": {
-        "version": "v5.34.1",
+        "version": "v5.35.0",
         "channel": "stable",
-        "built_at": "2026-10-30T15:14:25.674Z"
+        "built_at": "2026-11-13T17:58:40.743Z"
       },
       "last_beta": null,
       "last_latest": {
-        "version": "v5.34.1",
+        "version": "v5.35.0",
         "channel": "stable",
-        "built_at": "2026-10-30T15:14:25.674Z"
+        "built_at": "2026-11-13T17:58:40.743Z"
       },
       "meta": {
         "name": "Swagger UI",
@@ -218,7 +218,7 @@
       "meta": {
         "name": "Icons",
         "license": "Masiarek Hosted-Use License",
-        "author": "Rafa\u0142 Masiarek",
+        "author": "Rafał Masiarek",
         "homepage": "https://masiarek.pl/icons-c/",
         "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
       }
@@ -238,7 +238,7 @@
       "meta": {
         "name": "CSRF Client",
         "license": "Masiarek Hosted-Use License",
-        "author": "Rafa\u0142 Masiarek",
+        "author": "Rafał Masiarek",
         "homepage": "https://github.com/rafalmasiarek/cdn.masiarek.dev",
         "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
       }

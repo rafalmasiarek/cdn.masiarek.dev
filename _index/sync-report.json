@@ -1,23 +1,15 @@
 {
-  "generated_at": "2026-11-14T19:24:35.584Z",
-  "changed": true,
+  "generated_at": "2026-11-14T23:17:11.490Z",
+  "changed": false,
   "failures": 1,
   "results": [
     {
       "package": "bootstrap",
       "type": "github-release-assets-semver",
       "upstream": "v5.3.9",
-      "action": "publish",
-      "status": "OK",
-      "details": "@latest v5.3.9 files=2"
-    },
-    {
-      "package": "bootstrap",
-      "type": "github-release-assets-semver",
-      "upstream": "v5.3.9",
-      "action": "publish",
-      "status": "OK",
-      "details": "@stable v5.3.9 files=2 (+stable aliases)"
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "js-fair-consent",

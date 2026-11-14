@@ -1,23 +1,23 @@
 {
-  "generated_at": "2026-11-14T14:25:11.826Z",
-  "changed": false,
-  "failures": 3,
+  "generated_at": "2026-11-14T19:24:35.584Z",
+  "changed": true,
+  "failures": 1,
   "results": [
     {
       "package": "bootstrap",
       "type": "github-release-assets-semver",
       "upstream": "v5.3.9",
       "action": "publish",
-      "status": "FAIL",
-      "details": "No matching outputs. For build: ensure src.extract points at built files and set build.run if required. For non-build: ensure assets/extract or zipball_fallback are correct."
+      "status": "OK",
+      "details": "@latest v5.3.9 files=2"
     },
     {
       "package": "bootstrap",
       "type": "github-release-assets-semver",
       "upstream": "v5.3.9",
       "action": "publish",
-      "status": "FAIL",
-      "details": "No matching outputs. For build: ensure src.extract points at built files and set build.run if required. For non-build: ensure assets/extract or zipball_fallback are correct."
+      "status": "OK",
+      "details": "@stable v5.3.9 files=2 (+stable aliases)"
     },
     {
       "package": "js-fair-consent",

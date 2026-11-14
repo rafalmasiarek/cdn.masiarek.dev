@@ -1,14 +1,14 @@
 {
   "package": "bootstrap",
-  "version": "v5.3.8",
+  "version": "v5.3.9",
   "channel": "stable",
-  "built_at": "2026-01-22T16:13:13.432Z",
+  "built_at": "2026-11-14T19:24:35.584Z",
   "commit": null,
   "upstream": {
     "type": "github-release",
     "repo": "twbs/bootstrap",
-    "tag": "v5.3.8",
-    "release_html_url": "https://github.com/twbs/bootstrap/releases/tag/v5.3.8"
+    "tag": "v5.3.9",
+    "release_html_url": "https://github.com/twbs/bootstrap/releases/tag/v5.3.9"
   },
   "meta": {
     "name": "Bootstrap",
@@ -19,12 +19,12 @@
   },
   "files": {
     "bootstrap.min.css": {
-      "integrity": "sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB",
-      "bytes": 232111
+      "integrity": "sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX",
+      "bytes": 232360
     },
     "bootstrap.bundle.min.js": {
-      "integrity": "sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI",
-      "bytes": 80496
+      "integrity": "sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu",
+      "bytes": 80669
     }
   }
 }

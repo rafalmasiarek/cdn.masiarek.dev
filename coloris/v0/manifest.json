@@ -1,14 +1,14 @@
 {
   "package": "coloris",
-  "version": "v0.25.1",
+  "version": "v0.25.2",
   "channel": "stable",
-  "built_at": "2026-10-26T15:23:59.974Z",
+  "built_at": "2026-11-16T11:56:58.026Z",
   "commit": null,
   "upstream": {
     "type": "github-release",
     "repo": "mdbassit/Coloris",
-    "tag": "v0.25.1",
-    "release_html_url": "https://github.com/mdbassit/Coloris/releases/tag/v0.25.1"
+    "tag": "v0.25.2",
+    "release_html_url": "https://github.com/mdbassit/Coloris/releases/tag/v0.25.2"
   },
   "meta": {
     "name": "Coloris",
@@ -23,8 +23,8 @@
       "bytes": 8506
     },
     "coloris.min.js": {
-      "integrity": "sha384-m3EbrZZVQTNZ1LPMLgsy+hURA3oTawLSZ+nNXeYn7HYTYSKCd+e/hO3ecY21wXFf",
-      "bytes": 14325
+      "integrity": "sha384-K1H+IxcWL2fd8L3xP14lg5rjn5++yIqTxvzdCKyGz+noh6Ej2Ufq2FFjYXcBnfrb",
+      "bytes": 14338
     }
   }
 }

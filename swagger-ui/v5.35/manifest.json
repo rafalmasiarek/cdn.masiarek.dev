@@ -1,14 +1,14 @@
 {
   "package": "swagger-ui",
-  "version": "v5.35.0",
+  "version": "v5.35.1",
   "channel": "stable",
-  "built_at": "2026-11-13T17:58:40.743Z",
+  "built_at": "2026-11-19T13:46:14.698Z",
   "commit": null,
   "upstream": {
     "type": "github-release",
     "repo": "swagger-api/swagger-ui",
-    "tag": "v5.35.0",
-    "release_html_url": "https://github.com/swagger-api/swagger-ui/releases/tag/v5.35.0"
+    "tag": "v5.35.1",
+    "release_html_url": "https://github.com/swagger-api/swagger-ui/releases/tag/v5.35.1"
   },
   "meta": {
     "name": "Swagger UI",
@@ -23,7 +23,7 @@
       "bytes": 187956
     },
     "swagger-ui-bundle.js": {
-      "integrity": "sha384-gjRm0bEPMeTmMh5jT2cHccIwCUZSTd8YC+j0d0sXw0MdGEfScduGpSyF3ZSSLkX9",
+      "integrity": "sha384-J5eKRXKO1KzUTPkO0GRmGH2WEYUg6SSZlufilxvTwI6nmhLumjNWFMby3QQnyobZ",
       "bytes": 1732839
     }
   }

@@ -2,6 +2,11 @@
   "package": "swagger-ui",
   "versions": [
     {
+      "version": "v5.35.1",
+      "channel": "stable",
+      "built_at": "2026-11-19T13:46:14.698Z"
+    },
+    {
       "version": "v5.35.0",
       "channel": "stable",
       "built_at": "2026-11-13T17:58:40.743Z"

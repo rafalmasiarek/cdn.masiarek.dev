@@ -1,4 +1,4 @@
-/*! OpenPGP.js v6.3.2 - 2026-09-24 - this is LGPL licensed code, see LICENSE/our website https://openpgpjs.org/ for more information. */
+/*! OpenPGP.js v6.3.3 - 2026-11-20 - this is LGPL licensed code, see LICENSE/our website https://openpgpjs.org/ for more information. */
 var openpgp = (function (exports) {
   'use strict';
 
@@ -1740,7 +1740,7 @@ var openpgp = (function (exports) {
        * @memberof module:config
        * @property {String} versionString A version string to be included in armored messages
        */
-      versionString: 'OpenPGP.js 6.3.2',
+      versionString: 'OpenPGP.js 6.3.3',
       /**
        * @memberof module:config
        * @property {String} commentString A comment string to be included in armored messages

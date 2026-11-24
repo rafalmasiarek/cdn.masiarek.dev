@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-11-24T02:29:43.536Z",
-  "changed": true,
+  "generated_at": "2026-11-24T12:53:29.236Z",
+  "changed": false,
   "failures": 1,
   "results": [
     {
       "package": "bootstrap",
       "type": "github-release-assets-semver",
-      "upstream": "v6.0.0-alpha.2",
-      "action": "publish",
-      "status": "OK",
-      "details": "@beta v6.0.0-alpha.2 files=2"
+      "upstream": "v5.3.9",
+      "action": "skip",
+      "status": "SKIP",
+      "details": "No changes (keys match external-state.json)"
     },
     {
       "package": "js-fair-consent",

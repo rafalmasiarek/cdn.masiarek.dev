@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T15:12:07.499Z",
+  "generated_at": "2026-11-24T02:29:43.536Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -70,14 +70,14 @@
           "built_at": "2026-11-14T19:24:35.584Z"
         },
         "last_beta": {
-          "version": "v5.3.0-alpha3",
+          "version": "v6.0.0-alpha.2",
           "channel": "beta",
-          "built_at": "2026-01-22T16:13:13.432Z"
+          "built_at": "2026-11-24T02:29:43.536Z"
         },
         "last_latest": {
-          "version": "v5.3.9",
-          "channel": "stable",
-          "built_at": "2026-11-14T19:24:35.584Z"
+          "version": "v6.0.0-alpha.2",
+          "channel": "beta",
+          "built_at": "2026-11-24T02:29:43.536Z"
         },
         "meta": {
           "name": "Bootstrap",
@@ -88,6 +88,29 @@
         }
       },
       "versions": {
+        "v6.0.0-alpha.2": {
+          "channel": "beta",
+          "built_at": "2026-11-24T02:29:43.536Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-release",
+            "repo": "twbs/bootstrap",
+            "tag": "v6.0.0-alpha.2",
+            "release_html_url": "https://github.com/twbs/bootstrap/releases/tag/v6.0.0-alpha.2"
+          },
+          "files": {
+            "bootstrap.min.css": {
+              "url": "/bootstrap/v6.0.0-alpha.2/bootstrap.min.css",
+              "integrity": "sha384-MKn5NWVBEuQXJE7TSKSgPUmMiSCmVTfCsR+VSSeQpHnoyJQZZFn/kBn+Ht5jZDPQ",
+              "bytes": 418457
+            },
+            "bootstrap.bundle.min.js": {
+              "url": "/bootstrap/v6.0.0-alpha.2/bootstrap.bundle.min.js",
+              "integrity": "sha384-+PW0IDVGGwmpaBQvcXY+W0BcpHpITFB3dSfSoGvDdHtLbrLpSbpGcvtQRM/BJpz+",
+              "bytes": 268398
+            }
+          }
+        },
         "v5.3.9": {
           "channel": "stable",
           "built_at": "2026-11-14T19:24:35.584Z",

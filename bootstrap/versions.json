@@ -2,6 +2,11 @@
   "package": "bootstrap",
   "versions": [
     {
+      "version": "v6.0.0-alpha.2",
+      "channel": "beta",
+      "built_at": "2026-11-24T02:29:43.536Z"
+    },
+    {
       "version": "v5.3.9",
       "channel": "stable",
       "built_at": "2026-11-14T19:24:35.584Z"

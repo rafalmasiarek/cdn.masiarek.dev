@@ -4,8 +4,8 @@
     "last_upstream_tag": "v5.3.9",
     "stable_key": "twbs/bootstrap@stable:v5.3.9",
     "last_upstream_stable_tag": "v5.3.9",
-    "beta_key": "twbs/bootstrap@beta:v5.3.0-alpha3",
-    "last_upstream_beta_tag": "v5.3.0-alpha3"
+    "beta_key": "twbs/bootstrap@beta:v6.0.0-alpha.2",
+    "last_upstream_beta_tag": "v6.0.0-alpha.2"
   },
   "js-fair-consent": {
     "latest_key": "rafalmasiarek/js-fair-consent@latest:v1.4.3",

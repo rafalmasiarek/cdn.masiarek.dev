@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T15:12:07.499Z",
+  "generated_at": "2026-11-24T02:29:43.536Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -28,14 +28,14 @@
         "built_at": "2026-11-14T19:24:35.584Z"
       },
       "last_beta": {
-        "version": "v5.3.0-alpha3",
+        "version": "v6.0.0-alpha.2",
         "channel": "beta",
-        "built_at": "2026-01-22T16:13:13.432Z"
+        "built_at": "2026-11-24T02:29:43.536Z"
       },
       "last_latest": {
-        "version": "v5.3.9",
-        "channel": "stable",
-        "built_at": "2026-11-14T19:24:35.584Z"
+        "version": "v6.0.0-alpha.2",
+        "channel": "beta",
+        "built_at": "2026-11-24T02:29:43.536Z"
       },
       "meta": {
         "name": "Bootstrap",

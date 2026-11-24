@@ -1,0 +1,30 @@
+{
+  "package": "bootstrap",
+  "version": "v6.0.0-alpha.2",
+  "channel": "beta",
+  "built_at": "2026-11-24T02:29:43.536Z",
+  "commit": null,
+  "upstream": {
+    "type": "github-release",
+    "repo": "twbs/bootstrap",
+    "tag": "v6.0.0-alpha.2",
+    "release_html_url": "https://github.com/twbs/bootstrap/releases/tag/v6.0.0-alpha.2"
+  },
+  "meta": {
+    "name": "Bootstrap",
+    "homepage": "https://getbootstrap.com/",
+    "license": "MIT",
+    "source_url": "https://github.com/twbs/bootstrap",
+    "author": "The Bootstrap Authors"
+  },
+  "files": {
+    "bootstrap.min.css": {
+      "integrity": "sha384-MKn5NWVBEuQXJE7TSKSgPUmMiSCmVTfCsR+VSSeQpHnoyJQZZFn/kBn+Ht5jZDPQ",
+      "bytes": 418457
+    },
+    "bootstrap.bundle.min.js": {
+      "integrity": "sha384-+PW0IDVGGwmpaBQvcXY+W0BcpHpITFB3dSfSoGvDdHtLbrLpSbpGcvtQRM/BJpz+",
+      "bytes": 268398
+    }
+  }
+}

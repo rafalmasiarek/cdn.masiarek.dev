@@ -37,6 +37,7 @@
   --lite-warning-text: #92400e;
   --lite-required: #dc2626;
   --lite-code-bg: #f3f4f6;
+  --lite-box-bg: #f9fafb;
   --lite-table-border: #cccccc;
   --lite-table-head-bg: #f5f5f5;
   --lite-width: 32rem;
@@ -122,6 +123,8 @@ button[disabled] { opacity: 0.6; cursor: default; }
 
 .checkboxes { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
 .checkboxes label { display: flex; align-items: center; gap: 0.4rem; margin-top: 0; font-size: 0.85rem; }
+
+.box { background: var(--lite-box-bg); border-radius: 0.5rem; padding: 1rem; margin-top: 1rem; }
 
 .error, .success, .warning {
   padding: 0.75rem;

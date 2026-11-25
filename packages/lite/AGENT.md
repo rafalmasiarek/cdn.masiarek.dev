@@ -12,7 +12,8 @@ Link one file, write plain semantic HTML, done.
   the semantic HTML tag directly (`body`, `h1`, `label`, `input`, `button`,
   `table`, `code`, ...). A page that links this file and uses zero classes
   should already look right. Classes exist only for shapes raw HTML has no
-  tag for (`.error`/`.success`/`.warning`, `.checkboxes`, `.kv-table`, `.row`).
+  tag for (`.error`/`.success`/`.warning`, `.box`, `.checkboxes`,
+  `.kv-table`, `.row`).
 - **Small footprint**, like [purecss.io](https://pure-css.github.io/): one
   file, no build step for consumers, no JS, no icon font, no grid system —
   `.row` is a two-line flexbox rule, not a 24-column grid. If a rule would
@@ -71,6 +72,7 @@ Icons. Load both together when a page needs icons:
 | `--lite-warning-bg` / `--lite-warning-text` | `#fffbeb` / `#92400e` | `.warning` |
 | `--lite-required` | `#dc2626` | `.required` |
 | `--lite-code-bg` | `#f3f4f6` | `code`, `pre`, button background |
+| `--lite-box-bg` | `#f9fafb` | `.box` background |
 | `--lite-table-border` | `#cccccc` | `table`/`th`/`td` borders |
 | `--lite-table-head-bg` | `#f5f5f5` | `th` background |
 | `--lite-width` | `32rem` | `body` max-width (a narrow single-column page) |
@@ -111,6 +113,10 @@ Override one by redeclaring it on `:root` in a `<style>` block *after* the
   (padding, rounded corners, top margin), only the color pair differs.
   Use whichever matches the message: a failed action, a confirmed one, or
   something the user should notice but that isn't a failure.
+- **`.box`** — a plain neutral panel: shaded background, rounded
+  corners, padding. For grouping arbitrary content (a result tile, a
+  usage note, anything that just needs to visually stand out from the
+  page background without implying success/warning/error).
 - **`.kv-table`** — the *other* table shape: label/value rows with no
   header row, muted first column pinned to 40% width. Use plain `table`
   instead when you have a header row; use `.kv-table` when you don't.

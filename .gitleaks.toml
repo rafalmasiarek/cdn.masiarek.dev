@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Vendored openpgpjs release bundles — the private-key rule matches a dummy key baked into the library's own minified/source output, re-synced under a new commit hash on every release. Allowlisted by path so this survives future syncs without per-fingerprint maintenance."
+paths = [
+  '''^openpgpjs/.*\.js$''',
+]

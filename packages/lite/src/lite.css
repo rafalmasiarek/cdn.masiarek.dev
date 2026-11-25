@@ -140,6 +140,7 @@ button[disabled] { opacity: 0.6; cursor: default; }
 .cols.sidebar-right { grid-template-columns: 1fr var(--lite-sidebar-width); }
 .cols.sidebar-right > nav { order: 2; }
 .cols > nav { position: sticky; top: 2rem; }
+.cols > :not(nav) { min-width: 0; }
 
 /* Optional collapsible nav, only active if a page opts in with its own
    tiny script (see AGENT.md) toggling the `hidden` attribute — inert

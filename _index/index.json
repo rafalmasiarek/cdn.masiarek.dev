@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T15:55:36Z",
+  "generated_at": "2026-11-25T17:58:00Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -245,15 +245,15 @@
     },
     "lite": {
       "last_stable": {
-        "version": "v1.1.0",
+        "version": "v1.1.1",
         "channel": "stable",
-        "built_at": "2026-11-25T15:55:36Z"
+        "built_at": "2026-11-25T17:58:00Z"
       },
       "last_beta": null,
       "last_latest": {
-        "version": "v1.1.0",
+        "version": "v1.1.1",
         "channel": "stable",
-        "built_at": "2026-11-25T15:55:36Z"
+        "built_at": "2026-11-25T17:58:00Z"
       },
       "meta": null
     }

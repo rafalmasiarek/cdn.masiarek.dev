@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T15:55:36Z",
+  "generated_at": "2026-11-25T17:58:00Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -38149,19 +38149,37 @@
     "lite": {
       "channels": {
         "last_stable": {
-          "version": "v1.1.0",
+          "version": "v1.1.1",
           "channel": "stable",
-          "built_at": "2026-11-25T15:55:36Z"
+          "built_at": "2026-11-25T17:58:00Z"
         },
         "last_beta": null,
         "last_latest": {
-          "version": "v1.1.0",
+          "version": "v1.1.1",
           "channel": "stable",
-          "built_at": "2026-11-25T15:55:36Z"
+          "built_at": "2026-11-25T17:58:00Z"
         },
         "meta": null
       },
       "versions": {
+        "v1.1.1": {
+          "channel": "stable",
+          "built_at": "2026-11-25T17:58:00Z",
+          "commit": "07394d0ef5e5026e2622ae21670e5047b21fafdc",
+          "upstream": null,
+          "files": {
+            "lite.min.css": {
+              "url": "/lite/v1.1.1/lite.min.css",
+              "integrity": "sha384-6X/1cy446Pd026p/t7095z19QOyOirjdvZ7+3jbvnADZKo/fAqUciOoldD2mxr6l",
+              "bytes": 5532
+            },
+            "lite.min.css.map": {
+              "url": "/lite/v1.1.1/lite.min.css.map",
+              "integrity": "sha384-Jn9ZQTAxP8mXMmGOzUafEqnx+7S1/vAnlSjFPX3kU5k6AL3EV5HrOPP2V1jFrKZg",
+              "bytes": 11946
+            }
+          }
+        },
         "v1.1.0": {
           "channel": "stable",
           "built_at": "2026-11-25T15:55:36Z",

@@ -139,14 +139,26 @@ Override one by redeclaring it on `:root` in a `<style>` block *after* the
     <main>...</main>
   </body>
   ```
+  A `<header>` and/or `<footer>` among the same direct children span
+  both columns automatically, sitting above/below the nav+content row:
+  ```html
+  <body class="wide cols">
+    <header>...</header>
+    <nav>...</nav>
+    <main>...</main>
+    <footer>...</footer>
+  </body>
+  ```
   Add `.sidebar-right` to put the sidebar on the right instead (the
   `<nav>` stays first in the DOM for reading/tab order — only its visual
-  position moves, via `order`). The sidebar is `position: sticky` so it
-  stays in view while the content column scrolls. Below 640px, `.cols`
-  collapses to a single column with `<nav>` stacked above the content,
-  sticky disabled — see "Optional: collapsible mobile nav" below for
-  turning that stacked list into a hamburger-triggered one instead of
-  always showing it in full.
+  position moves; placement is driven by named `grid-area`s, not DOM
+  order, so this works regardless of how many of `header`/`nav`/`main`/
+  `footer` a given page actually uses). The sidebar is `position: sticky`
+  so it stays in view while the content column scrolls. Below 640px,
+  `.cols` collapses to a single stacked column (`header`, `nav`, `main`,
+  `footer` in that order), sticky disabled — see "Optional: collapsible
+  mobile nav" below for turning that stacked nav into a
+  hamburger-triggered one instead of always showing it in full.
 - **`.kv-table`** — the *other* table shape: label/value rows with no
   header row, muted first column pinned to 40% width. Use plain `table`
   instead when you have a header row; use `.kv-table` when you don't.

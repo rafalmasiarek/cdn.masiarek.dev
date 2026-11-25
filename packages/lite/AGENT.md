@@ -1,10 +1,10 @@
 # @cdn/lite
 
-Shared base CSS for the small single-purpose PHP tools on `*.masiar.io`
-(x, qr, ip, lenny, p, and whatever comes next in that family). It exists
-because those apps had independently converged on the same ad-hoc
-`<style>` block in every `layout.php` — this package is that block,
-extracted once, kept in sync in one place.
+A small, classless-first base CSS for quick, single-purpose tools — the
+kind of page that needs a clean, standardized baseline (typography,
+forms, tables, a few common notice boxes) without pulling in a full
+design system or hand-writing a `<style>` block from scratch every time.
+Link one file, write plain semantic HTML, done.
 
 ## Philosophy — read this before adding anything
 
@@ -12,7 +12,7 @@ extracted once, kept in sync in one place.
   the semantic HTML tag directly (`body`, `h1`, `label`, `input`, `button`,
   `table`, `code`, ...). A page that links this file and uses zero classes
   should already look right. Classes exist only for shapes raw HTML has no
-  tag for (`.error`, `.checkboxes`, `.kv-table`, `.row`).
+  tag for (`.error`/`.success`/`.warning`, `.checkboxes`, `.kv-table`, `.row`).
 - **Small footprint**, like [purecss.io](https://pure-css.github.io/): one
   file, no build step for consumers, no JS, no icon font, no grid system —
   `.row` is a two-line flexbox rule, not a 24-column grid. If a rule would
@@ -22,9 +22,10 @@ extracted once, kept in sync in one place.
   package was built. The CSS custom properties exist so a single value is
   easy to override per-app (e.g. `:root { --lite-accent: #16a34a; }` after
   the `<link>`), not as scaffolding for a theme switcher.
-- **Before adding a new rule**, it should already be duplicated — ad-hoc,
-  slightly differently — in at least two real `*.masiar.io` apps. One app's
-  one-off need stays in that app.
+- **Before adding a new rule**, it should already be a recurring, genuine
+  need across more than one page — not a speculative "might be useful
+  someday" addition. A one-off need stays in that page's own `<style>`
+  block.
 
 ## Usage
 
@@ -41,8 +42,7 @@ markup required beyond normal semantic HTML.
 and never will (see Philosophy: no icon font). Icons are a separate,
 sibling package in this same repo (`packages/icons`, docs at
 [masiarek.pl/icons](https://masiarek.pl/icons)), built from Bootstrap
-Icons. Load both together when a page needs icons — this is the exact
-pairing the pre-rewrite `p.masiarek.pl` used:
+Icons. Load both together when a page needs icons:
 
 ```html
 <link rel="stylesheet" href="https://cdn.masiarek.pl/lite/@latest/lite.min.css">
@@ -66,11 +66,14 @@ pairing the pre-rewrite `p.masiarek.pl` used:
 | `--lite-muted` | `#6b7280` | `header`/`footer`/`nav` text, `.kv-table` first column, blockquote |
 | `--lite-border` | `#e5e7eb` | input/button/table borders, `hr`, spinner |
 | `--lite-accent` | `#2563eb` | link color |
-| `--lite-danger-bg` | `#fef2f2` | `.error` background |
-| `--lite-danger-text` | `#991b1b` | `.error` text |
+| `--lite-danger-bg` / `--lite-danger-text` | `#fef2f2` / `#991b1b` | `.error` |
+| `--lite-success-bg` / `--lite-success-text` | `#f0fdf4` / `#166534` | `.success` |
+| `--lite-warning-bg` / `--lite-warning-text` | `#fffbeb` / `#92400e` | `.warning` |
 | `--lite-required` | `#dc2626` | `.required` |
 | `--lite-code-bg` | `#f3f4f6` | `code`, `pre`, button background |
-| `--lite-width` | `32rem` | `body` max-width (the single-column page width every one of these tools uses) |
+| `--lite-table-border` | `#cccccc` | `table`/`th`/`td` borders |
+| `--lite-table-head-bg` | `#f5f5f5` | `th` background |
+| `--lite-width` | `32rem` | `body` max-width (a narrow single-column page) |
 
 Override one by redeclaring it on `:root` in a `<style>` block *after* the
 `<link>` tag — no need to touch this file or fork it.
@@ -78,52 +81,48 @@ Override one by redeclaring it on `:root` in a `<style>` block *after* the
 ### Bare elements (no class needed)
 
 - `body` — centered single column, `max-width: var(--lite-width)`, system
-  font stack, `3rem` top/bottom margin. This is the one opinion every
-  consuming app has shared unmodified: a narrow centered page, not a
-  full-width layout.
+  font stack, `3rem` top/bottom margin. A narrow centered page, not a
+  full-width layout — the one opinion this package holds unmodified.
 - `h1`/`h2`/`h3` — sized, no color override (inherits `--lite-text`).
 - `a` — colored with `--lite-accent`, no underline by default.
 - `hr`, `blockquote`, `ul`/`ol` — minimal, muted-border/muted-text treatment.
-- `header`, `footer` — centered, muted, small text. This is the
-  "password generator by ... / documentation" / "x.masiar.io" footer
-  pattern from p/qr/lenny, promoted to a bare tag instead of a `.footer`
-  class.
-- `nav` — the "← Basic faces" / "← back to the generator" back-link
-  pattern (qr, lenny, p docs pages): no underline until hover.
+- `header`, `footer` — centered, muted, small text. A simple
+  "tool name / short tagline" header-footer pattern.
+- `nav` — a small back-link pattern ("← Back"): no underline until hover.
 - `label`, `input[type=text|number|email|password|url|search]`, `textarea`,
   `select` — full-width, bordered, `box-sizing: border-box` so padding
   never blows out a `.row` layout.
 - `button`, `input[type=submit]` — bordered, `--lite-code-bg` background;
   `button[disabled]` dims to 60% opacity and drops the pointer cursor.
-- `table`/`th`/`td` — assumes a header row (`<thead>`), bottom-bordered
-  cells. This is p.masiar.io's docs-table shape.
+- `table`/`th`/`td` — assumes a header row (`<thead>`), bordered cells
+  with a shaded header.
 - `code`/`pre` — `--lite-code-bg` chip/block. `pre code` resets the
   double-background you'd otherwise get nesting the two.
 
 ### Classes
 
 - **`.row`** — direct children become equal-width flex items, wrapping on
-  narrow viewports. The "Width / Height" or "Length / Unit" side-by-side
-  field pattern (qr, p). Not a grid system — just this one shape.
+  narrow viewports. The "field next to field" side-by-side layout. Not a
+  grid system — just this one shape.
 - **`.checkboxes`** — a wrapping flex row of `<label><input
   type=checkbox>...</label>` pairs with tightened spacing, so a group of
-  toggle options doesn't each take their own full-width `label` line. From
-  p.masiar.io's Symbols/Hardcore checkboxes.
-- **`.error`** — the red notice box every form-handling app
-  (qr, ip, esign-adjacent) shows on validation/API failure.
+  toggle options doesn't each take their own full-width `label` line.
+- **`.error`** / **`.success`** / **`.warning`** — same box shape
+  (padding, rounded corners, top margin), only the color pair differs.
+  Use whichever matches the message: a failed action, a confirmed one, or
+  something the user should notice but that isn't a failure.
 - **`.kv-table`** — the *other* table shape: label/value rows with no
-  header (`ip.masiar.io`'s "IP: 1.2.3.4" display), muted first column
-  pinned to 40% width. Use plain `table` instead when you have a header
-  row; use `.kv-table` when you don't.
+  header row, muted first column pinned to 40% width. Use plain `table`
+  instead when you have a header row; use `.kv-table` when you don't.
 - **`.required`** — a red `*` or similar marker next to a label.
-- **`.spinner`** — a small spinning loading indicator next to a button
-  (qr.masiar.io's in-flight API call indicator). Respects `[hidden]`.
+- **`.spinner`** — a small spinning loading indicator, typically shown
+  next to a button while an API call is in flight. Respects `[hidden]`.
 - **`.logo`** — constrains an `<img>` logo to a sane max width without
   the image needing its own inline styles.
 
 ### The `[hidden] { display: none !important }` rule
 
-This exists because of a real bug: p.masiar.io had `.clear-link { ...
+This exists because of a real bug: a page had a class like `.clear-link {
 display: inline-block; }`, which silently overrode the browser's own
 `[hidden] { display: none }` default the moment that class also carried
 the `hidden` attribute — the element stayed visible. Any class in your own
@@ -144,14 +143,13 @@ Outputs `dist/lite.min.css` (+ sourcemap) via esbuild, same as every other
 package in this repo. No bundler config beyond `build.mjs` — it's one CSS
 file in, one minified file out.
 
-## Adopting this in a new `*.masiar.io` app
+## Adopting this in a new app
 
-1. Drop the `<link>` tag (see Usage above) into `templates/layout.php`'s
-   `<head>`, before any app-specific `<style>` block.
+1. Drop the `<link>` tag (see Usage above) into the page's `<head>`,
+   before any app-specific `<style>` block.
 2. Delete whatever ad-hoc `body { font-family: system-ui, ... }` etc. rules
-   that app's layout already had — they're now redundant.
-3. Keep only genuinely app-specific rules (e.g. lenny.masiar.io's `.face`/
-   `.grid`/Charis SIL font-face) in that app's own `<style>` block, below
-   the `<link>`, so they can still override this file's base.
-4. If you find yourself duplicating a new rule across two apps again,
-   that's the signal to promote it here — see Philosophy above.
+   the page already had — they're now redundant.
+3. Keep only genuinely page-specific rules in that page's own `<style>`
+   block, below the `<link>`, so they can still override this file's base.
+4. If you find yourself duplicating a new rule across more than one page
+   again, that's the signal to promote it here — see Philosophy above.

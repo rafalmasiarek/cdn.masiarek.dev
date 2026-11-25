@@ -31,6 +31,10 @@
   --lite-accent: #2563eb;
   --lite-danger-bg: #fef2f2;
   --lite-danger-text: #991b1b;
+  --lite-success-bg: #f0fdf4;
+  --lite-success-text: #166534;
+  --lite-warning-bg: #fffbeb;
+  --lite-warning-text: #92400e;
   --lite-required: #dc2626;
   --lite-code-bg: #f3f4f6;
   --lite-table-border: #cccccc;
@@ -119,13 +123,14 @@ button[disabled] { opacity: 0.6; cursor: default; }
 .checkboxes { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
 .checkboxes label { display: flex; align-items: center; gap: 0.4rem; margin-top: 0; font-size: 0.85rem; }
 
-.error {
-  background: var(--lite-danger-bg);
-  color: var(--lite-danger-text);
+.error, .success, .warning {
   padding: 0.75rem;
   border-radius: 0.375rem;
   margin-top: 1rem;
 }
+.error { background: var(--lite-danger-bg); color: var(--lite-danger-text); }
+.success { background: var(--lite-success-bg); color: var(--lite-success-text); }
+.warning { background: var(--lite-warning-bg); color: var(--lite-warning-text); }
 
 table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
 th, td { text-align: center; padding: 0.625rem 0.75rem; border: 1px solid var(--lite-table-border); font-size: 0.9rem; }

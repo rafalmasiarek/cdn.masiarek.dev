@@ -36,12 +36,12 @@
     if (!/Windows/i.test(navigator.userAgent)) return;
 
     // Twemoji JS from your CDN
-    var TWEMOJI_CDN = 'https://cdn.masiarek.pl/twemoji/@latest/twemoji.min.js';
+    var TWEMOJI_CDN = 'https://cdn.masiar.io/twemoji/@latest/twemoji.min.js';
 
     // Base URL for Twemoji assets (SVG/PNG). Must end with "/".
     // With folder="svg" and ext=".svg", Twemoji will fetch:
     //   <base>svg/<codepoint>.svg
-    var TWEMOJI_BASE = 'https://cdn.masiarek.pl/twemoji/@latest/assets/';
+    var TWEMOJI_BASE = 'https://cdn.masiar.io/twemoji/@latest/assets/';
 
     function loadScriptOnce(src, cb) {
         // If already present (by src), don't load again

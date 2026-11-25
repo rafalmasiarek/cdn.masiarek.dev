@@ -1,0 +1,17 @@
+{
+  "package": "lite",
+  "version": "v1.1.0",
+  "channel": "stable",
+  "built_at": "2026-11-25T15:55:36Z",
+  "commit": "b4e56619ef8c6c4457efcf2e4c8e402a175df0a5",
+  "files": {
+    "lite.min.css": {
+      "integrity": "sha384-5Ul2uIrqh+rzlVsoyOB4tB1THF/rBl2RfU91x3eyZ9IhIaLpy9F0Nnd2Sw++GNof",
+      "bytes": 5504
+    },
+    "lite.min.css.map": {
+      "integrity": "sha384-/CvAFdn1rS09M02U4YY+J5+Z1t2fzAFBPy6lfT13WrbdXVyE00MD5eSsT3NE0Ne0",
+      "bytes": 11868
+    }
+  }
+}

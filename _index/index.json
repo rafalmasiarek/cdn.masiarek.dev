@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T02:29:43.536Z",
+  "generated_at": "2026-11-25T11:58:15Z",
   "packages": {
     "twemoji-windows": {
       "last_stable": {
@@ -242,6 +242,20 @@
         "homepage": "https://github.com/rafalmasiarek/cdn.masiarek.dev",
         "source_url": "https://github.com/rafalmasiarek/cdn.masiarek.dev"
       }
+    },
+    "lite": {
+      "last_stable": {
+        "version": "v1.0.0",
+        "channel": "stable",
+        "built_at": "2026-11-25T11:58:15Z"
+      },
+      "last_beta": null,
+      "last_latest": {
+        "version": "v1.0.0",
+        "channel": "stable",
+        "built_at": "2026-11-25T11:58:15Z"
+      },
+      "meta": null
     }
   }
 }

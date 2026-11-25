@@ -1,0 +1,26 @@
+:root{--lite-bg: #ffffff;--lite-text: #111827;--lite-muted: #6b7280;--lite-border: #e5e7eb;--lite-accent: #2563eb;--lite-danger-bg: #fef2f2;--lite-danger-text: #991b1b;--lite-success-bg: #f0fdf4;--lite-success-text: #166534;--lite-warning-bg: #fffbeb;--lite-warning-text: #92400e;--lite-required: #dc2626;--lite-code-bg: #f3f4f6;--lite-box-bg: #f9fafb;--lite-table-border: #cccccc;--lite-table-head-bg: #f5f5f5;--lite-width: 32rem}*{box-sizing:border-box}body{font-family:system-ui,sans-serif;max-width:var(--lite-width);margin:3rem auto;padding:0 1rem;color:var(--lite-text);background:var(--lite-bg);line-height:1.5}h1{font-size:1.5rem}h2{font-size:1.15rem;margin-top:2rem}h3{font-size:1rem;margin-top:1.5rem}a{color:var(--lite-accent)}hr{border:none;border-top:1px solid var(--lite-border);margin:2rem 0}ul,ol{padding-left:1.25rem}blockquote{margin:1rem 0;padding:.25rem 1rem;border-left:3px solid var(--lite-border);color:var(--lite-muted)}header,footer{text-align:center;color:var(--lite-muted);font-size:.85rem}header{margin-bottom:1.5rem}footer{margin-top:2.5rem}nav{margin-bottom:1.5rem;font-size:.9rem}nav a{text-decoration:none}nav a:hover{text-decoration:underline}label{display:block;margin-top:1rem;font-size:.9rem}input[type=text],input[type=number],input[type=email],input[type=password],input[type=url],input[type=search],textarea,select{width:100%;padding:.5rem;margin-top:.25rem;box-sizing:border-box;font:inherit;color:inherit;background:var(--lite-bg);border:1px solid var(--lite-border);border-radius:.25rem}button,input[type=submit]{margin-top:1.5rem;padding:.6rem 1.2rem;cursor:pointer;font:inherit;border:1px solid var(--lite-border);border-radius:.25rem;background:var(--lite-code-bg);color:inherit}button[disabled]{opacity:.6;cursor:default}.required{color:var(--lite-required)}.row{display:flex;gap:1rem;flex-wrap:wrap}.row>*{flex:1}.checkboxes{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem}.checkboxes label{display:flex;align-items:center;gap:.4rem;margin-top:0;font-size:.85rem}.box{background:var(--lite-box-bg);border-radius:.5rem;padding:1rem;margin-top:1rem}.error,.success,.warning{padding:.75rem;border-radius:.375rem;margin-top:1rem}.error{background:var(--lite-danger-bg);color:var(--lite-danger-text)}.success{background:var(--lite-success-bg);color:var(--lite-success-text)}.warning{background:var(--lite-warning-bg);color:var(--lite-warning-text)}table{width:100%;border-collapse:collapse;margin-top:1rem}th,td{text-align:center;padding:.625rem .75rem;border:1px solid var(--lite-table-border);font-size:.9rem}th{background:var(--lite-table-head-bg);font-weight:600}.kv-table td{text-align:left;padding:.4rem 0;border:none;border-bottom:1px solid var(--lite-border);vertical-align:top}.kv-table td:first-child{color:var(--lite-muted);width:40%}code{background:var(--lite-code-bg);padding:.1rem .3rem;border-radius:.25rem;font-size:.9em}pre{background:var(--lite-code-bg);padding:.75rem;border-radius:.375rem;overflow-x:auto;font-size:.85rem}pre code{background:none;padding:0}.spinner{display:inline-block;width:1rem;height:1rem;margin-left:.6rem;border:2px solid var(--lite-border);border-top-color:var(--lite-text);border-radius:50%;vertical-align:middle;animation:ui-spin .6s linear infinite}.spinner[hidden]{display:none}@keyframes ui-spin{to{transform:rotate(360deg)}}.logo{display:block;max-width:140px}.logo img{display:block;width:100%;height:auto}[hidden]{display:none!important}
+/*!
+ * lite.css - classless-first base CSS for small single-purpose tools.
+ * Docs (for humans and AI agents): see AGENT.md in this package.
+ *
+ * Masiarek Hosted-Use License
+ *
+ * Copyright (c) 2026 Rafał Masiarek. All rights reserved.
+ *
+ * Permission is granted to use this software, unmodified, exactly as
+ * served from its original source on cdn.masiar.io (formerly
+ * cdn.masiarek.pl), free of charge, for personal, non-commercial, and
+ * educational projects.
+ *
+ * Want to use it commercially? Contact rafal@masiarek.pl first.
+ *
+ * You may NOT copy, modify, merge, adapt, redistribute, sublicense,
+ * rehost, mirror, or create derivative works from this software, in
+ * source or compiled form. All use must load the software directly from
+ * the original source above.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM,
+ * DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+ */
+/*# sourceMappingURL=lite.min.css.map */

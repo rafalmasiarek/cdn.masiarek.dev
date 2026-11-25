@@ -1,0 +1,12 @@
+{
+  "name": "@cdn/lite",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Masiarek Hosted-Use License",
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}

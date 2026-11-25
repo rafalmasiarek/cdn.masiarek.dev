@@ -135,12 +135,26 @@ button[disabled] { opacity: 0.6; cursor: default; }
 /* Two-column sidebar + content shape, for a docs-style page — not a
    general grid system, just this one shape (see AGENT.md Philosophy).
    Applies directly to <body>: a <nav> and one other direct child, no
-   wrapper div needed. */
-.cols { display: grid; grid-template-columns: var(--lite-sidebar-width) 1fr; gap: 2rem; align-items: start; }
-.cols.sidebar-right { grid-template-columns: 1fr var(--lite-sidebar-width); }
-.cols.sidebar-right > nav { order: 2; }
-.cols > nav { position: sticky; top: 2rem; }
-.cols > :not(nav) { min-width: 0; }
+   wrapper div needed. An optional <header> and/or <footer> among the
+   same direct children span both columns automatically. Named areas
+   (not DOM order + auto-placement) drive placement, so nav can always
+   stay first in the DOM for reading order regardless of which side
+   it's shown on. */
+.cols {
+  display: grid;
+  grid-template-columns: var(--lite-sidebar-width) 1fr;
+  grid-template-areas: "header header" "nav main" "footer footer";
+  gap: 2rem;
+  align-items: start;
+}
+.cols.sidebar-right {
+  grid-template-columns: 1fr var(--lite-sidebar-width);
+  grid-template-areas: "header header" "main nav" "footer footer";
+}
+.cols > nav { grid-area: nav; position: sticky; top: 2rem; }
+.cols > header { grid-area: header; }
+.cols > footer { grid-area: footer; }
+.cols > :not(nav):not(header):not(footer) { grid-area: main; min-width: 0; }
 
 /* Optional collapsible nav, only active if a page opts in with its own
    tiny script (see AGENT.md) toggling the `hidden` attribute — inert
@@ -166,7 +180,10 @@ button[disabled] { opacity: 0.6; cursor: default; }
 .cols > nav > .nav-toggle { display: none; }
 
 @media (max-width: 640px) {
-  .cols { grid-template-columns: 1fr; }
+  .cols, .cols.sidebar-right {
+    grid-template-columns: 1fr;
+    grid-template-areas: "header" "nav" "main" "footer";
+  }
   .cols > nav { position: static; }
   .cols > nav > .nav-toggle {
     display: block;

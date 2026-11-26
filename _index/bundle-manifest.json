@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T18:23:26Z",
+  "generated_at": "2026-11-26T11:23:16.938Z",
   "base_url": "",
   "packages": {
     "twemoji-windows": {
@@ -37806,15 +37806,15 @@
     "coloris": {
       "channels": {
         "last_stable": {
-          "version": "v0.25.2",
+          "version": "v0.26.0",
           "channel": "stable",
-          "built_at": "2026-11-16T11:56:58.026Z"
+          "built_at": "2026-11-26T11:23:16.938Z"
         },
         "last_beta": null,
         "last_latest": {
-          "version": "v0.25.2",
+          "version": "v0.26.0",
           "channel": "stable",
-          "built_at": "2026-11-16T11:56:58.026Z"
+          "built_at": "2026-11-26T11:23:16.938Z"
         },
         "meta": {
           "name": "Coloris",
@@ -37825,6 +37825,29 @@
         }
       },
       "versions": {
+        "v0.26.0": {
+          "channel": "stable",
+          "built_at": "2026-11-26T11:23:16.938Z",
+          "commit": null,
+          "upstream": {
+            "type": "github-release",
+            "repo": "mdbassit/Coloris",
+            "tag": "v0.26.0",
+            "release_html_url": "https://github.com/mdbassit/Coloris/releases/tag/v0.26.0"
+          },
+          "files": {
+            "coloris.min.css": {
+              "url": "/coloris/v0.26.0/coloris.min.css",
+              "integrity": "sha384-DY3umZptOgjUNshBFbvu1+3RVFPoD1/CgGcc1yyJ77/aFOJ7jtN4BORnz/D/xF0n",
+              "bytes": 8506
+            },
+            "coloris.min.js": {
+              "url": "/coloris/v0.26.0/coloris.min.js",
+              "integrity": "sha384-qkId6iUiLamC8qvg7EE9Uhn3JCoMyharXzERkg4vNYxJxzlDzh+Kpsm2j+VKqkWt",
+              "bytes": 14322
+            }
+          }
+        },
         "v0.25.2": {
           "channel": "stable",
           "built_at": "2026-11-16T11:56:58.026Z",

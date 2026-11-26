@@ -50,9 +50,9 @@
     "last_upstream_stable_tag": "v5.36.0"
   },
   "coloris": {
-    "latest_key": "mdbassit/Coloris@latest:v0.25.2",
-    "last_upstream_tag": "v0.25.2",
-    "stable_key": "mdbassit/Coloris@stable:v0.25.2",
-    "last_upstream_stable_tag": "v0.25.2"
+    "latest_key": "mdbassit/Coloris@latest:v0.26.0",
+    "last_upstream_tag": "v0.26.0",
+    "stable_key": "mdbassit/Coloris@stable:v0.26.0",
+    "last_upstream_stable_tag": "v0.26.0"
   }
 }
